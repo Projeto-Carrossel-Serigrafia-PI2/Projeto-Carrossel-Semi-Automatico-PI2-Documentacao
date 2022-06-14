@@ -1,6 +1,6 @@
 # **Projeto Carrossel Semi Automático**
 
-[Ondrive geral da equipe](https://drive.google.com/drive/folders/1SNzbrYYBcQJrZGgxJxeI2e0fg5UQKnC_?usp=sharing)
+[Drive geral da equipe](https://drive.google.com/drive/folders/1SNzbrYYBcQJrZGgxJxeI2e0fg5UQKnC_?usp=sharing)
 
 ## Ponto de controle 1
 1. Relatório PC1;
