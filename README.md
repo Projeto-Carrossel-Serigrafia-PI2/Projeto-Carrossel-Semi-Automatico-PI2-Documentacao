@@ -1,6 +1,6 @@
 # **Projeto Carrossel Semi Automático**
 
-[Ondrive geral da equipe](https://unbbr-my.sharepoint.com/:f:/g/personal/170007057_aluno_unb_br/ElU6wsZ9GeRMhMLJWqyTwrIBUtGMYU7asUTWYxGCa1GnpA?e=95Ogdl)
+[Ondrive geral da equipe](https://drive.google.com/drive/folders/1SNzbrYYBcQJrZGgxJxeI2e0fg5UQKnC_?usp=sharing)
 
 ## Ponto de controle 1
 1. Relatório PC1;
