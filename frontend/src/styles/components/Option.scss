@@ -1,0 +1,15 @@
+#option {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  &:nth-child(n+2) {
+    margin-top: 3rem;
+  }
+
+  > h2 {
+    font-size: 1.4rem;
+    color: #E8E7EA;
+    margin-left: 1.5rem;
+  }
+}
