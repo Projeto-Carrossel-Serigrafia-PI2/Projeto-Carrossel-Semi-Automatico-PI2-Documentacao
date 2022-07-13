@@ -3,13 +3,21 @@
   flex-direction: row;
   align-items: center;
 
-  &:nth-child(n+2) {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+
+  &:nth-child(n + 2) {
     margin-top: 3rem;
   }
 
   > h2 {
     font-size: 1.4rem;
-    color: #E8E7EA;
+    color: #e8e7ea;
     margin-left: 1.5rem;
+  }
+
+  .session-active {
+    color: #b193ee;
   }
 }
