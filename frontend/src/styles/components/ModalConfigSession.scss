@@ -1,0 +1,44 @@
+#modal-session {
+  display: flex;
+  flex-direction: column;
+
+  > h3 {
+    text-align: center;
+  }
+
+  .param-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 100%;
+
+    .dropdown {
+      width: 14.8rem;
+      height: 3.2rem;
+      border: 0;
+      border-radius: 0.5rem;
+      background-color: #FFF;
+      outline: none;
+      cursor: pointer;
+
+      padding: 0.7rem 1rem;
+      color: #6A6A6B;
+    }
+
+    > h4 {
+      font-size: 1.4rem;
+      color: #39393A;
+      font-weight: 400;
+    }
+
+    > div {
+      display: flex;
+      flex-direction: row;
+
+      width: 14.8rem;
+      height: 3.2rem;
+    }
+  }
+}
