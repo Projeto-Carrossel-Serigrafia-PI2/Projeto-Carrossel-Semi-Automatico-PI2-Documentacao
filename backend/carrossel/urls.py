@@ -21,10 +21,8 @@ from sessao.api import viewset as SessaoViewSets
 
 route = routers.DefaultRouter()
 
-route.register(r'tinta',SessaoViewSets.TintaViewSets, basename='tinta')
-route.register(r'motor',SessaoViewSets.MotorViewSets, basename='motor')
-route.register(r'flashcure',SessaoViewSets.FlashCureViewSets, basename='flashcure')
-route.register(r'sessao',SessaoViewSets.SessaoViewSets, basename='sessao')
+route.register(r'tipoTinta',SessaoViewSets.TipoTintaViewSets, basename='tipo tinta')
+route.register(r'sessao',SessaoViewSets.SessaoViewSets, basename='sessão')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
