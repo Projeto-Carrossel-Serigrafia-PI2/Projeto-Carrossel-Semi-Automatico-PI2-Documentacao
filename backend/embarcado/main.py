@@ -26,6 +26,5 @@ class MotorController:
 	def stop(self):
 		self.pwm.stop()
 
-	def changeSpeed(self, rpm):
+	def setSpeed(self, rpm):
 		self.speed = RPM2Percentage(rpm)
-		self.pwm.ChangeDutyCycle(self.speed)
