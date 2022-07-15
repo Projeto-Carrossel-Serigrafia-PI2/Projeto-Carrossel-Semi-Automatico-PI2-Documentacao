@@ -10,6 +10,7 @@ export interface OptionProps {
 export interface ModalConfigSessionProps {
   isModalOpen: boolean;
   closeModal(): void;
+  setSessionActive: (value: string) => void;
 }
 
 export interface ButtonEditParamProps
