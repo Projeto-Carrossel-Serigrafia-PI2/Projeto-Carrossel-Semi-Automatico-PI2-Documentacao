@@ -1,25 +1,49 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import { FiMinus, FiPlus } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 
 import { Input } from './Input';
 import { ButtonEditParam } from './ButtonEditParam';
+import { ButtonConfirm } from './ButtonConfirm';
 
-import { ModalConfigSessionProps } from '../utils/types';
+import {
+  ModalConfigSessionProps,
+  PaintProps,
+  SessionProps,
+} from '../utils/types';
+import paintService from '../services/paintService';
+import sessionService from '../services/sessionService';
 
 import '../styles/components/ModalConfigSession.scss';
+import 'react-toastify/dist/ReactToastify.css';
 
 export function ModalConfigSession(props: ModalConfigSessionProps) {
-  const [paint, setPaint] = useState(0);
+  const [paints, setPaints] = useState<PaintProps[]>([]);
+  const [typePaint, setTypePaint] = useState('Selecione');
+  const [quantityPaint, setQuantityPaint] = useState(0);
   const [temperature, setTemperature] = useState(0);
   const [speed, setSpeed] = useState(0);
 
+  const notify = () =>
+    toast('Sessão criada com sucesso', {
+      position: 'top-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: 'dark',
+      type: 'success',
+    });
+
   const handleIncreasePaint = () => {
-    setPaint(paint + 1);
+    setQuantityPaint(quantityPaint + 1);
   };
 
   const handleDecreasePaint = () => {
-    setPaint(paint - 1);
+    setQuantityPaint(quantityPaint - 1);
   };
 
   const handleIncreaseTemperature = () => {
@@ -37,6 +61,46 @@ export function ModalConfigSession(props: ModalConfigSessionProps) {
   const handleDecreaseSpeed = () => {
     setSpeed(speed - 5);
   };
+
+  const handleConfigSession = () => {
+    const data: SessionProps = {
+      quantityPaint,
+      temperatureFlashcure: temperature,
+      speedEngine: speed,
+      typePaint: typePaint,
+    };
+
+    sessionService.sessionCreate(data);
+    props.setIsModalOpen(false);
+    props.setSessionActive('none');
+
+    notify();
+  };
+
+  useEffect(() => {
+    async function getPaints() {
+      const response = await paintService.paintGetAll();
+
+      let data: PaintProps[] = [];
+
+      for (let index = 0; index < response.length; index++) {
+        let new_paint: PaintProps;
+        new_paint = {
+          id: response[index].id,
+          type: response[index].tipo,
+          speedDefault: response[index].velocidadePadrao,
+          temperatureDefault: response[index].temperaturaPadrao,
+        };
+
+        data.push(new_paint);
+      }
+
+      setPaints(data);
+    }
+
+    getPaints();
+  }, []);
+
   return (
     <Modal
       isOpen={props.isModalOpen}
@@ -68,10 +132,17 @@ export function ModalConfigSession(props: ModalConfigSessionProps) {
         <div className="param-box">
           <h4>Tipo de tinta:</h4>
 
-          <select name="" className="dropdown">
+          <select
+            value={typePaint}
+            onChange={(e) => setTypePaint(e.target.value)}
+            className="dropdown"
+          >
             <option value="">Selecione</option>
-            <option value="">Base d'água</option>
-            <option value="">Plastisol</option>
+            {paints.map((paint) => (
+              <option key={paint.id} value={paint.id}>
+                {paint.type}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -81,8 +152,8 @@ export function ModalConfigSession(props: ModalConfigSessionProps) {
           <div>
             <Input
               placeholder="0"
-              value={paint}
-              onChange={(e) => setPaint(Number(e.target.value))}
+              value={quantityPaint}
+              onChange={(e) => setQuantityPaint(Number(e.target.value))}
             />
             <ButtonEditParam
               icon={<FiPlus size={18} color="#6A6A6B" />}
@@ -96,12 +167,17 @@ export function ModalConfigSession(props: ModalConfigSessionProps) {
         </div>
 
         <div className="param-box">
-          <h4>Temperatura flashcure:</h4>
+          <h4>Temperatura flashcure (°C):</h4>
 
           <div>
             <Input
               placeholder="0 °C"
-              value={`${temperature} °C`}
+              value={
+                typePaint
+                  ? paints.find((paint) => paint.id === typePaint)
+                      ?.temperatureDefault
+                  : temperature
+              }
               onChange={(e) => setTemperature(Number(e.target.value))}
             />
             <ButtonEditParam
@@ -116,12 +192,16 @@ export function ModalConfigSession(props: ModalConfigSessionProps) {
         </div>
 
         <div className="param-box">
-          <h4>Velocidade motor:</h4>
+          <h4>Velocidade motor (RPM):</h4>
 
           <div>
             <Input
               placeholder="0 RPM"
-              value={`${speed} RPM`}
+              value={
+                typePaint
+                  ? paints.find((paint) => paint.id === typePaint)?.speedDefault
+                  : speed
+              }
               onChange={(e) => setSpeed(Number(e.target.value))}
             />
             <ButtonEditParam
@@ -134,6 +214,8 @@ export function ModalConfigSession(props: ModalConfigSessionProps) {
             />
           </div>
         </div>
+
+        <ButtonConfirm title="Salvar" onClick={handleConfigSession} />
       </div>
     </Modal>
   );
