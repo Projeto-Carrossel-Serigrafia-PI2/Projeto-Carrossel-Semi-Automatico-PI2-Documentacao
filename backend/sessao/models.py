@@ -7,7 +7,7 @@ from uuid import uuid4
 class tipoTinta(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     tipo = models.TextField('Tipo Tinta', max_length=200 ,null=True)
-    velocidadePadrao =  models.IntegerField('Velocidade Padrão RMP', default=0)
+    velocidadePadrao =  models.IntegerField('Velocidade Padrão RPM', default=0)
     temperaturaPadrao = models.IntegerField('Temperatura Padrão ºC', default=0)
     class Meta:
         ordering = ('tipo',)
@@ -18,8 +18,8 @@ class tipoTinta(models.Model):
 class Sessao(models.Model):
     idsessao = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     tipoTinta = models.ForeignKey(tipoTinta, on_delete=models.SET_NULL, null=True)
-    quantidadeTinta = models.IntegerField('Quantidade Tinta ºC.', default=0)
-    TempFlashCure =  models.IntegerField('Temperatura ºC.', default=0)
+    quantidadeTinta = models.IntegerField('Quantidade Tinta', default=0)
+    TempFlashCure =  models.IntegerField('Temperatura ºC', default=0)
     velocidadeMotor = models.IntegerField('Velocidade RPM',default=0) 
     class Meta:
         ordering = ('idsessao',)

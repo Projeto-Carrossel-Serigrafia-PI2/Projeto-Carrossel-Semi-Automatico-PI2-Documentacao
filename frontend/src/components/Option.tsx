@@ -4,9 +4,9 @@ import '../styles/components/Option.scss'
 
 export function Option(props: OptionProps) {
   return (
-    <div id="option">
+    <button id="option" onClick={props.onClick}>
       {props.icon}
-      <h2>{props.title}</h2>
-    </div>
+      <h2 className={props.active ? 'session-active' : ''}>{props.title}</h2>
+    </button>
   )
 }
