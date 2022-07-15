@@ -27,6 +27,7 @@ export function SideBar() {
         isModalOpen={isModalConfigSessionVisible}
         closeModal={closeModal}
         setSessionActive={setSessionActive}
+        setIsModalOpen={setIsModalConfigSessionVisible}
       />
 
       <header>

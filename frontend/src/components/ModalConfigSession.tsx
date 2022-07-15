@@ -24,7 +24,6 @@ export function ModalConfigSession(props: ModalConfigSessionProps) {
   const [quantityPaint, setQuantityPaint] = useState(0);
   const [temperature, setTemperature] = useState(0);
   const [speed, setSpeed] = useState(0);
-  const [modalOpen, setModalOpen] = useState(true);
 
   const notify = () =>
     toast('Sessão criada com sucesso', {
@@ -72,7 +71,7 @@ export function ModalConfigSession(props: ModalConfigSessionProps) {
     };
 
     sessionService.sessionCreate(data);
-    setModalOpen(false);
+    props.setIsModalOpen(false);
     props.setSessionActive('none');
 
     notify();
@@ -104,7 +103,7 @@ export function ModalConfigSession(props: ModalConfigSessionProps) {
 
   return (
     <Modal
-      isOpen={modalOpen === false ? false : props.isModalOpen}
+      isOpen={props.isModalOpen}
       onRequestClose={props.closeModal}
       ariaHideApp={false}
       style={{
@@ -173,7 +172,12 @@ export function ModalConfigSession(props: ModalConfigSessionProps) {
           <div>
             <Input
               placeholder="0 °C"
-              value={temperature}
+              value={
+                typePaint
+                  ? paints.find((paint) => paint.id === typePaint)
+                      ?.temperatureDefault
+                  : temperature
+              }
               onChange={(e) => setTemperature(Number(e.target.value))}
             />
             <ButtonEditParam
@@ -193,7 +197,11 @@ export function ModalConfigSession(props: ModalConfigSessionProps) {
           <div>
             <Input
               placeholder="0 RPM"
-              value={speed}
+              value={
+                typePaint
+                  ? paints.find((paint) => paint.id === typePaint)?.speedDefault
+                  : speed
+              }
               onChange={(e) => setSpeed(Number(e.target.value))}
             />
             <ButtonEditParam
