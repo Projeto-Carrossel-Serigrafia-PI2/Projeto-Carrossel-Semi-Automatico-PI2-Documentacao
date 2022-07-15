@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 
 def RPM2Percentage(rpm, limits):
-	if(rpm > limits.upper OR rpm < limits.lower):
+	if(rpm > limits[1] or rpm < limits[0]):
 		raise ValueError("RPM provided is not within the defined limits.")
 
 	# Linear
@@ -9,7 +9,7 @@ def RPM2Percentage(rpm, limits):
 
 class MotorController:
 	def __init__(self, rpm, channel=5, frequency=20):
-		self.speed = RPM2Percentage(rpm)
+		self.speed = RPM2Percentage(rpm) * 100
 
 		GPIO.setmode(GPIO.BOARD)
 		GPIO.setup(channel, GPIO.OUT)
@@ -27,4 +27,4 @@ class MotorController:
 		self.pwm.stop()
 
 	def setSpeed(self, rpm):
-		self.speed = RPM2Percentage(rpm)
+		self.speed = RPM2Percentage(rpm) * 100
