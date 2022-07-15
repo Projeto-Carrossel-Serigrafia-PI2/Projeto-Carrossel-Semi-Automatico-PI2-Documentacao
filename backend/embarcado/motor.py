@@ -5,7 +5,7 @@ def RPM2Percentage(rpm, limits):
 		raise ValueError("RPM provided is not within the defined limits.")
 
 	# Linear
-	return rpm/limits.upper
+	return rpm/limits[1]
 
 class MotorController:
 	def __init__(self, rpm, channel=5, frequency=20):
@@ -20,7 +20,7 @@ class MotorController:
 		self.stop()
 		GPIO.cleanup()
 
-	def start(self, rpm):
+	def start(self):
 		self.pwm.start(self.speed)
 
 	def stop(self):
