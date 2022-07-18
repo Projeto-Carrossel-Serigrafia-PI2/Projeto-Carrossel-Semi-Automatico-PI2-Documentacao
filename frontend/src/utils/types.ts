@@ -42,3 +42,9 @@ export interface PaintProps {
   dryingTemperature: number;
   dryingTime: number;
 }
+
+export interface ColorProps {
+  id?: string;
+  color: string;
+  type: string;
+}
