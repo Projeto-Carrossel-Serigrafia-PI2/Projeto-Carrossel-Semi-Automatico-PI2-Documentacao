@@ -14,7 +14,6 @@ python -m venv venv
 ``` bash
  pip install django djangorestframework
 ```
-```
 ``` bash
 python manage.py makemigrations
 ```
