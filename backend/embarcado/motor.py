@@ -8,7 +8,7 @@ def RPM2Percentage(rpm, limits):
 	return rpm/limits[1]
 
 class MotorController:
-	def __init__(self, rpm, channel=5, frequency=20):
+	def __init__(self, rpm, channel=7, frequency=1):
 		self.speed = RPM2Percentage(rpm) * 100
 
 		GPIO.setmode(GPIO.BOARD)
