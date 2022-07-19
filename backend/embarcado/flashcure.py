@@ -8,7 +8,7 @@ def celsius2Percentage(celsius, limits):
 	return celsius/limits[1]
 
 class FlashcureController:
-	def __init__(self, celsius, channel=12, frequency=20):
+	def __init__(self, celsius, channel=5, frequency=1):
 		self.temperature = celsius2Percentage(celsius) * 100
 
 		GPIO.setmode(GPIO.BOARD)
