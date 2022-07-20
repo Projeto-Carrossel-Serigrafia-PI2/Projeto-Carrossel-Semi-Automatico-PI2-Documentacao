@@ -1,6 +1,8 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from carrossel.settings import CONFIG
+
 import functools
 
 import RPi.GPIO as GPIO
@@ -8,32 +10,44 @@ import RPi.GPIO as GPIO
 from sessao.models import Sessao
 from embarcado.motor import MotorController
 
+MOTOR_STEP = CONFIG['ENCODER_HOLES']/4
+
+inSession = False
+encoderCounter = 0
+
 motorController = None
 
 def cleanCallbacks():
-	GPIO.remove_event_detect(3) #Might need to put the channel into config
+	GPIO.remove_event_detect(CONFIG['PIN']['PEDAL'])
+	GPIO.remove_event_detect(CONFIG['PIN']['ENCODER'])
 
-def pedalHandler(motorController, channel):
-	motorController.setSpeed(2)
-	motorController.start()
+def pedalHandler(channel):
+	if motorController.isRotating is False:
+		motorController.start()
+
+def encoderHandler(channel):
+	encoderCounter += 1
+
+	if(encoderCounter >= MOTOR_STEP):
+		motorController.stop()
+		encoderCounter = 0
 
 class IniciarSessaoView(APIView):
-	inSession = False
-
 	def post(self, request):
-		if IniciarSessaoView.inSession is False:
+		if inSession is False:
 			try:
-				session = Sessao.objects.get(pk=request.data["id"])
+				session = Sessao.objects.get(pk=request.data['id'])
 				motorController = MotorController.instance(session.velocidadeMotor)
 
 				cleanCallbacks()
-				GPIO.add_event_detect(3, GPIO.FALLING, callback=functools.partial(pedalHandler, motorController), bouncetime=50)
+				GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
+				GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=25) # Move to pedalHandler if user can move motor manually
 
-				IniciarSessaoView.inSession = True
+				inSession = True
 
-				return Response({"error": False})
+				return Response({'error': False})
 
 			except:
-				return Response({"error": True})
+				return Response({'error': True})
 
-		return Response({"error": True, "description": "Already in session."})
+		return Response({'error': True, 'description': 'Already in session.'})
