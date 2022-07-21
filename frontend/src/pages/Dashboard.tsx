@@ -12,7 +12,16 @@ export function Dashboard() {
 
       <SideBar />
 
-      <h2>Dashboard</h2>
+      <div class="main">
+        <h2>Dashboard</h2>
+        
+        <div class="content">
+          <div class="temperatura"></div>
+          <div class="qualidade"></div>
+          <div class="tinta"></div>
+          <div class="tempo"></div>
+        </div>
+      </div>
     </div>
   );
 }
