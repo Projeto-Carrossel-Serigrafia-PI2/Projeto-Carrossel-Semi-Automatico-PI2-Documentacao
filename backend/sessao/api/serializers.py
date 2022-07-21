@@ -1,12 +1,22 @@
 from rest_framework import serializers
 from sessao import models 
 
-class tipoTintaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.tipoTinta
-        fields = '__all__'   
+class BaseSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = models.Base
+    fields = '__all__'   
 
-class SessaoSerializer(serializers.ModelSerializer):
+
+class ProducaoSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = models.Producao
+    fields = '__all__'       
+
+class BaseProducaoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Sessao
-        fields = '__all__'        
+        model = models.BaseProducao
+        fields = '__all__'   
+class LoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Lote
+        fields = '__all__'           

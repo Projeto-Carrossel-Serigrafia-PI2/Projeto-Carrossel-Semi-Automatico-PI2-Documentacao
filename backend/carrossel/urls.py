@@ -21,8 +21,10 @@ from sessao.api import viewset as SessaoViewSets
 
 route = routers.DefaultRouter()
 
-route.register(r'tipoTinta',SessaoViewSets.TipoTintaViewSets, basename='tipo tinta')
-route.register(r'sessao',SessaoViewSets.SessaoViewSets, basename='sessão')
+route.register(r'base',SessaoViewSets.baseViewSets, basename='base')
+route.register(r'producao',SessaoViewSets.ProducaoViewSets, basename='producao')
+route.register(r'baseProducao',SessaoViewSets.BaseProducaoViewSets,basename = 'baseProducao')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
