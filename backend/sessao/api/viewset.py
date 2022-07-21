@@ -34,5 +34,5 @@ class ProducaoViewSets (viewsets.ModelViewSet):
     return Response(status=status.HTTP_200_OK)
 class BaseProducaoViewSets (viewsets.ModelViewSet):
     serializer_class = serializers.BaseProducaoSerializer
-    queryset = models.Base.objects.all()
+    queryset = models.BaseProducao.objects.all()
 
