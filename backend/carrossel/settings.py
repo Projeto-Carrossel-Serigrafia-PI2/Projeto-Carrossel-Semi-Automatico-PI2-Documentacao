@@ -135,8 +135,8 @@ CONFIG = {
     },
     'FREQUENCY': 1,
     'LIMITS': {
-        'MOTOR': [0, 10],
-        'FLASHCURE': [0, 40],
+        'MOTOR': [0, 240],
+        'FLASHCURE': [0, 1000],
     },
     'ENCODER_HOLES': 20,
 }

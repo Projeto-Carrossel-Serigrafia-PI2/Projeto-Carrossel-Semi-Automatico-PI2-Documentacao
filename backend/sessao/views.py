@@ -3,8 +3,6 @@ from rest_framework.views import APIView
 
 from carrossel.settings import CONFIG
 
-import functools
-
 import RPi.GPIO as GPIO
 
 from sessao.models import Sessao
@@ -26,6 +24,8 @@ def pedalHandler(channel):
 		motorController.start()
 
 def encoderHandler(channel):
+	global encoderCounter
+	
 	encoderCounter += 1
 
 	if(encoderCounter >= MOTOR_STEP):
@@ -34,9 +34,12 @@ def encoderHandler(channel):
 
 class IniciarSessaoView(APIView):
 	def post(self, request):
+		global inSession
+		global motorController
+
 		if inSession is False:
 			try:
-				session = Sessao.objects.get(pk=request.data['id'])
+				session = Sessao.objects.last()
 				motorController = MotorController.instance(session.velocidadeMotor)
 
 				cleanCallbacks()
