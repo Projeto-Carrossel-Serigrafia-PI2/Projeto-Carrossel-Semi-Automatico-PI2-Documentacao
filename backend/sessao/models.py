@@ -22,7 +22,6 @@ class BaseProducao(models.Model):
     base = models.ForeignKey(Base, related_name="producao_tipoTinta", on_delete=models.CASCADE)
     producao = models.ForeignKey(Producao,related_name="producao_tipoTinta", on_delete=models.CASCADE)
     cor = models.TextField('cor', max_length=200 ,default='branca')
-    ordem =  models.IntegerField('ordem',default=1)
 
 class Lote(models.Model):
     quantidadeDeCamisetas = models.IntegerField('quantidade de camisetas',default=4)
