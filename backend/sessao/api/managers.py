@@ -19,5 +19,5 @@ class ProducaoManager(models.Manager):
                     cor=base['cor'],
                     producao=producao
                 )
-        breakpoint()
+
         return producao
