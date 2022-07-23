@@ -32,6 +32,7 @@ class ProducaoViewSets (viewsets.ModelViewSet):
         lote = models.Lote.objects.create(quantidadeDeCamisetas = qtdCamisaUltimoLote ,producao = Producao)
         lote.save
     return Response(status=status.HTTP_200_OK)
+
 class BaseProducaoViewSets (viewsets.ModelViewSet):
     serializer_class = serializers.BaseProducaoSerializer
     queryset = models.BaseProducao.objects.all()
