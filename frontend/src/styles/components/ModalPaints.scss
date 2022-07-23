@@ -19,17 +19,17 @@
       height: 3.2rem;
       border: 0;
       border-radius: 0.5rem;
-      background-color: #FFF;
+      background-color: #fff;
       outline: none;
       cursor: pointer;
 
       padding: 0.7rem 1rem;
-      color: #6A6A6B;
+      color: #6a6a6b;
     }
 
     > h4 {
       font-size: 1.4rem;
-      color: #39393A;
+      color: #39393a;
       font-weight: 400;
     }
 
@@ -39,6 +39,9 @@
 
       width: 14.8rem;
       height: 3.2rem;
+      border-radius: 0.5rem;
+
+      overflow: hidden;
     }
   }
 }

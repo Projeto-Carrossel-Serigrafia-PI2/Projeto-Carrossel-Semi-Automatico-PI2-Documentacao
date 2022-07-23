@@ -1,8 +1,7 @@
 #dashboard {
-  display: flex;
-  flex-direction: row;
   background-color: #E8E7EA;
   height: 100vh;
+  flex: 1 1 auto;
 
   > .main {
     display: flex;

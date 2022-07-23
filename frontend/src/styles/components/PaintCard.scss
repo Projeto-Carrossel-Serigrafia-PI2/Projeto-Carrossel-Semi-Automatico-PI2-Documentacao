@@ -1,0 +1,36 @@
+#paint-card {
+  display: flex;
+  flex-direction: column;
+
+  width: 60%;
+  margin: 3rem 5rem 0 0;
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+
+  background-color: #FFF;
+
+  .data-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    h2 {
+      font-size: 2rem;
+    }
+
+    > p {
+      color: #39393A;
+    }
+  }
+
+  .buttons-group {
+    display: flex;
+    flex-direction: row;
+    align-self: flex-end;
+
+    > div {
+      margin-right: 1rem;
+    }
+  }
+}
