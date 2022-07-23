@@ -26,9 +26,6 @@ export function Dashboard() {
       setProductionParameters(JSON.parse(PRODUCTION_PARAMETERS));
   }, []);
 
-  console.log(JSON.stringify(productionParameters))
-  console.log(JSON.stringify(currentState))
-
   return (
     <div id="dashboard">
       <ToastContainer />
