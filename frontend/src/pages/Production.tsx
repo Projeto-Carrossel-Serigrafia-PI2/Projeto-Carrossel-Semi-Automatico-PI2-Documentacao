@@ -80,6 +80,14 @@ export function Production() {
     setColors([...colors, newColor]);
   }
 
+  function submitProduction() {
+    localStorage.setItem('PRODUCTION_PARAMETERS', JSON.stringify({
+      paints: colors,
+      shirtQuantity: quantityTShirts,
+      batches: Math.ceil(quantityTShirts/4)
+    }));
+  }
+
   return (
     <div id="production">
       <h1>Produção</h1>
@@ -158,7 +166,7 @@ export function Production() {
           </div>
           <ButtonConfirm
             title="Iniciar produção"
-            onClick={() => console.log(colors)}
+            onClick={submitProduction}
           />
         </div>
       </main>
