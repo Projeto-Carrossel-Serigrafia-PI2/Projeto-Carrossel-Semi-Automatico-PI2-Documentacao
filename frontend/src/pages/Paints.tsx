@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
 import { PaintCard } from '../components/PaintCard';
+import { ButtonConfirm } from '../components/ButtonConfirm';
+import { ModalPaints } from '../components/ModalPaints';
+import paintService from '../services/paintService';
 import { PaintProps } from '../utils/types';
 
 import '../styles/pages/Paints.scss';
-import { ButtonConfirm } from '../components/ButtonConfirm';
-import { ModalPaints } from '../components/ModalPaints';
 
 export function Paints() {
   const [paints, setPaints] = useState<PaintProps[]>([]);
@@ -21,10 +23,32 @@ export function Paints() {
     setIsModalOpen(false);
   };
 
+  useEffect(() => {
+    async function getAllPaintsType() {
+      const response = await paintService.paintGetAll();
+
+      const data: PaintProps[] = [];
+
+      for (let index = 0; index < response.data.length; index++) {
+        data.push({
+          id: response.data[index].id,
+          type: response.data[index].tipo,
+          dryingTemperature: response.data[index].temperaturaSecagem,
+          dryingTime: response.data[index].tempoSecagem,
+        });
+      }
+
+      setPaints(data);
+    }
+
+    getAllPaintsType();
+  }, [isModalOpen]);
+
   return (
     <div id="paints">
       <ModalPaints
         isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
         closeModal={closeModal}
         paint={{ type: typePaint, dryingTemperature, dryingTime }}
         mode="criar"
@@ -42,8 +66,15 @@ export function Paints() {
         </div>
       </header>
 
-      <PaintCard type="base de água" dryingTemperature={120} dryingTime={5} />
-      <PaintCard type="plastisol" dryingTemperature={170} dryingTime={7} />
+      {paints.map((paint) => (
+        <PaintCard
+          key={paint.id}
+          id={paint.id}
+          type={paint.type}
+          dryingTemperature={paint.dryingTemperature}
+          dryingTime={paint.dryingTime}
+        />
+      ))}
     </div>
   );
 }

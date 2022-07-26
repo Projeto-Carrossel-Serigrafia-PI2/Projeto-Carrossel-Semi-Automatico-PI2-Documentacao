@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Modal from 'react-modal';
 import { FiMinus, FiPlus } from 'react-icons/fi';
-import { toast } from 'react-toastify';
 
 import { Input } from './Input';
 import { ButtonEditParam } from './ButtonEditParam';
 import { ButtonConfirm } from './ButtonConfirm';
-
 import { ModalPaintsProps } from '../utils/types';
+import paintService from '../services/paintService';
+import { notify_success, notify_update, notify_error } from '../utils/toastify';
 
 import '../styles/components/ModalPaints.scss';
-import 'react-toastify/dist/ReactToastify.css';
 
 export function ModalPaints(props: ModalPaintsProps) {
   const [typePaint, setTypePaint] = useState(props.paint.type);
@@ -18,19 +17,6 @@ export function ModalPaints(props: ModalPaintsProps) {
     props.paint.dryingTemperature
   );
   const [dryingTime, setDryingTime] = useState(props.paint.dryingTime);
-
-  const notify = () =>
-    toast('Sessão criada com sucesso', {
-      position: 'top-right',
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: 'dark',
-      type: 'success',
-    });
 
   const handleIncreaseTemperature = () => {
     setDryingTemperature(dryingTemperature + 5);
@@ -48,44 +34,38 @@ export function ModalPaints(props: ModalPaintsProps) {
     setDryingTime(dryingTime - 1);
   };
 
-  const handleConfigSession = () => {
-    // const data: SessionProps = {
-    //   quantityPaint,
-    //   temperatureFlashcure: temperature,
-    //   speedEngine: speed,
-    //   typePaint: typePaint,
-    // };
+  const handleNewPaint = async () => {
+    try {
+      await paintService.paintCreate({
+        type: typePaint,
+        dryingTemperature,
+        dryingTime,
+      });
 
-    // sessionService.sessionCreate(data);
-    // props.setIsModalOpen(false);
-    // props.setSessionActive('none');
-
-    notify();
+      notify_success('Tinta criada com sucesso!');
+      props.setIsModalOpen!(false);
+    } catch (error) {
+      notify_error('Não foi possível criar uma nova tinta!');
+      console.log(error);
+    }
   };
 
-  // useEffect(() => {
-  //   async function getPaints() {
-  //     const response = await paintService.paintGetAll();
+  const handleUpdatePaint = async () => {
+    try {
+      await paintService.paintUpdate({
+        id: props.paint.id,
+        type: typePaint,
+        dryingTemperature,
+        dryingTime,
+      });
 
-  //     let data: PaintProps[] = [];
-
-  //     for (let index = 0; index < response.length; index++) {
-  //       let new_paint: PaintProps;
-  //       new_paint = {
-  //         id: response[index].id,
-  //         type: response[index].tipo,
-  //         speedDefault: response[index].velocidadePadrao,
-  //         temperatureDefault: response[index].temperaturaPadrao,
-  //       };
-
-  //       data.push(new_paint);
-  //     }
-
-  //     setPaints(data);
-  //   }
-
-  //   // getPaints();
-  // }, []);
+      notify_update('Tinta atualizada com sucesso!');
+      props.setIsModalOpen!(false);
+    } catch (error) {
+      notify_error('Não foi possível criar uma nova tinta!');
+      console.log(error);
+    }
+  };
 
   return (
     <Modal
@@ -114,23 +94,6 @@ export function ModalPaints(props: ModalPaintsProps) {
     >
       <div id="modal-session">
         <h3>{props.mode === 'criar' ? 'Criar' : 'Editar'} tinta</h3>
-
-        {/* <div className="param-box">
-          <h4>Tipo de tinta:</h4>
-
-          <select
-            value={typePaint}
-            onChange={(e) => setTypePaint(e.target.value)}
-            className="dropdown"
-          >
-            <option value="">Selecione</option>
-            {paints.map((paint) => (
-              <option key={paint.id} value={paint.id}>
-                {paint.type}
-              </option>
-            ))}
-          </select>
-        </div> */}
 
         <div className="param-box">
           <h4>Tipo de tinta:</h4>
@@ -185,7 +148,10 @@ export function ModalPaints(props: ModalPaintsProps) {
           </div>
         </div>
 
-        <ButtonConfirm title="Salvar" onClick={handleConfigSession} />
+        <ButtonConfirm
+          title="Salvar"
+          onClick={props.mode === 'criar' ? handleNewPaint : handleUpdatePaint}
+        />
       </div>
     </Modal>
   );
