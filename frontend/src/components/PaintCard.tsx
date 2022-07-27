@@ -2,8 +2,9 @@ import { useState } from 'react';
 
 import { ButtonConfirm } from './ButtonConfirm';
 import { ModalPaints } from './ModalPaints';
-
 import { PaintProps } from '../utils/types';
+import { notify_error, notify_success } from '../utils/toastify';
+import paintService from '../services/paintService';
 
 import '../styles/components/PaintCard.scss';
 
@@ -16,13 +17,24 @@ export function PaintCard(props: PaintProps) {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    // setSessionActive('none');
+  };
+
+  const handleDeletePaint = async () => {
+    try {
+      await paintService.paintDelete(props.id!);
+      setIsModalOpen!(false);
+      notify_success('Tinta deletada com sucesso!');
+    } catch (error) {
+      notify_error('Não foi possível deletar a tinta!');
+      console.log(error);
+    }
   };
 
   return (
     <div id="paint-card">
       <ModalPaints
         isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
         closeModal={closeModal}
         paint={props}
         mode="editar"
@@ -47,7 +59,11 @@ export function PaintCard(props: PaintProps) {
         <div>
           <ButtonConfirm title="Editar" color="#1F272D" onClick={openModal} />
         </div>
-        <ButtonConfirm title="Remover" color="#DE5757" />
+        <ButtonConfirm
+          title="Remover"
+          color="#DE5757"
+          onClick={handleDeletePaint}
+        />
       </div>
     </div>
   );

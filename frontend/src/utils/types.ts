@@ -37,14 +37,14 @@ export interface SessionProps {
 }
 
 export interface PaintProps {
-  id?: string;
+  id?: number;
   type: string;
   dryingTemperature: number;
   dryingTime: number;
 }
 
 export interface ColorProps {
-  id?: string;
+  id?: number;
   color: string;
-  type: string;
+  type: number;
 }

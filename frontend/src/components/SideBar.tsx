@@ -1,36 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaTshirt, FaAward } from 'react-icons/fa';
 import { RiPaintFill, RiDashboardLine } from 'react-icons/ri';
-import { Navigate } from 'react-router-dom';
 
 import { Option } from '../components/Option';
-import { ModalPaints } from '../components/ModalPaints';
 
 import '../styles/components/SideBar.scss';
 
 export function SideBar() {
-  const [sessionActive, setSessionActive] = useState('production-session');
-  const [isModalConfigSessionVisible, setIsModalConfigSessionVisible] =
-    useState(false);
+  const [pageActive, setPageActive] = useState('production');
 
-  const openModal = () => {
-    setIsModalConfigSessionVisible(true);
-  };
+  function saveCurrentPage(page: string) {
+    sessionStorage.setItem('@SERIGRAFIA:current-page', page);
+  }
 
-  const closeModal = () => {
-    setIsModalConfigSessionVisible(false);
-    setSessionActive('none');
-  };
+  function getCurrentPage() {
+    const current_page = sessionStorage.getItem('@SERIGRAFIA:current-page');
+    setPageActive(current_page!);
+  }
+
+  useEffect(() => {
+    getCurrentPage();
+  }, []);
 
   return (
     <div id="sidebar">
-      {/* <ModalPaints
-        isModalOpen={isModalConfigSessionVisible}
-        closeModal={closeModal}
-        setSessionActive={setSessionActive}
-        setIsModalOpen={setIsModalConfigSessionVisible}
-      /> */}
-
       <header>
         <h1>Project Logo</h1>
       </header>
@@ -40,17 +33,15 @@ export function SideBar() {
           icon={
             <FaTshirt
               size={18}
-              color={
-                sessionActive === 'production-session' ? '#B193EE' : '#E8E7EA'
-              }
+              color={pageActive === 'production' ? '#B193EE' : '#E8E7EA'}
             />
           }
           title="Produção"
-          active={sessionActive === 'production-session'}
+          active={pageActive === 'production'}
           route="/"
           onClick={() => {
-            setSessionActive('production-session');
-            // return <Navigate to="/production" replace={true} />
+            setPageActive('production');
+            saveCurrentPage('production');
           }}
         />
 
@@ -58,17 +49,15 @@ export function SideBar() {
           icon={
             <RiDashboardLine
               size={18}
-              color={
-                sessionActive === 'dashboard-session' ? '#B193EE' : '#E8E7EA'
-              }
+              color={pageActive === 'dashboard' ? '#B193EE' : '#E8E7EA'}
             />
           }
           title="Dashboard"
-          active={sessionActive === 'dashboard-session'}
+          active={pageActive === 'dashboard'}
           route="/dashboard"
           onClick={() => {
-            setSessionActive('dashboard-session');
-            // return <Navigate to="/production" replace={true} />
+            setPageActive('dashboard');
+            saveCurrentPage('dashboard');
           }}
         />
 
@@ -76,15 +65,15 @@ export function SideBar() {
           icon={
             <RiPaintFill
               size={18}
-              color={sessionActive === 'paint-session' ? '#B193EE' : '#E8E7EA'}
+              color={pageActive === 'paint' ? '#B193EE' : '#E8E7EA'}
             />
           }
           title="Tintas"
-          active={sessionActive === 'paint-session'}
+          active={pageActive === 'paint'}
           route="/paints"
           onClick={() => {
-            setSessionActive('paint-session');
-            <Navigate to="/paints" replace={true} />;
+            setPageActive('paint');
+            saveCurrentPage('paint');
           }}
         />
 

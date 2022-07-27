@@ -1,38 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FiPlus, FiMinus } from 'react-icons/fi';
-
-import { ColorProps, PaintProps } from '../utils/types';
+import { toast } from 'react-toastify';
 
 import { Input } from '../components/Input';
 import { ButtonConfirm } from '../components/ButtonConfirm';
 import { ButtonEditParam } from '../components/ButtonEditParam';
+import productionService from '../services/productionService';
+import paintService from '../services/paintService';
+import { ColorProps, PaintProps } from '../utils/types';
 
 import '../styles/pages/Production.scss';
 
 const data: ColorProps[] = [
   {
+    id: 0,
     color: '',
-    type: '',
-  },
-];
-
-const paints: PaintProps[] = [
-  {
-    id: '1',
-    type: 'base de água',
-    dryingTemperature: 100,
-    dryingTime: 5,
-  },
-  {
-    id: '2',
-    type: 'plastisol',
-    dryingTemperature: 200,
-    dryingTime: 3,
+    type: 0,
   },
 ];
 
 export function Production() {
+  const [paints, setPaints] = useState<PaintProps[]>([]);
   const [quantityTShirts, setQuantityTShirts] = useState(0);
+  const [speed, setSpeed] = useState(0);
   const [colors, setColors] = useState<ColorProps[]>(data);
 
   function handleIncreaseTShirts() {
@@ -41,6 +31,14 @@ export function Production() {
 
   function handleDecreaseTShirts() {
     setQuantityTShirts(quantityTShirts - 4);
+  }
+
+  function handleIncreaseSpeed() {
+    setSpeed(speed + 5);
+  }
+
+  function handleDecreaseSpeed() {
+    setSpeed(speed - 5);
   }
 
   function handleFormChangeColor(
@@ -65,7 +63,7 @@ export function Production() {
 
     data[index] = {
       color: data[index].color,
-      type: e.target.value,
+      type: paints.find((item) => item.type === e.target.value)?.id!,
     };
 
     setColors(data);
@@ -74,11 +72,49 @@ export function Production() {
   function handleCreateNewColor() {
     let newColor: ColorProps = {
       color: '',
-      type: '',
+      type: 0,
     };
 
     setColors([...colors, newColor]);
   }
+
+  function handleCreateProduction() {
+    try {
+      let data_colors: { cor: string; base: number }[] = [];
+
+      for (let index = 0; index < colors.length; index++) {
+        data_colors.push({
+          cor: colors[index].color,
+          base: colors[index].type,
+        });
+      }
+
+      const production = {
+        totalDeCamisetas: quantityTShirts,
+        velocidade: speed,
+        base_producao_create: data_colors,
+      };
+
+      console.log(production);
+
+      productionService.productionCreate(production);
+
+      toast.success('Produção criada com sucesso!');
+    } catch (error) {
+      toast.error('Não foi possível criar a produção!');
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    async function getAllPaintsType() {
+      const response = await paintService.paintGetAll();
+
+      setPaints(response);
+    }
+
+    getAllPaintsType();
+  }, []);
 
   return (
     <div id="production">
@@ -106,6 +142,27 @@ export function Production() {
           </div>
         </section>
 
+        <section className="input-group">
+          <h2>Velocidade:</h2>
+
+          <div>
+            <Input
+              style={{ textAlign: 'left' }}
+              placeholder="0"
+              value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+            />
+            <ButtonEditParam
+              icon={<FiPlus size={18} color="#6A6A6B" />}
+              onClick={handleIncreaseSpeed}
+            />
+            <ButtonEditParam
+              icon={<FiMinus size={18} color="#6A6A6B" />}
+              onClick={handleDecreaseSpeed}
+            />
+          </div>
+        </section>
+
         <h2>Cores:</h2>
 
         <section className="colors-section">
@@ -125,6 +182,7 @@ export function Production() {
                     placeholder="Ex: azul"
                     value={item.color}
                     onChange={(e) => handleFormChangeColor(index, e)}
+                    autoFocus
                   />
                 </div>
               </section>
@@ -132,7 +190,7 @@ export function Production() {
               <section className="input-group">
                 <h4>Tipo de tinta:</h4>
                 <select
-                  value={item.type}
+                  value={paints.find((paint) => paint.id === item.id)?.type}
                   onChange={(e) => handleFormChangeTypeColor(index, e)}
                   className="dropdown"
                 >
@@ -158,7 +216,7 @@ export function Production() {
           </div>
           <ButtonConfirm
             title="Iniciar produção"
-            onClick={() => console.log(colors)}
+            onClick={handleCreateProduction}
           />
         </div>
       </main>
