@@ -23,9 +23,6 @@ MOTOR_STEP = CONFIG['ENCODER_HOLES']/4
 
 # motorController = MotorController.instance(0)
 # flashcureController = FlashcureController.instance(0)
-
-PAINTS = list(Base.objects.all())
-
 state = {
 	'parameters': {
 		'paints': [],
@@ -43,7 +40,8 @@ state = {
 }
 
 async def dryShirt():
-	currentPaint = PAINTS[state['paints'][state['paint']].type]
+	paints = state['parameters']['paints']
+	currentPaint = paints[state['paint']]['base']
 
 	# flashcureController.start()
 	print('Flashcure is on!')
@@ -52,7 +50,8 @@ async def dryShirt():
 	print('Flashcure is off!')
 
 def pedalHandler(channel):
-	if(inSession and is not motorController.isRotating):
+	# if(state['inSession'] and not motorController.isRotating):
+	if(state['inSession']):
 		# flashcureController.stop()
 		# motorController.start()
 		print('Pedal pressed & motor started!')
@@ -68,7 +67,8 @@ def encoderHandler(channel):
 
 		# If the first shirt with the newest color has arrived at the flashcure position
 		if(state['rotation'] == CONFIG['FLASHCURE']['POSITION']):
-			currentPaint = PAINTS[state['paints'][state['paint']].type]
+			paints = state['parameters']['paints']
+			currentPaint = paints[state['paint']]['base']
 			# flashcureController.setTemperature(currentPaint.temperaturaSecagem)
 			print('Changed temperature!')
 
@@ -94,15 +94,15 @@ def encoderHandler(channel):
 
 #	GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
 #	GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=25)
-keyboard.add_hotkey('ctrl', pedalHandler, args=(3))
-keyboard.add_hotkey('shift', encoderHandler, args=(7))
+keyboard.add_hotkey('page down', pedalHandler, args=(3,))
+keyboard.add_hotkey('page up', encoderHandler, args=(7,))
 
 def setupProduction():
 	production = Producao.objects.last()
 	paints = BaseProducao.objects.filter(producao=production)
 	batches = Lote.objects.filter(producao=production)
 
-	state['parameters']['paints'] = list(map(lambda x: {'type': x.base, 'cor': x.cor}, paints))
+	state['parameters']['paints'] = list(map(lambda x: {'base': x.base, 'cor': x.cor}, paints))
 	state['parameters']['batches'] = list(map(lambda x: {'id': x.id, 'shirts': x.quantidadeDeCamisetas}, batches))
 	state['parameters']['shirts'] = production.totalDeCamisetas
 	state['parameters']['speed'] = production.velocidade
@@ -115,13 +115,15 @@ def setupProduction():
 	
 	state['inSession'] = True
 
-	#pprint.pprint(production.__dict__)
-	#pprint.pprint(len(paints))
-	#pprint.pprint(paints[0].__dict__)
-	#pprint.pprint(len(batches))
+	pprint.pprint(production.__dict__)
+	pprint.pprint(len(paints))
+	pprint.pprint(paints[0].__dict__)
+	pprint.pprint(len(state['parameters']['batches']))
+	pprint.pprint(state['parameters']['batches'])
 
 def startProduction():
-	currentPaint = PAINTS[state['paints'][state['paint']].type]
+	paints = state['parameters']['paints']
+	currentPaint = paints[state['paint']]['base']
 	# motorController = MotorController.instance(state['parameters']['speed'])
 	# flashcureController = FlashcureController.instance(currentPaint.temperaturaSecagem)
 
@@ -133,23 +135,5 @@ class ControleProducaoView(APIView):
 			startProduction()
 
 			return Response({'error': False})
-
-			#if inSession is False:
-			#	try:
-			#		session = Sessao.objects.last()
-			#		motorController = MotorController.instance(session.velocidadeMotor)
-			#
-			#		cleanCallbacks()
-			#		GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
-			#		GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=25) # Move to pedalHandler if user can move motor manually
-			#
-			#		inSession = True
-			#
-			#		return Response({'error': False})
-			#
-			#	except:
-			#		return Response({'error': True})
-			#
-			#return Response({'error': True, 'description': 'Already in session.'})
 
 		return Response({'error': True, 'description': 'Invalid control action.'})
