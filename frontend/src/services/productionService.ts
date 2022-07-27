@@ -1,7 +1,5 @@
 import { api } from './api';
 
-// import { PaintProps } from '../utils/types';
-
 class ProductionService {
   async productionCreate(data: any) {
     await api.post('/producao/', {
@@ -10,12 +8,6 @@ class ProductionService {
       base_producao_create: data.base_producao_create
     });
   }
-
-  // async paintGetAll() {
-  //   const paints = await api.get('/tipoTinta/');
-
-  //   return paints.data;
-  // }
 }
 
 const productionService = new ProductionService();

@@ -1,4 +1,3 @@
-import { SideBar } from './components/SideBar';
 import { Router } from './Router';
 
 function App() {

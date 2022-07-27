@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-
-import { ColorProps, PaintProps } from '../utils/types';
 
 import { Input } from '../components/Input';
 import { ButtonConfirm } from '../components/ButtonConfirm';
 import { ButtonEditParam } from '../components/ButtonEditParam';
+import productionService from '../services/productionService';
+import paintService from '../services/paintService';
+import { ColorProps, PaintProps } from '../utils/types';
 
 import '../styles/pages/Production.scss';
-import productionService from '../services/productionService';
 
 const data: ColorProps[] = [
   {
@@ -19,22 +19,8 @@ const data: ColorProps[] = [
   },
 ];
 
-const paints: PaintProps[] = [
-  {
-    id: 1,
-    type: 'base de água',
-    dryingTemperature: 100,
-    dryingTime: 5,
-  },
-  {
-    id: 2,
-    type: 'plastisol',
-    dryingTemperature: 200,
-    dryingTime: 3,
-  },
-];
-
 export function Production() {
+  const [paints, setPaints] = useState<PaintProps[]>([]);
   const [quantityTShirts, setQuantityTShirts] = useState(0);
   const [speed, setSpeed] = useState(0);
   const [colors, setColors] = useState<ColorProps[]>(data);
@@ -77,7 +63,7 @@ export function Production() {
 
     data[index] = {
       color: data[index].color,
-      type: paints.find(item => item.type === e.target.value)?.id!,
+      type: paints.find((item) => item.type === e.target.value)?.id!,
     };
 
     setColors(data);
@@ -94,29 +80,41 @@ export function Production() {
 
   function handleCreateProduction() {
     try {
-      let data_colors: {cor: string, base: number}[] = [];
+      let data_colors: { cor: string; base: number }[] = [];
 
       for (let index = 0; index < colors.length; index++) {
-        data_colors.push({ cor: colors[index].color, base: colors[index].type });
+        data_colors.push({
+          cor: colors[index].color,
+          base: colors[index].type,
+        });
       }
 
       const production = {
         totalDeCamisetas: quantityTShirts,
         velocidade: speed,
-        base_producao_create: data_colors
-      }
+        base_producao_create: data_colors,
+      };
 
-      console.log(production)
+      console.log(production);
 
       productionService.productionCreate(production);
 
       toast.success('Produção criada com sucesso!');
-
     } catch (error) {
       toast.error('Não foi possível criar a produção!');
       console.log(error);
     }
   }
+
+  useEffect(() => {
+    async function getAllPaintsType() {
+      const response = await paintService.paintGetAll();
+
+      setPaints(response);
+    }
+
+    getAllPaintsType();
+  }, []);
 
   return (
     <div id="production">
@@ -192,7 +190,7 @@ export function Production() {
               <section className="input-group">
                 <h4>Tipo de tinta:</h4>
                 <select
-                  value={paints.find(paint => paint.id === item.id)?.type}
+                  value={paints.find((paint) => paint.id === item.id)?.type}
                   onChange={(e) => handleFormChangeTypeColor(index, e)}
                   className="dropdown"
                 >

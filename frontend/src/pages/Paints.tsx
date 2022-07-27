@@ -27,18 +27,7 @@ export function Paints() {
     async function getAllPaintsType() {
       const response = await paintService.paintGetAll();
 
-      const data: PaintProps[] = [];
-
-      for (let index = 0; index < response.data.length; index++) {
-        data.push({
-          id: response.data[index].id,
-          type: response.data[index].tipo,
-          dryingTemperature: response.data[index].temperaturaSecagem,
-          dryingTime: response.data[index].tempoSecagem,
-        });
-      }
-
-      setPaints(data);
+      setPaints(response);
     }
 
     getAllPaintsType();

@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { ButtonConfirm } from './ButtonConfirm';
 import { ModalPaints } from './ModalPaints';
 import { PaintProps } from '../utils/types';
+import { notify_error, notify_success } from '../utils/toastify';
+import paintService from '../services/paintService';
 
 import '../styles/components/PaintCard.scss';
-import paintService from '../services/paintService';
-import { notify_error, notify_success } from '../utils/toastify';
 
 export function PaintCard(props: PaintProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,7 +28,7 @@ export function PaintCard(props: PaintProps) {
       notify_error('Não foi possível deletar a tinta!');
       console.log(error);
     }
-  }
+  };
 
   return (
     <div id="paint-card">

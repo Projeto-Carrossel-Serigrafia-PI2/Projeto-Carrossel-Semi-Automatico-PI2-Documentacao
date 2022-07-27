@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+
 import { OptionProps } from '../utils/types';
 
 import '../styles/components/Option.scss';
