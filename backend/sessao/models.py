@@ -1,7 +1,5 @@
 import string
-from tkinter import CASCADE
 from django.db import models
-from uuid import uuid4
 from .api.managers import ProducaoManager
 
 # Create your models here.
