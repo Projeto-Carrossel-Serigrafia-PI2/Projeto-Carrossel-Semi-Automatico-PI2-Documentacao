@@ -15,7 +15,12 @@ export function SideBar() {
 
   function getCurrentPage() {
     const current_page = sessionStorage.getItem('@SERIGRAFIA:current-page');
-    setPageActive(current_page!);
+
+    if (current_page) {
+      setPageActive(current_page!);
+    } else {
+      setPageActive('production');
+    }
   }
 
   useEffect(() => {
@@ -54,7 +59,7 @@ export function SideBar() {
           }
           title="Dashboard"
           active={pageActive === 'dashboard'}
-          route="/dashboard"
+          route="/dashboard/0"
           onClick={() => {
             setPageActive('dashboard');
             saveCurrentPage('dashboard');
@@ -68,7 +73,7 @@ export function SideBar() {
               color={pageActive === 'paint' ? '#B193EE' : '#E8E7EA'}
             />
           }
-          title="Tintas"
+          title="Base de tintas"
           active={pageActive === 'paint'}
           route="/paints"
           onClick={() => {

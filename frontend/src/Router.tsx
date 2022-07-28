@@ -16,7 +16,7 @@ export function Router() {
 
       <Routes>
         <Route path="/" element={<Production />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard/:production_id" element={<Dashboard />} />
         <Route path="/paints" element={<Paints />} />
       </Routes>
     </BrowserRouter>

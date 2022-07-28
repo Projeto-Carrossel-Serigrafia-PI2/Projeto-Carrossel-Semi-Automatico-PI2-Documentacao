@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { FiPlus, FiMinus } from 'react-icons/fi';
-import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 import { Input } from '../components/Input';
-import { ButtonConfirm } from '../components/ButtonConfirm';
+import { ButtonRequest } from '../components/ButtonRequest';
 import { ButtonEditParam } from '../components/ButtonEditParam';
 import productionService from '../services/productionService';
 import paintService from '../services/paintService';
 import { ColorProps, PaintProps } from '../utils/types';
 
 import '../styles/pages/Production.scss';
+import {
+  notify_error,
+  notify_success,
+  notify_warning,
+} from '../utils/toastify';
 
 const data: ColorProps[] = [
   {
@@ -25,6 +30,8 @@ export function Production() {
   const [speed, setSpeed] = useState(0);
   const [colors, setColors] = useState<ColorProps[]>(data);
 
+  let navigate = useNavigate();
+
   function handleIncreaseTShirts() {
     setQuantityTShirts(quantityTShirts + 4);
   }
@@ -34,11 +41,11 @@ export function Production() {
   }
 
   function handleIncreaseSpeed() {
-    setSpeed(speed + 5);
+    setSpeed(speed + 1);
   }
 
   function handleDecreaseSpeed() {
-    setSpeed(speed - 5);
+    setSpeed(speed - 1);
   }
 
   function handleFormChangeColor(
@@ -78,8 +85,20 @@ export function Production() {
     setColors([...colors, newColor]);
   }
 
-  function handleCreateProduction() {
+  async function handleCreateProduction() {
     try {
+      if (quantityTShirts <= 0) {
+        notify_warning('Quantidade de camisetas é obrigatório!');
+        return;
+      }
+      if (speed <= 0) {
+        notify_warning('A velocidade é obrigatória!');
+        return;
+      }
+      if (!colors[0].color || colors[0].type === 0) {
+        notify_warning('Defina ao menos 1 cor!');
+        return;
+      }
       let data_colors: { cor: string; base: number }[] = [];
 
       for (let index = 0; index < colors.length; index++) {
@@ -95,13 +114,13 @@ export function Production() {
         base_producao_create: data_colors,
       };
 
-      console.log(production);
+      const response = await productionService.productionCreate(production);
+      const production_id = response.data.base_producao_get[0].producao;
+      notify_success('Produção criada com sucesso!');
 
-      productionService.productionCreate(production);
-
-      toast.success('Produção criada com sucesso!');
+      navigate(`/dashboard/${production_id}`, { replace: true });
     } catch (error) {
-      toast.error('Não foi possível criar a produção!');
+      notify_error('Não foi possível criar a produção!');
       console.log(error);
     }
   }
@@ -208,13 +227,19 @@ export function Production() {
 
         <div className="buttons-group">
           <div>
-            <ButtonConfirm
+            <ButtonRequest
               title="Criar nova cor"
               onClick={handleCreateNewColor}
               style={{ backgroundColor: '#4fce88' }}
+              disabled={
+                colors[colors.length - 1]?.color &&
+                colors[colors.length - 1]?.type
+                  ? false
+                  : true
+              }
             />
           </div>
-          <ButtonConfirm
+          <ButtonRequest
             title="Iniciar produção"
             onClick={handleCreateProduction}
           />

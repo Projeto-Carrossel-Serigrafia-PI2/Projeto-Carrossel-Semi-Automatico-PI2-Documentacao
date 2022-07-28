@@ -1,43 +1,47 @@
 import { useState } from 'react';
 
-import { ButtonConfirm } from './ButtonConfirm';
+import { ButtonRequest } from './ButtonRequest';
 import { ModalPaints } from './ModalPaints';
 import { PaintProps } from '../utils/types';
-import { notify_error, notify_success } from '../utils/toastify';
-import paintService from '../services/paintService';
 
 import '../styles/components/PaintCard.scss';
+import { ModalConfirm } from './ModalConfirm';
 
 export function PaintCard(props: PaintProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalPaintsOpen, setIsModalPaintsOpen] = useState(false);
+  const [isModalConfirmOpen, setIsModalConfirmOpen] = useState(false);
 
-  const openModal = () => {
-    setIsModalOpen(true);
+  const openModalPaints = () => {
+    setIsModalPaintsOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const closeModalPaints = () => {
+    setIsModalPaintsOpen(false);
   };
 
-  const handleDeletePaint = async () => {
-    try {
-      await paintService.paintDelete(props.id!);
-      setIsModalOpen!(false);
-      notify_success('Tinta deletada com sucesso!');
-    } catch (error) {
-      notify_error('Não foi possível deletar a tinta!');
-      console.log(error);
-    }
+  const openModalConfirm = () => {
+    setIsModalConfirmOpen(true);
+  };
+
+  const closeModalConfirm = () => {
+    setIsModalConfirmOpen(false);
   };
 
   return (
     <div id="paint-card">
       <ModalPaints
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        closeModal={closeModal}
+        isModalOpen={isModalPaintsOpen}
+        setIsModalOpen={setIsModalPaintsOpen}
+        closeModal={closeModalPaints}
         paint={props}
         mode="editar"
+      />
+
+      <ModalConfirm
+        isModalOpen={isModalConfirmOpen}
+        setIsModalOpen={setIsModalConfirmOpen}
+        closeModal={closeModalConfirm}
+        paint={props}
       />
 
       <div className="data-box">
@@ -57,12 +61,12 @@ export function PaintCard(props: PaintProps) {
 
       <div className="buttons-group">
         <div>
-          <ButtonConfirm title="Editar" color="#1F272D" onClick={openModal} />
+          <ButtonRequest title="Editar" color="#1F272D" onClick={openModalPaints} />
         </div>
-        <ButtonConfirm
+        <ButtonRequest
           title="Remover"
           color="#DE5757"
-          onClick={handleDeletePaint}
+          onClick={openModalConfirm}
         />
       </div>
     </div>
