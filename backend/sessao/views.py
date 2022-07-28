@@ -33,10 +33,12 @@ state = {
 	'paint': 0,
 	'rotation': 0,
 	'batch': 0,
-	'shirt': 0,
+	'driedBatchShirts': -1,
 	'temperature': 100,
 	'inSession': False,
+	'waitingNewBatch': False,
 	'encoderCounter': 0,
+	'motorInUse': False,
 }
 
 async def dryShirt():
@@ -51,10 +53,11 @@ async def dryShirt():
 
 def pedalHandler(channel):
 	# if(state['inSession'] and not motorController.isRotating):
-	if(state['inSession']):
+	if(state['inSession'] and not state['motorInUse'] and not state['waitingNewBatch']):
 		# flashcureController.stop()
 		# motorController.start()
 		print('Pedal pressed & motor started!')
+		state['motorInUse'] = True
 
 def encoderHandler(channel):
 	state['encoderCounter'] += 1
@@ -72,25 +75,34 @@ def encoderHandler(channel):
 			# flashcureController.setTemperature(currentPaint.temperaturaSecagem)
 			print('Changed temperature!')
 
+			# Starting counting dried shirts when we start drying the last color of the batch
+			if(state['driedBatchShirts'] == -1 and state['paint'] + 1 >= len(state['parameters']['paints'])):
+				print('Started counting dried shirts!')
+				state['driedBatchShirts'] = 0
+
 		# If a shirt with the newest color has arrived at the flashcure position
 		if(state['paint'] > 0 or state['rotation'] >= CONFIG['FLASHCURE']['POSITION']):
 			asyncio.run(dryShirt())
 
+		if(state['driedBatchShirts'] != -1):
+			state['driedBatchShirts'] += 1
+			print(state['driedBatchShirts'], ' shirts dried!')
+
+			if(state['driedBatchShirts'] > state['parameters']['batches'][state['batch']]['shirts']):
+				# takePhoto()
+				print('Photo taken!')
+				print('Batch finished!')
+				state['waitingNewBatch'] = True
+
 		# If we completed a full rotation
 		if(state['rotation'] > 3):
 			state['rotation'] = 0
-			state['paint'] += 1
 
-			# If we went through all the paints (doesn't mean they have been dried yet)
-			if(state['paint'] >= len(state['parameters']['paints'])):
-				state['paint'] = 0
-				state['batch'] += 1
-
-				# If we went through all the batches (doesn't mean they have been dried yet)
-				if(state['batch'] >= len(state['parameters']['batches'])):
-					state['inSession'] = False
+			if(state['driedBatchShirts'] == -1):
+				state['paint'] += 1
 
 		state['encoderCounter'] = 0
+		state['motorInUse'] = False
 
 #	GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
 #	GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=25)
@@ -109,9 +121,11 @@ def setupProduction():
 
 	state['paint'] = 0
 	state['batch'] = 0
-	state['shirt'] = 0
+	state['driedBatchShirts'] = -1
 	state['encoderCounter'] = 0
 	state['rotation'] = 0
+	state['motorInUse'] = False
+	state['waitingNewBatch'] = False
 	
 	state['inSession'] = True
 
@@ -124,16 +138,31 @@ def setupProduction():
 def startProduction():
 	paints = state['parameters']['paints']
 	currentPaint = paints[state['paint']]['base']
-	# motorController = MotorController.instance(state['parameters']['speed'])
-	# flashcureController = FlashcureController.instance(currentPaint.temperaturaSecagem)
+	# motorController.setSpeed(state['parameters']['speed'])
+	# flashcureController.setTemperature(currentPaint.temperaturaSecagem)
+
+def startNextBatch():
+	state['batch'] += 1
+
+	if(state['batch'] >= len(state['parameters']['batches'])):
+		state['inSession'] = False
+
+	else:
+		state['paint'] = 0
+		state['driedBatchShirts'] = -1
+		state['rotation'] = 0
+		state['waitingNewBatch'] = False
 
 class ControleProducaoView(APIView):
 	def post(self, request):
-		action = request.data['action'] # 0: Start, 1: Stop, ...
+		action = request.data['action'] # 0: Start, 1: Next batch, ...
 		if(action == 0):
 			setupProduction()
 			startProduction()
 
 			return Response({'error': False})
+
+		elif(action == 1):
+			startNextBatch()
 
 		return Response({'error': True, 'description': 'Invalid control action.'})
