@@ -129,12 +129,6 @@ def setupProduction():
 	
 	state['inSession'] = True
 
-	pprint.pprint(production.__dict__)
-	pprint.pprint(len(paints))
-	pprint.pprint(paints[0].__dict__)
-	pprint.pprint(len(state['parameters']['batches']))
-	pprint.pprint(state['parameters']['batches'])
-
 def startProduction():
 	paints = state['parameters']['paints']
 	currentPaint = paints[state['paint']]['base']
@@ -156,13 +150,30 @@ def startNextBatch():
 class ControleProducaoView(APIView):
 	def post(self, request):
 		action = request.data['action'] # 0: Start, 1: Next batch, ...
-		if(action == 0):
-			setupProduction()
-			startProduction()
 
-			return Response({'error': False})
+		try:
+			if(action == 0):
+				setupProduction()
+				startProduction()
 
-		elif(action == 1):
-			startNextBatch()
+				return Response({'error': False})
 
-		return Response({'error': True, 'description': 'Invalid control action.'})
+			elif(action == 1):
+				if(not state['inSession']):
+					return Response({'error': True, 'description': 'Not in session.'})
+				startNextBatch()
+
+			return Response({'error': True, 'description': 'Invalid control action.'})
+
+		except Exception as e:
+			print(e)
+			return Response({'error': True, 'description': 'Internal error.'})
+
+class StateView(APIView):
+	def get(self, request):
+		return Response({
+			'paint': state['paint'],
+			'batch': state['batch'],
+			'temperature': state['temperature'],
+			'waitingNewBatch': state['waitingNewBatch']
+			})

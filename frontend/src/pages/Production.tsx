@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
@@ -8,6 +9,7 @@ import { ButtonEditParam } from '../components/ButtonEditParam';
 import productionService from '../services/productionService';
 import paintService from '../services/paintService';
 import { ColorProps, PaintProps } from '../utils/types';
+import StateContext from '../contexts/StateContext';
 
 import '../styles/pages/Production.scss';
 
@@ -24,6 +26,8 @@ export function Production() {
   const [quantityTShirts, setQuantityTShirts] = useState(0);
   const [speed, setSpeed] = useState(0);
   const [colors, setColors] = useState<ColorProps[]>(data);
+  const { setParameters, setState } = useContext(StateContext);
+  const navigate = useNavigate();
 
   function handleIncreaseTShirts() {
     setQuantityTShirts(quantityTShirts + 4);
@@ -97,9 +101,36 @@ export function Production() {
 
       console.log(production);
 
-      productionService.productionCreate(production);
+      productionService.productionCreate(production).then(() => {
+        productionService.productionStart().then((response) => {
+          if(response.data.error) {
+            toast.error('Não foi possível executar a produção!');
+            console.log(response.data.description)
+          }
 
-      toast.success('Produção criada com sucesso!');
+          else {
+            setParameters({
+              paints: production.base_producao_create,
+              shirtQuantity: production.totalDeCamisetas,
+              batches: Math.ceil(production.totalDeCamisetas/4)
+            });
+
+            window.updateInterval = setInterval(() => {
+              productionService.productionState().then((response) => {
+                setState(response.data);
+              });
+            }, 1000);
+
+            navigate('/dashboard');
+
+            toast.success('Produção criada e inicializada com sucesso!');
+          }
+        }).catch((e) => {
+          toast.error('Não foi possível executar a produção!');
+        });
+      }).catch(() => {
+        toast.error('Não foi possível criar a produção!');
+      });
     } catch (error) {
       toast.error('Não foi possível criar a produção!');
       console.log(error);
