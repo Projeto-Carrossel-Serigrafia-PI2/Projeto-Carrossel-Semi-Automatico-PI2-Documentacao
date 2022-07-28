@@ -110,6 +110,17 @@ export function Production() {
 
           else {
             setParameters({
+              paints: production.base_producao_create.map((paint) => {
+                return {
+                  color: paint.cor,
+                  base: paint.base - 1
+                }
+              }),
+              shirtQuantity: production.totalDeCamisetas,
+              batches: Math.ceil(production.totalDeCamisetas/4)
+            });
+
+            console.log({
               paints: production.base_producao_create,
               shirtQuantity: production.totalDeCamisetas,
               batches: Math.ceil(production.totalDeCamisetas/4)
