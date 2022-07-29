@@ -2,24 +2,27 @@
   display: flex;
   flex-direction: column;
 
-  background-color: #1F272D;
+  background-color: #1f272d;
 
   width: 25.4rem;
   height: 100vh;
+
+  position: fixed;
+  left: 0;
 
   > header {
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background-color: #232E33;
+    background-color: #232e33;
     margin-bottom: 4.5rem;
 
     height: 12rem;
 
     > h1 {
       font-size: 2.4rem;
-      color: #E8E7EA;
+      color: #e8e7ea;
     }
   }
 

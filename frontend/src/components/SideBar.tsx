@@ -1,35 +1,34 @@
-import { useState } from 'react';
-import { FiSettings, FiPlay, FiAward } from 'react-icons/fi';
+import { useEffect, useState } from 'react';
+import { FaTshirt, FaAward } from 'react-icons/fa';
+import { RiPaintFill, RiDashboardLine } from 'react-icons/ri';
 
 import { Option } from '../components/Option';
-import { ModalConfigSession } from '../components/ModalConfigSession';
 
 import '../styles/components/SideBar.scss';
 
 export function SideBar() {
-  const [sessionActive, setSessionActive] = useState('none');
-  const [isModalConfigSessionVisible, setIsModalConfigSessionVisible] =
-    useState(false);
+  const [pageActive, setPageActive] = useState('production');
 
-  const openModal = () => {
-    setIsModalConfigSessionVisible(true);
-    setSessionActive('config-session');
-  };
+  function saveCurrentPage(page: string) {
+    sessionStorage.setItem('@SERIGRAFIA:current-page', page);
+  }
 
-  const closeModal = () => {
-    setIsModalConfigSessionVisible(false);
-    setSessionActive('none');
-  };
+  function getCurrentPage() {
+    const current_page = sessionStorage.getItem('@SERIGRAFIA:current-page');
+
+    if (current_page) {
+      setPageActive(current_page!);
+    } else {
+      setPageActive('production');
+    }
+  }
+
+  useEffect(() => {
+    getCurrentPage();
+  }, []);
 
   return (
     <div id="sidebar">
-      <ModalConfigSession
-        isModalOpen={isModalConfigSessionVisible}
-        closeModal={closeModal}
-        setSessionActive={setSessionActive}
-        setIsModalOpen={setIsModalConfigSessionVisible}
-      />
-
       <header>
         <h1>Project Logo</h1>
       </header>
@@ -37,24 +36,57 @@ export function SideBar() {
       <main>
         <Option
           icon={
-            <FiSettings
+            <FaTshirt
               size={18}
-              color={sessionActive === 'config-session' ? '#B193EE' : '#E8E7EA'}
+              color={pageActive === 'production' ? '#B193EE' : '#E8E7EA'}
             />
           }
-          title="Configurar Sessão"
-          active={sessionActive === 'config-session'}
-          onClick={() => openModal()}
+          title="Produção"
+          active={pageActive === 'production'}
+          route="/"
+          onClick={() => {
+            setPageActive('production');
+            saveCurrentPage('production');
+          }}
         />
 
         <Option
-          icon={<FiPlay size={18} color="#E8E7EA" />}
-          title="Iniciar Sessão"
+          icon={
+            <RiDashboardLine
+              size={18}
+              color={pageActive === 'dashboard' ? '#B193EE' : '#E8E7EA'}
+            />
+          }
+          title="Dashboard"
+          active={pageActive === 'dashboard'}
+          route="/dashboard/0"
+          onClick={() => {
+            setPageActive('dashboard');
+            saveCurrentPage('dashboard');
+          }}
         />
 
         <Option
-          icon={<FiAward size={18} color="#E8E7EA" />}
+          icon={
+            <RiPaintFill
+              size={18}
+              color={pageActive === 'paint' ? '#B193EE' : '#E8E7EA'}
+            />
+          }
+          title="Base de tintas"
+          active={pageActive === 'paint'}
+          route="/paints"
+          onClick={() => {
+            setPageActive('paint');
+            saveCurrentPage('paint');
+          }}
+        />
+
+        <Option
+          icon={<FaAward size={18} color="#E8E7EA" />}
           title="Verificar Qualidade"
+          route="/quality"
+          onClick={() => {}}
         />
       </main>
     </div>

@@ -1,7 +1,11 @@
-import { Dashboard } from "./pages/Dashboard"
+import { Router } from './Router';
 
 function App() {
-  return <Dashboard />
+  return (
+    <div id="app">
+      <Router />
+    </div>
+  );
 }
 
-export default App
+export default App;

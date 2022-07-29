@@ -1,18 +1,24 @@
-import { ToastContainer } from 'react-toastify';
-
-import { SideBar } from '../components/SideBar';
+import { useParams } from 'react-router-dom';
 
 import '../styles/pages/Dashboard.scss';
-import 'react-toastify/dist/ReactToastify.css';
 
 export function Dashboard() {
+  const { production_id } = useParams();
+
   return (
-    <div id="dashboard">
-      <ToastContainer />
+    <div
+      id="dashboard"
+      className={Number(production_id) === 0 ? 'no-production' : ''}
+    >
+      <h1>Dashboard</h1>
 
-      <SideBar />
-
-      <h2>Dashboard</h2>
+      <main>
+        {Number(production_id) !== 0 ? (
+          <div></div>
+        ) : (
+          <span>Nenhuma produção em andamento</span>
+        )}
+      </main>
     </div>
   );
 }

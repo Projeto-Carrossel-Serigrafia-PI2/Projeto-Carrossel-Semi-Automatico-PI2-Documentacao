@@ -5,13 +5,16 @@ export interface OptionProps {
   title: string;
   active?: boolean;
   onClick?(): void;
+  route?: string;
 }
 
-export interface ModalConfigSessionProps {
+export interface ModalProps {
   isModalOpen: boolean;
   closeModal(): void;
-  setSessionActive: (value: string) => void;
-  setIsModalOpen: (value: boolean) => void;
+  paint: PaintProps;
+  mode?: 'editar' | 'criar';
+  setSessionActive?: (value: string) => void;
+  setIsModalOpen?: (value: boolean) => void;
 }
 
 export interface ButtonEditParamProps
@@ -19,9 +22,10 @@ export interface ButtonEditParamProps
   icon: React.ReactElement;
 }
 
-export interface ButtonConfirmProps
+export interface ButtonRequestProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   title: string;
+  color?: string;
 }
 
 export interface SessionProps {
@@ -33,8 +37,16 @@ export interface SessionProps {
 }
 
 export interface PaintProps {
-  id: string;
+  id?: number;
   type: string;
-  speedDefault: number;
-  temperatureDefault: number;
+  dryingTemperature: number;
+  dryingTime: number;
+  reload?: boolean;
+  setReload?: (value: boolean) => void;
+}
+
+export interface ColorProps {
+  id?: number;
+  color: string;
+  type: number;
 }

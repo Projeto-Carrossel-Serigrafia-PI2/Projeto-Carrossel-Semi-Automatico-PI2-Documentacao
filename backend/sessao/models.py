@@ -1,31 +1,35 @@
 import string
 from django.db import models
-from uuid import uuid4
+from .api.managers import ProducaoManager
 
 # Create your models here.
 
-class tipoTinta(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    tipo = models.TextField('Tipo Tinta', max_length=200 ,null=True)
-    velocidadePadrao =  models.IntegerField('Velocidade Padrão RPM', default=0)
-    temperaturaPadrao = models.IntegerField('Temperatura Padrão ºC', default=0)
-    class Meta:
-        ordering = ('tipo',)
-    
-    def __str__(self):
-     return self.tipo       
+class Base(models.Model) :
+    temperaturaSecagem = models.IntegerField('Temperatura de Secagem °C',default=100)
+    tempoSecagem =  models.IntegerField('Tempo de Secagem S',default=30)
+    tipo = models.TextField('Tipo da tinta', max_length=200 ,default='outro')
+   
+class Producao(models.Model):
+    totalDeCamisetas = models.IntegerField('Total de camisetas',default=4)
+    date = models.DateTimeField('Data', auto_now=True)
+    velocidade = models.IntegerField('velocidade do motor',default=1)
+    tempoDeProducao =  models.IntegerField('Tempo de producao',default=30)
+    create_date = models.DateTimeField('Data', auto_now_add=True)
 
-class Sessao(models.Model):
-    idsessao = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    tipoTinta = models.ForeignKey(tipoTinta, on_delete=models.SET_NULL, null=True)
-    quantidadeTinta = models.IntegerField('Quantidade Tinta', default=0)
-    TempFlashCure =  models.IntegerField('Temperatura ºC', default=0)
-    velocidadeMotor = models.IntegerField('Velocidade RPM',default=0) 
-    class Meta:
-        ordering = ('idsessao',)
+    objects = ProducaoManager()
 
-    def __str__(self):
-        return self.tipoTinta  
+class BaseProducao(models.Model):
+    base = models.ForeignKey(Base, on_delete=models.CASCADE)
+    producao = models.ForeignKey(Producao, on_delete=models.CASCADE)
+    cor = models.TextField('cor', max_length=200 ,default='branca')
+
+class Lote(models.Model):
+    quantidadeDeCamisetas = models.IntegerField('quantidade de camisetas',default=4)
+    producao = models.ForeignKey(Producao, on_delete=models.CASCADE)
+
+
+
+   
 
   
 

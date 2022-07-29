@@ -2,6 +2,7 @@
 
 body {
   margin: 0;
+  margin-left: 25.4rem;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Nunito', sans-serif;
@@ -22,4 +23,9 @@ h1, h2, h3 {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+#app {
+  display: flex;
+  flex-direction: row;
 }

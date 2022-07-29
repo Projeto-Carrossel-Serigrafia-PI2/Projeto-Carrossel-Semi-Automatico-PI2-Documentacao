@@ -1,11 +1,19 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from sessao.api import serializers
-from sessao import models    
+from sessao import models 
+from rest_framework.decorators import action    
+from rest_framework.response import Response
 
-class TipoTintaViewSets (viewsets.ModelViewSet):
-    serializer_class = serializers.tipoTintaSerializer
-    queryset = models.tipoTinta.objects.all() 
 
-class SessaoViewSets (viewsets.ModelViewSet):
-    serializer_class = serializers.SessaoSerializer
-    queryset = models.Sessao.objects.all()       
+class baseViewSets (viewsets.ModelViewSet):
+   serializer_class = serializers.BaseSerializer
+   queryset = models.Base.objects.all() 
+
+class ProducaoViewSets (viewsets.ModelViewSet):
+   serializer_class = serializers.ProducaoSerializer
+   queryset = models.Producao.objects.all() 
+
+class BaseProducaoViewSets (viewsets.ModelViewSet):
+    serializer_class = serializers.BaseProducaoSerializer
+    queryset = models.BaseProducao.objects.all()
+
