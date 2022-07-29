@@ -6,6 +6,7 @@ import '../styles/pages/Dashboard.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Paint from '../components/Paint';
+import Time from '../components/Time';
 
 export function Dashboard() {
   return (
@@ -20,7 +21,7 @@ export function Dashboard() {
           <div className="quality"></div>
           <div className="speed"></div>
           <Paint />
-          <div className="time"></div>
+          <Time />
         </div>
       </div>
     </div>

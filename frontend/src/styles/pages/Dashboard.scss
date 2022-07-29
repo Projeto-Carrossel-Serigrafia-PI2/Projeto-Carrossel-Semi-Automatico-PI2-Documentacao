@@ -34,6 +34,24 @@
         background-color: white;
         user-select: none;
         border-radius: 8px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        > h1 {
+          font-size: 2em;
+          line-height: 1em;
+          flex: 0 1 auto;
+        }
+
+        > div {
+          display: flex;
+          flex: 1 1 auto;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
       }
 
       > .temperature {
@@ -49,26 +67,11 @@
       }
 
       > .paint {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
         grid-area: paint;
         line-height: 0;
         font-size: 12px;
 
-        > h1 {
-          font-size: 2em;
-          line-height: 1em;
-          flex: 0 1 auto;
-        }
-
         > .info {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          flex: 1 1 auto;
-
           > h2 {
             font-size: 4em;
           }
@@ -85,6 +88,14 @@
 
       > .time {
         grid-area: time;
+        font-size: 12px;
+
+        > .info {
+          > h1 {
+            color: #357D41;
+            font-size: 5em;
+          }
+        }
       }
     }
   }
