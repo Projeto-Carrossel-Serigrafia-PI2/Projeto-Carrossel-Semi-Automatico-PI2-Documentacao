@@ -8,7 +8,9 @@ import { ButtonEditParam } from '../components/ButtonEditParam';
 import productionService from '../services/productionService';
 import paintService from '../services/paintService';
 import { ColorProps, PaintProps } from '../utils/types';
+
 import StateContext from '../contexts/StateContext';
+import PageContext from '../contexts/PageContext';
 
 import '../styles/pages/Production.scss';
 import {
@@ -31,6 +33,7 @@ export function Production() {
   const [speed, setSpeed] = useState(0);
   const [colors, setColors] = useState<ColorProps[]>(data);
   const { setParameters, setState } = useContext(StateContext);
+  const { setPage } = useContext(PageContext);
   const navigate = useNavigate();
 
   function handleIncreaseTShirts() {
@@ -137,8 +140,8 @@ export function Production() {
               });
             }, 1000);
 
-            navigate(`/dashboard/${production_id}`, { replace: true });
-
+            navigate(`/dashboard/`);
+            setPage('dashboard');
             notify_success('Produção criada e inicializada com sucesso!');
           }
         }).catch((e) => {
