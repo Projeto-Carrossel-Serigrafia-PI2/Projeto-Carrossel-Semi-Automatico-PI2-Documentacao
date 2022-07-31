@@ -32,7 +32,7 @@ export function Production() {
   const [quantityTShirts, setQuantityTShirts] = useState(0);
   const [speed, setSpeed] = useState(0);
   const [colors, setColors] = useState<ColorProps[]>(data);
-  const { setParameters, setState } = useContext(StateContext);
+  const { parameters, setParameters, setState } = useContext(StateContext);
   const { setPage } = useContext(PageContext);
   const navigate = useNavigate();
 
@@ -90,6 +90,10 @@ export function Production() {
   }
 
   async function handleCreateProduction() {
+    if(parameters.paints.length)
+      notify_error('Uma produção já está em progresso!');
+
+    else {
       if (quantityTShirts <= 0) {
         notify_warning('Quantidade de camisetas é obrigatório!');
         return;
@@ -149,8 +153,9 @@ export function Production() {
         });
       }).catch(() => {
         notify_error('Não foi possível criar a produção!');
-      });
+      });  
     }
+  }
 
   useEffect(() => {
     async function getAllPaintsType() {
