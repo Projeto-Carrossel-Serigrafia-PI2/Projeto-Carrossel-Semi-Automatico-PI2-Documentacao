@@ -1,11 +1,33 @@
 #dashboard {
   display: flex;
-  flex-direction: row;
-  background-color: #E8E7EA;
+  flex-direction: column;
+  background-color: #e8e7ea;
 
-  > h2 {
-    color: #39393A;
-    font-size: 2rem;
+  width: calc(100vw - 25.4rem);
+  height: 100vh;
+
+  &.no-production {
+    height: 100vh;
+    margin-bottom: 0;
+  }
+
+  > h1 {
+    color: #39393a;
+    font-size: 3rem;
     margin: 3.5rem 0 0 5rem;
+
+    align-self: flex-start;
+  }
+
+  > main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    > span {
+      font-size: 3.2rem;
+      color: #39393a;
+    }
   }
 }

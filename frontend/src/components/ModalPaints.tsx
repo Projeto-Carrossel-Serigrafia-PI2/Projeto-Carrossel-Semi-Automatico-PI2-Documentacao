@@ -1,17 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import { FiMinus, FiPlus } from 'react-icons/fi';
 
 import { Input } from './Input';
 import { ButtonEditParam } from './ButtonEditParam';
-import { ButtonConfirm } from './ButtonConfirm';
-import { ModalPaintsProps } from '../utils/types';
+import { ButtonRequest } from './ButtonRequest';
+import { ModalProps } from '../utils/types';
 import paintService from '../services/paintService';
 import { notify_success, notify_update, notify_error } from '../utils/toastify';
 
 import '../styles/components/ModalPaints.scss';
 
-export function ModalPaints(props: ModalPaintsProps) {
+export function ModalPaints(props: ModalProps) {
   const [typePaint, setTypePaint] = useState(props.paint.type);
   const [dryingTemperature, setDryingTemperature] = useState(
     props.paint.dryingTemperature
@@ -66,6 +66,14 @@ export function ModalPaints(props: ModalPaintsProps) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (props.mode === 'criar') {
+      setDryingTemperature(0);
+      setDryingTime(0);
+      setTypePaint('');
+    }
+  }, [props.isModalOpen]);
 
   return (
     <Modal
@@ -148,7 +156,7 @@ export function ModalPaints(props: ModalPaintsProps) {
           </div>
         </div>
 
-        <ButtonConfirm
+        <ButtonRequest
           title="Salvar"
           onClick={props.mode === 'criar' ? handleNewPaint : handleUpdatePaint}
         />
