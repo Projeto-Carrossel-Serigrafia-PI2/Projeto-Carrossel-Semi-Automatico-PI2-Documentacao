@@ -231,7 +231,7 @@ export function Production() {
               </section>
 
               <section className="input-group">
-                <h4>Tipo de tinta:</h4>
+                <h4>Base da tinta:</h4>
                 <select
                   value={paints.find((paint) => paint.id === item.id)?.type}
                   onChange={(e) => handleFormChangeTypeColor(index, e)}
@@ -252,7 +252,7 @@ export function Production() {
         <div className="buttons-group">
           <div>
             <ButtonRequest
-              title="Criar nova cor"
+              title="Adicionar nova cor"
               onClick={handleCreateNewColor}
               style={{ backgroundColor: '#4fce88' }}
               disabled={

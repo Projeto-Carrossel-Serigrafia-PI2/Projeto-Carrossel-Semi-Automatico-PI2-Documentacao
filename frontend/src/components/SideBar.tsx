@@ -30,7 +30,7 @@ export function SideBar() {
   return (
     <div id="sidebar">
       <header>
-        <h1>Project Logo</h1>
+        <h1>Silkgician</h1>
       </header>
 
       <main>
@@ -73,7 +73,7 @@ export function SideBar() {
               color={pageActive === 'paint' ? '#B193EE' : '#E8E7EA'}
             />
           }
-          title="Base de tintas"
+          title="Bases de tinta"
           active={pageActive === 'paint'}
           route="/paints"
           onClick={() => {

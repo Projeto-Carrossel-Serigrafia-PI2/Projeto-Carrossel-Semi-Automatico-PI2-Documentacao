@@ -45,7 +45,7 @@ export function PaintCard(props: PaintProps) {
       />
 
       <div className="data-box">
-        <h2>Tipo de tinta:</h2>
+        <h2>Base da tinta:</h2>
         <p>{props.type}</p>
       </div>
 

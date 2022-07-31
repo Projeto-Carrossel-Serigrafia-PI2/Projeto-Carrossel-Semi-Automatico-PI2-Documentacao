@@ -13,10 +13,10 @@ export function ModalConfirm(props: ModalProps) {
       await paintService.paintDelete(props.paint.id!);
 
       props.setIsModalOpen!(false);
-      notify_success('Tinta deletada com sucesso!');
+      notify_success('Base de tinta deletada com sucesso!');
       props.paint.setReload!(!props.paint.reload);
     } catch (error) {
-      notify_error('Não foi possível deletar a tinta!');
+      notify_error('Não foi possível deletar a base selecionada!');
       console.log(error);
     }
   };
