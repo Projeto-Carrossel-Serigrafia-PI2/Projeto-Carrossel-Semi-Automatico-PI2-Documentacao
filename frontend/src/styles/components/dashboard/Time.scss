@@ -1,0 +1,11 @@
+.time {
+  grid-area: time;
+  font-size: 12px;
+
+  > .info {
+    > h1 {
+      color: #357D41;
+      font-size: 5em;
+    }
+  }
+}

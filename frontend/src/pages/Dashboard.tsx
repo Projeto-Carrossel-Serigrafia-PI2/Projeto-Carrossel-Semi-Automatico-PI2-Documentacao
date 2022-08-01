@@ -5,9 +5,9 @@ import { ToastContainer } from 'react-toastify';
 import '../styles/pages/Dashboard.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
-import Paint from '../components/Paint';
-import Time from '../components/Time';
-import Shirts from '../components/Shirts';
+import Paint from '../components/dashboard/Paint';
+import Time from '../components/dashboard/Time';
+import Shirts from '../components/dashboard/Shirts';
 
 export function Dashboard() {
   const main = useRef();

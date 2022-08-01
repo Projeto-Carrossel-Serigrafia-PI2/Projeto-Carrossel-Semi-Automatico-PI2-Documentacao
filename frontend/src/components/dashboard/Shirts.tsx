@@ -3,9 +3,10 @@ import { FaTshirt } from 'react-icons/fa';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { Carousel } from 'react-responsive-carousel';
 
+import '../../styles/components/dashboard/Shirts.scss';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
-import StateContext from '../contexts/StateContext';
+import StateContext from '../../contexts/StateContext';
 
 export default function Shirts() {
 	const { parameters, state } = useContext(StateContext);

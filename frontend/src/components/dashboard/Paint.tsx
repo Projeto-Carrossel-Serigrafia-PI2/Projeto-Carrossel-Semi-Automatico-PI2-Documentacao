@@ -1,8 +1,9 @@
 import { useState, useEffect, useContext } from 'react';
 
-import paintService from '../services/paintService';
+import paintService from '../../services/paintService';
+import StateContext from '../../contexts/StateContext';
 
-import StateContext from '../contexts/StateContext';
+import '../../styles/components/dashboard/Paint.scss';
 
 export default function Paint() {
 	const [ paints, setPaints ] = useState([]);

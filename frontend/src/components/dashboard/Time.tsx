@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+import '../../styles/components/dashboard/Time.scss';
+
 export default function Time() {
 	const [ hour, setHour ] = useState(0);
 	const [ minute, setMinute ] = useState(0);
