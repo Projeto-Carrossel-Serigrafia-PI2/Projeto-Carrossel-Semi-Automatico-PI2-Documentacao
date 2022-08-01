@@ -85,11 +85,11 @@ export function Paints() {
       />
 
       <header>
-        <h1>Tintas</h1>
+        <h1>Bases de Tinta</h1>
 
         <div>
           <ButtonRequest
-            title="Nova tinta"
+            title="Nova base de tinta"
             color="#4fce88"
             onClick={openModalPaints}
           />

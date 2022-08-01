@@ -1,14 +1,22 @@
 import { api } from './api';
 
 class ProductionService {
-  async productionCreate(data: any) {
-    const response = await api.post('/producao/', {
+  productionCreate(data: any) {
+    return api.post('/producao/', {
       totalDeCamisetas: data.totalDeCamisetas,
       velocidade: data.velocidade,
       base_producao_create: data.base_producao_create
     });
+  }
 
-    return response;
+  productionStart() {
+    return api.post('/controleProducao/', {
+      action: 0
+    });
+  }
+
+  productionState() {
+    return api.get('/estado/');
   }
 }
 

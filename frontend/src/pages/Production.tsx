@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { FiPlus, FiMinus } from 'react-icons/fi';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FiPlus, FiMinus } from 'react-icons/fi';
 
 import { Input } from '../components/Input';
 import { ButtonRequest } from '../components/ButtonRequest';
@@ -8,6 +8,9 @@ import { ButtonEditParam } from '../components/ButtonEditParam';
 import productionService from '../services/productionService';
 import paintService from '../services/paintService';
 import { ColorProps, PaintProps } from '../utils/types';
+
+import StateContext from '../contexts/StateContext';
+import PageContext from '../contexts/PageContext';
 
 import '../styles/pages/Production.scss';
 import {
@@ -29,8 +32,9 @@ export function Production() {
   const [quantityTShirts, setQuantityTShirts] = useState(0);
   const [speed, setSpeed] = useState(0);
   const [colors, setColors] = useState<ColorProps[]>(data);
-
-  let navigate = useNavigate();
+  const { parameters, setParameters, setState } = useContext(StateContext);
+  const { setPage } = useContext(PageContext);
+  const navigate = useNavigate();
 
   function handleIncreaseTShirts() {
     setQuantityTShirts(quantityTShirts + 4);
@@ -86,7 +90,13 @@ export function Production() {
   }
 
   async function handleCreateProduction() {
-    try {
+    if(parameters.paints.length)
+      notify_error(
+        `Uma produção já está em progresso! Pause ou finalize-a antes
+         de começar outra.`
+      );
+
+    else {
       if (quantityTShirts <= 0) {
         notify_warning('Quantidade de camisetas é obrigatório!');
         return;
@@ -114,14 +124,39 @@ export function Production() {
         base_producao_create: data_colors,
       };
 
-      const response = await productionService.productionCreate(production);
-      const production_id = response.data.base_producao_get[0].producao;
-      notify_success('Produção criada com sucesso!');
+      productionService.productionCreate(production).then((res) => {
+        const production_id = res.data.base_producao_get[0].producao;
 
-      navigate(`/dashboard/${production_id}`, { replace: true });
-    } catch (error) {
-      notify_error('Não foi possível criar a produção!');
-      console.log(error);
+        productionService.productionStart().then((response) => {
+          if(response.data.error) {
+            notify_error('Não foi possível executar a produção!');
+            console.log(response.data.description)
+          }
+
+          else {
+            setParameters({
+              paints: production.base_producao_create,
+              shirtQuantity: production.totalDeCamisetas,
+              batches: Math.ceil(production.totalDeCamisetas/4)
+            });
+
+            window.updateInterval = setInterval(() => {
+              productionService.productionState().then((response) => {
+                setState(response.data);
+                console.log(response.data)
+              });
+            }, 1000);
+
+            navigate(`/dashboard/`);
+            setPage('dashboard');
+            notify_success('Produção criada e inicializada com sucesso!');
+          }
+        }).catch((e) => {
+          notify_error('Não foi possível executar a produção!');
+        });
+      }).catch(() => {
+        notify_error('Não foi possível criar a produção!');
+      });  
     }
   }
 
@@ -207,7 +242,7 @@ export function Production() {
               </section>
 
               <section className="input-group">
-                <h4>Tipo de tinta:</h4>
+                <h4>Base da tinta:</h4>
                 <select
                   value={paints.find((paint) => paint.id === item.id)?.type}
                   onChange={(e) => handleFormChangeTypeColor(index, e)}
@@ -228,7 +263,7 @@ export function Production() {
         <div className="buttons-group">
           <div>
             <ButtonRequest
-              title="Criar nova cor"
+              title="Adicionar nova cor"
               onClick={handleCreateNewColor}
               style={{ backgroundColor: '#4fce88' }}
               disabled={
