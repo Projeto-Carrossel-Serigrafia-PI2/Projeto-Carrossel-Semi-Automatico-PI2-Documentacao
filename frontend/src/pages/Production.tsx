@@ -116,13 +116,7 @@ export function Production() {
                   base: paint.base - 1
                 }
               }),
-              shirtQuantity: production.totalDeCamisetas,
-              batches: Math.ceil(production.totalDeCamisetas/4)
-            });
-
-            console.log({
-              paints: production.base_producao_create,
-              shirtQuantity: production.totalDeCamisetas,
+              shirts: production.totalDeCamisetas,
               batches: Math.ceil(production.totalDeCamisetas/4)
             });
 

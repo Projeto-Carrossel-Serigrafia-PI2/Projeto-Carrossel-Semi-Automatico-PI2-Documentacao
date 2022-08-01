@@ -46,7 +46,7 @@ export default function Time() {
 			<h1>Tempo de execução</h1>
 
 			<div className="info">
-			  <h1>{ addLeadingZeros(hour, 2) }:{ addLeadingZeros(minute, 2) }:{ addLeadingZeros(second, 2) }</h1>
+				<h1>{ addLeadingZeros(hour, 2) }:{ addLeadingZeros(minute, 2) }:{ addLeadingZeros(second, 2) }</h1>
 			</div>
 		</div>
 	);
