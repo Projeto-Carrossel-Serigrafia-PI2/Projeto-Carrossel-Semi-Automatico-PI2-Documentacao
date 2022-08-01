@@ -1,17 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import { FiMinus, FiPlus } from 'react-icons/fi';
 
 import { Input } from './Input';
 import { ButtonEditParam } from './ButtonEditParam';
-import { ButtonConfirm } from './ButtonConfirm';
-import { ModalPaintsProps } from '../utils/types';
+import { ButtonRequest } from './ButtonRequest';
+import { ModalProps } from '../utils/types';
 import paintService from '../services/paintService';
 import { notify_success, notify_update, notify_error } from '../utils/toastify';
 
 import '../styles/components/ModalPaints.scss';
 
-export function ModalPaints(props: ModalPaintsProps) {
+export function ModalPaints(props: ModalProps) {
   const [typePaint, setTypePaint] = useState(props.paint.type);
   const [dryingTemperature, setDryingTemperature] = useState(
     props.paint.dryingTemperature
@@ -42,10 +42,10 @@ export function ModalPaints(props: ModalPaintsProps) {
         dryingTime,
       });
 
-      notify_success('Tinta criada com sucesso!');
+      notify_success('Base de tinta criada com sucesso!');
       props.setIsModalOpen!(false);
     } catch (error) {
-      notify_error('Não foi possível criar uma nova tinta!');
+      notify_error('Não foi possível criar uma nova base de tinta!');
       console.log(error);
     }
   };
@@ -59,13 +59,21 @@ export function ModalPaints(props: ModalPaintsProps) {
         dryingTime,
       });
 
-      notify_update('Tinta atualizada com sucesso!');
+      notify_update('Base de tinta atualizada com sucesso!');
       props.setIsModalOpen!(false);
     } catch (error) {
-      notify_error('Não foi possível criar uma nova tinta!');
+      notify_error('Não foi possível criar uma nova base de tinta!');
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (props.mode === 'criar') {
+      setDryingTemperature(0);
+      setDryingTime(0);
+      setTypePaint('');
+    }
+  }, [props.isModalOpen]);
 
   return (
     <Modal
@@ -93,10 +101,10 @@ export function ModalPaints(props: ModalPaintsProps) {
       }}
     >
       <div id="modal-session">
-        <h3>{props.mode === 'criar' ? 'Criar' : 'Editar'} tinta</h3>
+        <h3>{props.mode === 'criar' ? 'Criar' : 'Editar'} base de tinta</h3>
 
         <div className="param-box">
-          <h4>Tipo de tinta:</h4>
+          <h4>Base da tinta:</h4>
 
           <div>
             <Input
@@ -148,7 +156,7 @@ export function ModalPaints(props: ModalPaintsProps) {
           </div>
         </div>
 
-        <ButtonConfirm
+        <ButtonRequest
           title="Salvar"
           onClick={props.mode === 'criar' ? handleNewPaint : handleUpdatePaint}
         />

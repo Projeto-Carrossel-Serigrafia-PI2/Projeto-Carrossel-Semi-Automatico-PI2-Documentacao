@@ -1,21 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { useLocation } from 'react-router-dom';
 import { FaTshirt, FaAward } from 'react-icons/fa';
 import { RiPaintFill, RiDashboardLine } from 'react-icons/ri';
 
 import { Option } from '../components/Option';
 
+import PageContext from '../contexts/PageContext';
+
 import '../styles/components/SideBar.scss';
 
 export function SideBar() {
-  const [pageActive, setPageActive] = useState('production');
+  const { page, setPage } = useContext(PageContext);
 
-  function saveCurrentPage(page: string) {
-    sessionStorage.setItem('@SERIGRAFIA:current-page', page);
-  }
+  const location = useLocation();
 
   function getCurrentPage() {
-    const current_page = sessionStorage.getItem('@SERIGRAFIA:current-page');
-    setPageActive(current_page!);
+    const currentPage = location.pathname == '/' ? 'production' : location.pathname.substr(1, location.pathname.length - 2);
+
+    setPage(currentPage);
   }
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export function SideBar() {
   return (
     <div id="sidebar">
       <header>
-        <h1>Project Logo</h1>
+        <h1>Silkgician</h1>
       </header>
 
       <main>
@@ -33,15 +35,14 @@ export function SideBar() {
           icon={
             <FaTshirt
               size={18}
-              color={pageActive === 'production' ? '#B193EE' : '#E8E7EA'}
+              color={page === 'production' ? '#B193EE' : '#E8E7EA'}
             />
           }
           title="Produção"
-          active={pageActive === 'production'}
+          active={page === 'production'}
           route="/"
           onClick={() => {
-            setPageActive('production');
-            saveCurrentPage('production');
+            setPage('production');
           }}
         />
 
@@ -49,15 +50,14 @@ export function SideBar() {
           icon={
             <RiDashboardLine
               size={18}
-              color={pageActive === 'dashboard' ? '#B193EE' : '#E8E7EA'}
+              color={page === 'dashboard' ? '#B193EE' : '#E8E7EA'}
             />
           }
           title="Dashboard"
-          active={pageActive === 'dashboard'}
-          route="/dashboard"
+          active={page === 'dashboard'}
+          route="/dashboard/"
           onClick={() => {
-            setPageActive('dashboard');
-            saveCurrentPage('dashboard');
+            setPage('dashboard');
           }}
         />
 
@@ -65,22 +65,21 @@ export function SideBar() {
           icon={
             <RiPaintFill
               size={18}
-              color={pageActive === 'paint' ? '#B193EE' : '#E8E7EA'}
+              color={page === 'paints' ? '#B193EE' : '#E8E7EA'}
             />
           }
-          title="Tintas"
-          active={pageActive === 'paint'}
-          route="/paints"
+          title="Bases de tinta"
+          active={page === 'paints'}
+          route="/paints/"
           onClick={() => {
-            setPageActive('paint');
-            saveCurrentPage('paint');
+            setPage('paints');
           }}
         />
 
         <Option
           icon={<FaAward size={18} color="#E8E7EA" />}
           title="Verificar Qualidade"
-          route="/quality"
+          route="/quality/"
           onClick={() => {}}
         />
       </main>

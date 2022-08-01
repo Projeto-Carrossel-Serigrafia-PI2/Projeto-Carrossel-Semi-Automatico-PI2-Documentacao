@@ -9,6 +9,10 @@ export default function Paint() {
 	const [ paints, setPaints ] = useState([]);
 	const { parameters, state } = useContext(StateContext);
 
+	function findPaint(e) {
+		return e.id == parameters.paints[state.paint].base;
+	}
+
 	// On mount
 	useEffect(() => {
 		paintService.paintGetAll().then((data) => {
@@ -22,7 +26,7 @@ export default function Paint() {
 
 			<div className="info">
 				<h2>{ parameters.paints.length ? parameters.paints[state.paint].color : '-'}</h2>
-				<h3>{ parameters.paints.length && paints.length ? paints[parameters.paints[state.paint].base].type : '-'}</h3>
+				<h3>{ parameters.paints.length && paints.length ? paints.find(findPaint).type : '-'}</h3>
 				<h4>{ parameters.paints.length ? `${state.paint + 1}/${parameters.paints.length}` : '0/0' }</h4>
 			</div>
 		</div>

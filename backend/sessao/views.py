@@ -149,19 +149,31 @@ def startNextBatch():
 
 class ControleProducaoView(APIView):
 	def post(self, request):
-		action = request.data['action'] # 0: Start, 1: Next batch, ...
+		action = request.data['action']
 
 		try:
-			if(action == 0):
+			if(action == 0): # Start
 				setupProduction()
 				startProduction()
 
 				return Response({'error': False})
 
-			elif(action == 1):
+			elif(action == 1): # Next batch
 				if(not state['inSession']):
 					return Response({'error': True, 'description': 'Not in session.'})
 				startNextBatch()
+
+			elif(action == 2): # Submit time
+				elapsedTime = request.data['elapsedTime']
+				if(elapsedTime <= 0):
+					return Response({'error': True, 'description': 'Invalid elapsed time given.'})
+
+				production = Producao.objects.last()
+				production.tempoDeProducao = elapsedTime
+				production.save()
+
+			elif(action == 3): # Request quality analysis
+				return Response({'error': True, 'description': 'To be implemented.'})
 
 			return Response({'error': True, 'description': 'Invalid control action.'})
 

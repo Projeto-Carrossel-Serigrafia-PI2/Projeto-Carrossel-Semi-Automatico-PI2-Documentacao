@@ -1,17 +1,23 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiMinus } from 'react-icons/fi';
-import { toast } from 'react-toastify';
 
 import { Input } from '../components/Input';
-import { ButtonConfirm } from '../components/ButtonConfirm';
+import { ButtonRequest } from '../components/ButtonRequest';
 import { ButtonEditParam } from '../components/ButtonEditParam';
 import productionService from '../services/productionService';
 import paintService from '../services/paintService';
 import { ColorProps, PaintProps } from '../utils/types';
+
 import StateContext from '../contexts/StateContext';
+import PageContext from '../contexts/PageContext';
 
 import '../styles/pages/Production.scss';
+import {
+  notify_error,
+  notify_success,
+  notify_warning,
+} from '../utils/toastify';
 
 const data: ColorProps[] = [
   {
@@ -26,7 +32,8 @@ export function Production() {
   const [quantityTShirts, setQuantityTShirts] = useState(0);
   const [speed, setSpeed] = useState(0);
   const [colors, setColors] = useState<ColorProps[]>(data);
-  const { setParameters, setState } = useContext(StateContext);
+  const { parameters, setParameters, setState } = useContext(StateContext);
+  const { setPage } = useContext(PageContext);
   const navigate = useNavigate();
 
   function handleIncreaseTShirts() {
@@ -38,11 +45,11 @@ export function Production() {
   }
 
   function handleIncreaseSpeed() {
-    setSpeed(speed + 5);
+    setSpeed(speed + 1);
   }
 
   function handleDecreaseSpeed() {
-    setSpeed(speed - 5);
+    setSpeed(speed - 1);
   }
 
   function handleFormChangeColor(
@@ -82,8 +89,26 @@ export function Production() {
     setColors([...colors, newColor]);
   }
 
-  function handleCreateProduction() {
-    try {
+  async function handleCreateProduction() {
+    if(parameters.paints.length)
+      notify_error(
+        `Uma produção já está em progresso! Pause ou finalize-a antes
+         de começar outra.`
+      );
+
+    else {
+      if (quantityTShirts <= 0) {
+        notify_warning('Quantidade de camisetas é obrigatório!');
+        return;
+      }
+      if (speed <= 0) {
+        notify_warning('A velocidade é obrigatória!');
+        return;
+      }
+      if (!colors[0].color || colors[0].type === 0) {
+        notify_warning('Defina ao menos 1 cor!');
+        return;
+      }
       let data_colors: { cor: string; base: number }[] = [];
 
       for (let index = 0; index < colors.length; index++) {
@@ -99,12 +124,10 @@ export function Production() {
         base_producao_create: data_colors,
       };
 
-      console.log(production);
-
-      productionService.productionCreate(production).then(() => {
+      productionService.productionCreate(production).then((res) => {
         productionService.productionStart().then((response) => {
           if(response.data.error) {
-            toast.error('Não foi possível executar a produção!');
+            notify_error('Não foi possível executar a produção!');
             console.log(response.data.description)
           }
 
@@ -113,7 +136,7 @@ export function Production() {
               paints: production.base_producao_create.map((paint) => {
                 return {
                   color: paint.cor,
-                  base: paint.base - 1
+                  base: paint.base
                 }
               }),
               shirts: production.totalDeCamisetas,
@@ -126,19 +149,16 @@ export function Production() {
               });
             }, 1000);
 
-            navigate('/dashboard');
-
-            toast.success('Produção criada e inicializada com sucesso!');
+            navigate(`/dashboard/`);
+            setPage('dashboard');
+            notify_success('Produção criada e inicializada com sucesso!');
           }
         }).catch((e) => {
-          toast.error('Não foi possível executar a produção!');
+          notify_error('Não foi possível executar a produção!');
         });
       }).catch(() => {
-        toast.error('Não foi possível criar a produção!');
-      });
-    } catch (error) {
-      toast.error('Não foi possível criar a produção!');
-      console.log(error);
+        notify_error('Não foi possível criar a produção!');
+      });  
     }
   }
 
@@ -224,7 +244,7 @@ export function Production() {
               </section>
 
               <section className="input-group">
-                <h4>Tipo de tinta:</h4>
+                <h4>Base da tinta:</h4>
                 <select
                   value={paints.find((paint) => paint.id === item.id)?.type}
                   onChange={(e) => handleFormChangeTypeColor(index, e)}
@@ -244,13 +264,19 @@ export function Production() {
 
         <div className="buttons-group">
           <div>
-            <ButtonConfirm
-              title="Criar nova cor"
+            <ButtonRequest
+              title="Adicionar nova cor"
               onClick={handleCreateNewColor}
               style={{ backgroundColor: '#4fce88' }}
+              disabled={
+                colors[colors.length - 1]?.color &&
+                colors[colors.length - 1]?.type
+                  ? false
+                  : true
+              }
             />
           </div>
-          <ButtonConfirm
+          <ButtonRequest
             title="Iniciar produção"
             onClick={handleCreateProduction}
           />
