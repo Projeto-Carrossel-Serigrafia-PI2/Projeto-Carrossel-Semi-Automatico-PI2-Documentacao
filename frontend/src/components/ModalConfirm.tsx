@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import Modal from 'react-modal';
 
 import { ButtonRequest } from './ButtonRequest';
@@ -5,19 +6,28 @@ import { ModalProps } from '../utils/types';
 import { notify_error, notify_success } from '../utils/toastify';
 import paintService from '../services/paintService';
 
+import StateContext from '../contexts/StateContext';
+
 import '../styles/components/ModalConfirm.scss';
 
 export function ModalConfirm(props: ModalProps) {
-  const handleDeletePaint = async () => {
-    try {
-      await paintService.paintDelete(props.paint.id!);
+  const { parameters } = useContext(StateContext);
 
-      props.setIsModalOpen!(false);
-      notify_success('Base de tinta deletada com sucesso!');
-      props.paint.setReload!(!props.paint.reload);
-    } catch (error) {
-      notify_error('Não foi possível deletar a base selecionada!');
-      console.log(error);
+  const handleDeletePaint = async () => {
+    if(parameters.paints.length)
+      notify_error('Não é possível excluir uma base enquanto uma produção está em progresso!');
+
+    else {
+      try {
+        await paintService.paintDelete(props.paint.id!);
+
+        props.setIsModalOpen!(false);
+        notify_success('Base de tinta deletada com sucesso!');
+        props.paint.setReload!(!props.paint.reload);
+      } catch (error) {
+        notify_error('Não foi possível deletar a base selecionada!');
+        console.log(error);
+      } 
     }
   };
 
