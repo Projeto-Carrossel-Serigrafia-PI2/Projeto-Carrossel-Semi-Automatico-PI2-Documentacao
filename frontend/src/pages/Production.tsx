@@ -91,7 +91,10 @@ export function Production() {
 
   async function handleCreateProduction() {
     if(parameters.paints.length)
-      notify_error('Uma produção já está em progresso!');
+      notify_error(
+        `Uma produção já está em progresso! Pause ou finalize-a antes
+         de começar outra.`
+      );
 
     else {
       if (quantityTShirts <= 0) {
