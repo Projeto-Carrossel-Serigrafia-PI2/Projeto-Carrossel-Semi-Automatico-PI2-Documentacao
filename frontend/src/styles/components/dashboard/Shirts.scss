@@ -4,6 +4,7 @@
 
   > .info {
     width: 100%;
+    overflow: hidden;
 
     > .drying {
       display: flex;
@@ -55,7 +56,6 @@
 
     > .quality {
       overflow: hidden;
-      background-color: red;
       width: 100%;
       height: 100%;
       display: block;
@@ -63,12 +63,49 @@
       .carousel-root, .carousel {
         width: 100%;
         height: 100%;
+
+        .slider-wrapper, .slider {
+          height: 100%;
+        }
+
+        .control-arrow {
+          background-color: gray;
+        }
       }
 
-      .a {
+      .result {
         width: 100%;
         height: 100%;
-        background-color: blue;
+        overflow: hidden;
+
+        > table {
+          width: 100%;
+          height: 40%;
+          background-color: #D9D9D9;
+          border: none;
+          border-collapse: collapse;
+          font-size: 1.4em;
+
+          > tr {
+            &:nth-child(even) {
+              background-color: white;
+            }
+
+            > td {
+              border: none;
+              padding: 0 1em;
+
+              &:first-child {
+                padding-left: 1em;
+                text-align: left;
+              }
+
+              &:last-child {
+                text-align: center;
+              }
+            }
+          }
+        }
       }
     }
   }
