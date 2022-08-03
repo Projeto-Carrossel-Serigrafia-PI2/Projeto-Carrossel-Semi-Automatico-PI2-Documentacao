@@ -32,7 +32,8 @@ class ProducaoSerializer(serializers.ModelSerializer):
             "totalDeCamisetas",
             "velocidade",
             "base_producao_create",
-            "base_producao_get"
+            "base_producao_get",
+            "image"
         )
 
     def create(self, validated_data):
