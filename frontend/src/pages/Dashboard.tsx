@@ -18,7 +18,7 @@ export function Dashboard() {
   const content = useRef();
 
   function calculateHeights() {
-    if(parameters.paints.length) {
+    if(parameters.paints.length || true) {
       const mainHeight = main.current.offsetHeight;
       const h1Height = h1.current.offsetHeight;
       const finalHeight = mainHeight - h1Height;
@@ -38,10 +38,10 @@ export function Dashboard() {
   }, []);
 
   return (
-    <div id="dashboard" style={!parameters.paints.length ? {display: 'flex'} : {}}>
+    <div id="dashboard" style={!parameters.paints.length && false ? {display: 'flex'} : {}}>
       <ToastContainer />
 
-      { parameters.paints.length
+      { parameters.paints.length || true
         ? <div ref={main} className="main">
             <h1 ref={h1}>Dashboard</h1>
 
