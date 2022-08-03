@@ -10,21 +10,21 @@ import 'react-toastify/dist/ReactToastify.css';
 import Paint from '../components/dashboard/Paint';
 import Time from '../components/dashboard/Time';
 import Shirts from '../components/dashboard/Shirts';
+import BatchModal from '../components/dashboard/BatchModal';
 
 export function Dashboard() {
-  const { parameters } = useContext(StateContext);
+  const { state, parameters } = useContext(StateContext);
   const main = useRef();
   const h1 = useRef();
   const content = useRef();
 
   function calculateHeights() {
-    if(parameters.paints.length || true) {
+    if(parameters.paints.length) {
       const mainHeight = main.current.offsetHeight;
       const h1Height = h1.current.offsetHeight;
       const finalHeight = mainHeight - h1Height;
 
       content.current.style.height = finalHeight + 'px';
-
     }
   }
 
@@ -38,10 +38,13 @@ export function Dashboard() {
   }, []);
 
   return (
-    <div id="dashboard" style={!parameters.paints.length && false ? {display: 'flex'} : {}}>
+    <div id="dashboard" style={!parameters.paints.length ? {display: 'flex'} : {}}>
       <ToastContainer />
+      <BatchModal 
+        isOpen={state.waitingNewBatch}
+      />
 
-      { parameters.paints.length || true
+      { parameters.paints.length
         ? <div ref={main} className="main">
             <h1 ref={h1}>Dashboard</h1>
 

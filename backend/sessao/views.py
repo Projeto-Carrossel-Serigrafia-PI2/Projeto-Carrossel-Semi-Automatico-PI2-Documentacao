@@ -161,7 +161,10 @@ class ControleProducaoView(APIView):
 			elif(action == 1): # Next batch
 				if(not state['inSession']):
 					return Response({'error': True, 'description': 'Not in session.'})
+				if(not state['waitingNewBatch']):
+					return Response({'error': True, 'description': 'Not waiting for next batch.'})
 				startNextBatch()
+				return Response({'error': False})
 
 			elif(action == 2): # Submit time
 				elapsedTime = request.data['elapsedTime']

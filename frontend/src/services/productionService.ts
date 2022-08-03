@@ -18,6 +18,12 @@ class ProductionService {
   productionState() {
     return api.get('/estado/');
   }
+
+  productionNextBatch() {
+    return api.post('/controleProducao/', {
+      action: 1
+    });
+  }
 }
 
 const productionService = new ProductionService();

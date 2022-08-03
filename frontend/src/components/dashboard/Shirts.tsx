@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+
 import { FaTshirt } from 'react-icons/fa';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { Carousel } from 'react-responsive-carousel';
@@ -61,9 +62,9 @@ export default function Shirts() {
 			setDriedShirts(Math.min(parameters.shirts, state.batch * 4));
 	}, [state.batch]);
 
-	useEffect(() => {
+	/*useEffect(() => {
 		getResults();
-	}, []);
+	}, []);*/
 
 	return (
 		<div className="shirts">
