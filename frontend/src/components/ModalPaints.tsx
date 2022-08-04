@@ -12,11 +12,11 @@ import { notify_success, notify_update, notify_error } from '../utils/toastify';
 import '../styles/components/ModalPaints.scss';
 
 export function ModalPaints(props: ModalProps) {
-  const [typePaint, setTypePaint] = useState(props.paint.type);
+  const [typePaint, setTypePaint] = useState(props.paint!.type);
   const [dryingTemperature, setDryingTemperature] = useState(
-    props.paint.dryingTemperature
+    props.paint!.dryingTemperature
   );
-  const [dryingTime, setDryingTime] = useState(props.paint.dryingTime);
+  const [dryingTime, setDryingTime] = useState(props.paint!.dryingTime);
 
   const handleIncreaseTemperature = () => {
     setDryingTemperature(dryingTemperature + 5);
@@ -42,10 +42,10 @@ export function ModalPaints(props: ModalProps) {
         dryingTime,
       });
 
-      notify_success('Tinta criada com sucesso!');
+      notify_success('Base de tinta criada com sucesso!');
       props.setIsModalOpen!(false);
     } catch (error) {
-      notify_error('Não foi possível criar uma nova tinta!');
+      notify_error('Não foi possível criar uma nova base tinta!');
       console.log(error);
     }
   };
@@ -53,16 +53,16 @@ export function ModalPaints(props: ModalProps) {
   const handleUpdatePaint = async () => {
     try {
       await paintService.paintUpdate({
-        id: props.paint.id,
+        id: props.paint!.id,
         type: typePaint,
         dryingTemperature,
         dryingTime,
       });
 
-      notify_update('Tinta atualizada com sucesso!');
+      notify_update('Base de tinta atualizada com sucesso!');
       props.setIsModalOpen!(false);
     } catch (error) {
-      notify_error('Não foi possível criar uma nova tinta!');
+      notify_error('Não foi possível criar uma nova base de tinta!');
       console.log(error);
     }
   };

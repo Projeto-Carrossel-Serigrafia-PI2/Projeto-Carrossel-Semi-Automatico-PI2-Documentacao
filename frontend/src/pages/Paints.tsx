@@ -7,46 +7,6 @@ import paintService from '../services/paintService';
 import { PaintProps } from '../utils/types';
 
 import '../styles/pages/Paints.scss';
-import { ModalConfirm } from '../components/ModalConfirm';
-
-const data = [
-  {
-    id: 1,
-    type: '',
-    dryingTemperature: '',
-    dryingTime: '',
-  },
-  {
-    id: 2,
-    type: '',
-    dryingTemperature: '',
-    dryingTime: '',
-  },
-  {
-    id: 3,
-    type: '',
-    dryingTemperature: '',
-    dryingTime: '',
-  },
-  {
-    id: 4,
-    type: '',
-    dryingTemperature: '',
-    dryingTime: '',
-  },
-  {
-    id: 5,
-    type: '',
-    dryingTemperature: '',
-    dryingTime: '',
-  },
-  {
-    id: 6,
-    type: '',
-    dryingTemperature: '',
-    dryingTime: '',
-  },
-];
 
 export function Paints() {
   const [paints, setPaints] = useState<PaintProps[]>([]);

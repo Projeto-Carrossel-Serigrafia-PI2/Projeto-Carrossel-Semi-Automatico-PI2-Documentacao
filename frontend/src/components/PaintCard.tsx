@@ -2,10 +2,10 @@ import { useState } from 'react';
 
 import { ButtonRequest } from './ButtonRequest';
 import { ModalPaints } from './ModalPaints';
+import { ModalConfirm } from './ModalConfirm';
 import { PaintProps } from '../utils/types';
 
 import '../styles/components/PaintCard.scss';
-import { ModalConfirm } from './ModalConfirm';
 
 export function PaintCard(props: PaintProps) {
   const [isModalPaintsOpen, setIsModalPaintsOpen] = useState(false);
@@ -45,7 +45,7 @@ export function PaintCard(props: PaintProps) {
       />
 
       <div className="data-box">
-        <h2>Tipo de tinta:</h2>
+        <h2>Base de tinta:</h2>
         <p>{props.type}</p>
       </div>
 
@@ -61,7 +61,11 @@ export function PaintCard(props: PaintProps) {
 
       <div className="buttons-group">
         <div>
-          <ButtonRequest title="Editar" color="#1F272D" onClick={openModalPaints} />
+          <ButtonRequest
+            title="Editar"
+            color="#1F272D"
+            onClick={openModalPaints}
+          />
         </div>
         <ButtonRequest
           title="Remover"
