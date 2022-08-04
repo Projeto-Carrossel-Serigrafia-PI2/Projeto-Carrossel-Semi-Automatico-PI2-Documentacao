@@ -62,10 +62,6 @@ export default function Shirts() {
 			setDriedShirts(Math.min(parameters.shirts, state.batch * 4));
 	}, [state.batch]);
 
-	/*useEffect(() => {
-		getResults();
-	}, []);*/
-
 	return (
 		<div className="shirts">
 			<h1>Camisetas</h1>
@@ -157,7 +153,7 @@ export default function Shirts() {
 									<MoonLoader speedMultiplier="0.5" />
 									<p>Aguardando produção</p>
 								  </>
-								: <button>Iniciar análise</button>
+								: <button onClick={getResults}>Iniciar análise</button>
 							}
 							
 						</div>

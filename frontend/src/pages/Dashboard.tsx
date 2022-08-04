@@ -10,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Paint from '../components/dashboard/Paint';
 import Time from '../components/dashboard/Time';
 import Shirts from '../components/dashboard/Shirts';
+import Temperature from '../components/dashboard/Temperature';
 import BatchModal from '../components/dashboard/BatchModal';
 
 export function Dashboard() {
@@ -49,11 +50,11 @@ export function Dashboard() {
             <h1 ref={h1}>Dashboard</h1>
 
             <div ref={content} className="content">
-              <div className="temperature"></div>
               <Shirts />
               <div className="speed"></div>
               <Paint />
               <Time />
+              <Temperature />
             </div>
           </div>
         : <span>Nenhuma produção em andamento</span>

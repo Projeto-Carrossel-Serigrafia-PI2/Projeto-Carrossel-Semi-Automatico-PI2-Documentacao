@@ -13,7 +13,7 @@ function App() {
   const [state, setState] = useState({
     paint: 0,
     batch: 0,
-    temperature: 0,
+    temperatures: [0, 0],
     waitingNewBatch: false
   });
 

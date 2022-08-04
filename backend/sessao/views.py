@@ -141,11 +141,13 @@ def startNextBatch():
 	if(state['batch'] >= len(state['parameters']['batches'])):
 		state['inSession'] = False
 
-	else:
-		state['paint'] = 0
-		state['driedBatchShirts'] = -1
-		state['rotation'] = 0
-		state['waitingNewBatch'] = False
+	state['paint'] = 0
+	state['driedBatchShirts'] = -1
+	state['rotation'] = 0
+	state['waitingNewBatch'] = False
+
+def getTemperatures():
+	return [112, 30]
 
 class ControleProducaoView(APIView):
 	def post(self, request):
@@ -186,9 +188,11 @@ class ControleProducaoView(APIView):
 
 class StateView(APIView):
 	def get(self, request):
+		temperatures = getTemperatures()
+
 		return Response({
 			'paint': state['paint'],
 			'batch': state['batch'],
-			'temperature': state['temperature'],
-			'waitingNewBatch': state['waitingNewBatch']
-			})
+			'waitingNewBatch': state['waitingNewBatch'],
+			'temperatures': temperatures
+		})

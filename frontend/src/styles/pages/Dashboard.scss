@@ -28,8 +28,9 @@
       grid-template-areas:
         "temperature shirts"
         "speed shirts"
+        "paint shirts"
         "paint time";
-      grid-template-rows: 1fr 1fr 2fr;
+      grid-template-rows: 1fr 1fr 0.25fr 1fr;
       grid-template-columns: 1fr 1fr;
       grid-gap: 4rem;
       width: 100%;
@@ -62,10 +63,6 @@
           justify-content: center;
           align-items: center;
         }
-      }
-
-      > .temperature {
-        grid-area: temperature;
       }
 
       > .speed {
