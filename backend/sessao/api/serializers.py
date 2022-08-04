@@ -1,4 +1,6 @@
+from pickle import FALSE
 from wsgiref import validate
+from xmlrpc.client import Boolean
 from rest_framework import serializers
 from sessao import models 
 
@@ -30,7 +32,8 @@ class ProducaoSerializer(serializers.ModelSerializer):
             "totalDeCamisetas",
             "velocidade",
             "base_producao_create",
-            "base_producao_get"
+            "base_producao_get",
+            "image"
         )
 
     def create(self, validated_data):
@@ -43,4 +46,11 @@ class LoteSerializer(serializers.ModelSerializer):
         model = models.Lote
         fields = '__all__'           
 
+    def update(self, instance, validated_data):
+        instance.image = validated_data.get('image', instance.image)
+        ##implementar aqui a validação da camiseta
+        instance.aprovado = 'n'
+        instance.save()
+        return instance
+       
     

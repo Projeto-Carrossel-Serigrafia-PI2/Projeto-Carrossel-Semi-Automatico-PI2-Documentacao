@@ -24,6 +24,8 @@ route = routers.DefaultRouter()
 route.register(r'base',SessaoViewSets.baseViewSets, basename='base')
 route.register(r'producao',SessaoViewSets.ProducaoViewSets, basename='producao')
 route.register(r'baseProducao',SessaoViewSets.BaseProducaoViewSets,basename = 'baseProducao')
+route.register(r'lote',SessaoViewSets.LoteViewSets,basename = 'lote')
+
 
 
 urlpatterns = [
