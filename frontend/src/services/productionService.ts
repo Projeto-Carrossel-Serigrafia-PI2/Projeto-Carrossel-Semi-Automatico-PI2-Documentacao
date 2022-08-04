@@ -5,7 +5,8 @@ class ProductionService {
     const response = await api.post('/producao/', {
       totalDeCamisetas: data.totalDeCamisetas,
       velocidade: data.velocidade,
-      base_producao_create: data.base_producao_create
+      base_producao_create: data.base_producao_create,
+      image: data.image,
     });
 
     return response;
