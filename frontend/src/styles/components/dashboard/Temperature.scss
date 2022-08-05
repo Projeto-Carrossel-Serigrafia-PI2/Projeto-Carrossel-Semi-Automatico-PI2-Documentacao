@@ -1,7 +1,25 @@
 .temperature {
 	grid-area: temperature;
+	font-size: 12px;
 
 	> .info {
 		width: 100%;
+
+		> .flashcure, .environment {
+			width: 100%;
+			display: flex;
+			flex-direction: row;
+			padding: 0 1em;
+			box-sizing: border-box;
+			font-size: 1.3em;
+
+			> span {
+				width: 20%;
+			}
+		}
+
+		> .flashcure {
+			margin-bottom: 2em;
+		}
 	}
 }
