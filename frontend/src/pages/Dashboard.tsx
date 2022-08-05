@@ -1,23 +1,22 @@
+import React, { useContext } from 'react';
 import { useParams } from 'react-router-dom';
+
+import StateContext from '../contexts/StateContext';
 
 import '../styles/pages/Dashboard.scss';
 
 export function Dashboard() {
-  const { production_id } = useParams();
+  const { parameters } = useContext(StateContext);
 
   return (
-    <div
-      id="dashboard"
-      className={Number(production_id) === 0 ? 'no-production' : ''}
-    >
+    <div id="dashboard">
       <h1>Dashboard</h1>
 
       <main>
-        {Number(production_id) !== 0 ? (
-          <div></div>
-        ) : (
-          <span>Nenhuma produção em andamento</span>
-        )}
+        { parameters.paints.length
+          ? <span>Produção em andamento</span>
+          : <span>Nenhuma produção em andamento</span>
+        }
       </main>
     </div>
   );

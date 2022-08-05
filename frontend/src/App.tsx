@@ -1,9 +1,27 @@
 import { Router } from './Router';
 
+import React, { useState } from 'react';
+import StateContext from './contexts/StateContext';
+
 function App() {
+  const [parameters, setParameters] = useState({
+    paints: [],
+    shirtQuantity: 0,
+    batches: 0
+  });
+
+  const [state, setState] = useState({
+    paint: 0,
+    batch: 0,
+    temperature: 0,
+    waitingNewBatch: false
+  });
+
   return (
     <div id="app">
-      <Router />
+      <StateContext.Provider value={{ parameters, setParameters, state, setState }}>
+        <Router />
+      </StateContext.Provider>
     </div>
   );
 }

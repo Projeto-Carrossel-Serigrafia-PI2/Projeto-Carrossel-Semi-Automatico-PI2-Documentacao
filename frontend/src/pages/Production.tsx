@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { FiPlus, FiMinus, FiCamera, FiUpload } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,6 +10,10 @@ import { ModalPhoto } from '../components/ModalPhoto';
 import productionService from '../services/productionService';
 import paintService from '../services/paintService';
 import { ColorProps, PaintProps } from '../utils/types';
+
+import StateContext from '../contexts/StateContext';
+import PageContext from '../contexts/PageContext';
+
 import {
   notify_error,
   notify_success,
@@ -35,7 +39,10 @@ export function Production() {
   const [colors, setColors] = useState<ColorProps[]>(data);
   const [isModalPhotoOpen, setIsModalPhotoOpen] = useState(false);
 
-  const openModalPhoto = () => {
+  const { parameters, setParameters, setState } = useContext(StateContext);
+  const { setPage } = useContext(PageContext);
+
+  const openModalPhoto = async () => {
     setIsModalPhotoOpen(true);
   };
 
@@ -99,7 +106,13 @@ export function Production() {
   }
 
   async function handleCreateProduction() {
-    try {
+    if(parameters.paints.length)
+      notify_error(
+        `Uma produção já está em progresso! Pause ou finalize-a antes
+         de começar outra.`
+      );
+
+    else {
       if (quantityTShirts <= 0) {
         notify_warning('Quantidade de camisetas é obrigatório!');
         return;
@@ -128,14 +141,39 @@ export function Production() {
         image: imageTaken ? imageTaken : imageUpload,
       };
 
-      const response = await productionService.productionCreate(production);
-      const production_id = response.data.base_producao_get[0].producao;
-      notify_success('Produção criada com sucesso!');
+      productionService.productionCreate(production).then((res) => {
+        const production_id = res.data.base_producao_get[0].producao;
 
-      navigate(`/dashboard/${production_id}`, { replace: true });
-    } catch (error) {
-      notify_error('Não foi possível criar a produção!');
-      console.log(error);
+        productionService.productionStart().then((response) => {
+          if(response.data.error) {
+            notify_error('Não foi possível executar a produção!');
+            console.log(response.data.description)
+          }
+
+          else {
+            setParameters({
+              paints: production.base_producao_create,
+              shirtQuantity: production.totalDeCamisetas,
+              batches: Math.ceil(production.totalDeCamisetas/4)
+            });
+
+            window.updateInterval = setInterval(() => {
+              productionService.productionState().then((response) => {
+                setState(response.data);
+                console.log(response.data)
+              });
+            }, 1000);
+
+            navigate(`/dashboard/`);
+            setPage('dashboard');
+            notify_success('Produção criada e inicializada com sucesso!');
+          }
+        }).catch((e) => {
+          notify_error('Não foi possível executar a produção!');
+        });
+      }).catch(() => {
+        notify_error('Não foi possível criar a produção!');
+      });  
     }
   }
 
@@ -257,6 +295,7 @@ export function Production() {
 
               <section className="input-group">
                 <h4>Base de tinta:</h4>
+
                 <select
                   value={paints.find((paint) => paint.id === item.id)?.type}
                   onChange={(e) => handleFormChangeTypeColor(index, e)}
@@ -277,7 +316,7 @@ export function Production() {
         <div className="buttons-group">
           <div>
             <ButtonRequest
-              title="Criar nova cor"
+              title="Adicionar nova cor"
               onClick={handleCreateNewColor}
               style={{ backgroundColor: '#4fce88' }}
               disabled={

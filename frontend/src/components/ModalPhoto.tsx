@@ -61,6 +61,7 @@ export function ModalPhoto(props: ModalPhotoProps) {
             onCameraStart={() => {
               handleCameraStart();
             }}
+            isMaxResolution={true}
           />
         ) : (
           <div>

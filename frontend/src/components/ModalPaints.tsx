@@ -45,7 +45,7 @@ export function ModalPaints(props: ModalProps) {
       notify_success('Base de tinta criada com sucesso!');
       props.setIsModalOpen!(false);
     } catch (error) {
-      notify_error('Não foi possível criar uma nova base tinta!');
+      notify_error('Não foi possível criar uma nova base de tinta!');
       console.log(error);
     }
   };
@@ -101,10 +101,10 @@ export function ModalPaints(props: ModalProps) {
       }}
     >
       <div id="modal-session">
-        <h3>{props.mode === 'criar' ? 'Criar' : 'Editar'} tinta</h3>
+        <h3>{props.mode === 'criar' ? 'Criar' : 'Editar'} base de tinta</h3>
 
         <div className="param-box">
-          <h4>Tipo de tinta:</h4>
+          <h4>Base da tinta:</h4>
 
           <div>
             <Input

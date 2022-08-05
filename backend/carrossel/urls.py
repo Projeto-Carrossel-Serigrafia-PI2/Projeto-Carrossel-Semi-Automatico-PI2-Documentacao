@@ -18,6 +18,7 @@ from django.urls import path , include
 
 from rest_framework import routers
 from sessao.api import viewset as SessaoViewSets
+from sessao.views import ControleProducaoView, StateView
 
 route = routers.DefaultRouter()
 
@@ -30,5 +31,7 @@ route.register(r'lote',SessaoViewSets.LoteViewSets,basename = 'lote')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('controleProducao/', ControleProducaoView.as_view()),
+    path('estado/', StateView.as_view()),
     path('',include(route.urls))
 ]
