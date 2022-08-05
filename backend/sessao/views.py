@@ -189,3 +189,19 @@ class StateView(APIView):
 			'temperature': state['temperature'],
 			'waitingNewBatch': state['waitingNewBatch']
 			})
+
+class TurnSystemOnView(APIView):
+	def post(self, request):
+		# do stuff
+		return Response({
+			'error': False,
+			'status': 200
+		})
+		
+class TurnSystemOffView(APIView):
+	def post(self, request):
+		# do stuff
+		return Response({
+			'error': False,
+			'status': 200
+		})
