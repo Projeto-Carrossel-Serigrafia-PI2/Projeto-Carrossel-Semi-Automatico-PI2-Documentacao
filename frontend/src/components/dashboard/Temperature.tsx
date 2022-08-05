@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useContext } from 'react';
 
 import ProgressBar from './ProgressBar';
 
@@ -24,7 +24,7 @@ export default function Temperature() {
 						limits={temperatureLimits}
 						current={state.temperatures[0]}
 						width="80%"
-						height="1.5em"
+						height="1.85em"
 						color="#FF5555"
 					/>
 				</div>
@@ -37,7 +37,7 @@ export default function Temperature() {
 						limits={[0, 100]}
 						current={state.temperatures[1]}
 						width="80%"
-						height="1.5em"
+						height="1.85em"
 						color="#277B96"
 					/>
 				</div>

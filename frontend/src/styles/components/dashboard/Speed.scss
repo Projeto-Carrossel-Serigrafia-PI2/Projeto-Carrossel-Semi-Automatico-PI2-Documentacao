@@ -1,11 +1,11 @@
-.temperature {
-	grid-area: temperature;
+.speed {
+	grid-area: speed;
 	font-size: 12px;
 
 	> .info {
 		width: 100%;
 
-		> .flashcure, .environment {
+		> .motor {
 			width: 100%;
 			display: flex;
 			flex-direction: row;
@@ -13,13 +13,9 @@
 			box-sizing: border-box;
 
 			> span {
-				font-size: 1.5em;
 				width: 20%;
+				font-size: 1.5em;
 			}
-		}
-
-		> .flashcure {
-			margin-bottom: 2em;
 		}
 	}
 }

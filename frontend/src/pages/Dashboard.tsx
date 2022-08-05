@@ -11,6 +11,7 @@ import Paint from '../components/dashboard/Paint';
 import Time from '../components/dashboard/Time';
 import Shirts from '../components/dashboard/Shirts';
 import Temperature from '../components/dashboard/Temperature';
+import Speed from '../components/dashboard/Speed';
 import BatchModal from '../components/dashboard/BatchModal';
 
 export function Dashboard() {
@@ -55,6 +56,7 @@ export function Dashboard() {
               <Paint />
               <Time />
               <Temperature />
+              <Speed />
             </div>
           </div>
         : <span>Nenhuma produção em andamento</span>
