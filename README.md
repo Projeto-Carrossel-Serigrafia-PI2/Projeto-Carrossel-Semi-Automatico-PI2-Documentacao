@@ -11,6 +11,10 @@
 ## Ponto de controle 2
 1. Relatório PC2;
 2. Apresentação PC2.
+3. [Demonstração de estrutura](https://www.youtube.com/watch?v=xxj_gp6b1Ss);  
+4. [Demonstração de Software 01](https://www.youtube.com/watch?v=y3_EY3GomqQ);  
+5. [Demonstração de Software 02](https://www.youtube.com/watch?v=681mqDAlAaw);
+6. [Demonstração de Eletrônica](https://youtube.com/shorts/UUEn3TB_OuY);  
 
 ## Ponto de controle 3
 1. Relatório Final PC3;
