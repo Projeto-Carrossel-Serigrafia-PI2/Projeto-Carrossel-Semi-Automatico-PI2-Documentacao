@@ -14,7 +14,7 @@
 4. [Demonstração de estrutura](https://www.youtube.com/watch?v=xxj_gp6b1Ss);  
 5. [Demonstração de Software 01](https://www.youtube.com/watch?v=y3_EY3GomqQ);  
 6. [Demonstração de Software 02](https://www.youtube.com/watch?v=681mqDAlAaw);
-7. [Demonstração de Eletrônica](https://youtube.com/shorts/k-reLktO9RY?feature=share);  
+7. [Demonstração de Eletrônica](https://youtu.be/J21rQBZoXao);  
 
 ## Ponto de controle 3
 1. Relatório Final PC3;
