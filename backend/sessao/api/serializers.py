@@ -1,6 +1,3 @@
-from pickle import FALSE
-from wsgiref import validate
-from xmlrpc.client import Boolean
 from rest_framework import serializers
 from sessao import models 
 
@@ -8,7 +5,6 @@ class BaseSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Base
     fields = '__all__'   
-
 
 class BaseProducaoSerializer(serializers.ModelSerializer):
 
@@ -39,7 +35,6 @@ class ProducaoSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         producao = models.Producao.objects.create_from_json(validated_data)
         return producao
-
 
 class LoteSerializer(serializers.ModelSerializer):
     class Meta:

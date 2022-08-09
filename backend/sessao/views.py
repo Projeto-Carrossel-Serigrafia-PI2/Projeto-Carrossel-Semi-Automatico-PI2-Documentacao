@@ -3,11 +3,10 @@ from rest_framework.views import APIView
 
 # from carrossel.settings import CONFIG
 
-from sessao.models import Producao, Base, BaseProducao, Lote
+from sessao.models import Producao, BaseProducao, Lote
 
 import asyncio
 import keyboard # For debugging
-import pprint
 
 CONFIG = {
 	'FLASHCURE': {
