@@ -1,7 +1,11 @@
 import cv2 as cv
 import numpy as np
+import os
 
-def take_photo():
+dirname = os.path.dirname(__file__)
+path_photo = os.path.join(dirname, './assets/')
+
+def take_photo(batch):
   # open a camera for video capturing
   image = cv.VideoCapture(0)
 
@@ -12,17 +16,20 @@ def take_photo():
   cv.imshow('image', frame)
 
   # save image
-  cv.imwrite('analysis/c1.png',frame) 
+  cv.imwrite(path_photo + 'batches_photos/batch_' + str(batch) + '.jpg', frame) 
   
   # Release the video capture object
   image.release()
   cv.destroyAllWindows()
 
 def cut_shirt_print(image_filename, image_type, r_width, r_height):
-  # Reading image
-  image = cv.imread('./data_files/' + image_filename)
+  if image_type == 'reference':
+    # Reading image
+    image = cv.imread(path_photo + 'reference_photo/' + image_filename)
+  else:
+    # Reading image
+    image = cv.imread(path_photo + 'batches_photos/' + image_filename)
 
-  if image_type == 'to_analyze':
     # Dilatation. Close small holes
     kernel = np.ones((3, 3), np.uint8)
     image = cv.morphologyEx(image, cv.MORPH_CLOSE, kernel)
@@ -97,7 +104,7 @@ def cut_shirt_print(image_filename, image_type, r_width, r_height):
       interpolation=cv.INTER_AREA
     )
 
-    cv.imwrite('./cropped/reference.jpg', image_cut)
+    cv.imwrite(path_photo + 'reference_photo/' + image_filename)
   else:
     image_cut = cv.resize(
       image_cut,
@@ -105,7 +112,7 @@ def cut_shirt_print(image_filename, image_type, r_width, r_height):
       interpolation=cv.INTER_AREA
     )
 
-    cv.imwrite('./cropped/to_analyze.jpg', image_cut)
+    cv.imwrite(path_photo + 'batches_photos/' + image_filename)
 
   return image_reference_width or r_width, image_reference_height or r_height
 
@@ -131,28 +138,25 @@ def analyze_print_format(image_reference_cropped, image_to_analyze_cropped, heig
 
   print('')
 
-def analyze_failure_matrix(image_filename):
+def analyze_failure_matrix(image_to_analyze_cropped, batch):
   print('Starting analyze of matrix...')
-
-  # Read image
-  image_original = cv.imread('./data_files/' + image_filename)
 
   # Dilatation. Close small holes
   kernel = np.ones((3, 3), np.uint8)
-  image_closing = cv.morphologyEx(image_original, cv.MORPH_CLOSE, kernel)
+  image_closing = cv.morphologyEx(image_to_analyze_cropped, cv.MORPH_CLOSE, kernel)
 
   # Convert to grayscale
-  image_original_gray = cv.cvtColor(image_original, cv.COLOR_BGR2GRAY)
+  image_to_analyze_cropped_gray = cv.cvtColor(image_to_analyze_cropped, cv.COLOR_BGR2GRAY)
   image_closing_gray = cv.cvtColor(image_closing, cv.COLOR_BGR2GRAY)
 
   # Verify similarity between two images
-  dimensions = image_original.shape
+  dimensions = image_to_analyze_cropped.shape
   height = dimensions[0]
   width = dimensions[1]
-  similarity = 1 - cv.norm(image_original_gray, image_closing_gray, cv.NORM_L2) / (height * width)
+  similarity = 1 - cv.norm(image_to_analyze_cropped_gray, image_closing_gray, cv.NORM_L2) / (height * width)
 
   # Subtraction of two images
-  final_image = cv.absdiff(image_original_gray, image_closing_gray)
+  final_image = cv.absdiff(image_to_analyze_cropped_gray, image_closing_gray)
 
   # Threshold to get just the signature (INVERTED)
   retval, thresh_gray = cv.threshold(final_image, thresh=10, maxval=25, \
@@ -167,15 +171,15 @@ def analyze_failure_matrix(image_filename):
     x,y,w,h = cv.boundingRect(cont)
 
     if w < width * (40 / 100) and h < height * (40 / 100):
-      cv.rectangle(image_original, (x,y), (x+w,y+h), (200,0,0), 2)
+      cv.rectangle(image_to_analyze_cropped, (x,y), (x+w,y+h), (200,0,0), 2)
       quantity_failures += 1
 
-  cv.imwrite(f'./reports/report_{image_filename}', image_original)
+  cv.imwrite(path_photo + 'reports/batch_' + str(batch) + '.jpg', image_to_analyze_cropped)
 
-  cv.imshow("Original Image", image_original)
+  cv.imshow("Original Image", image_to_analyze_cropped)
 
   # fig, ax = plt.subplots(ncols=4, figsize=(15, 5))
-  # ax[0].imshow(image_original_gray, cmap='gray')
+  # ax[0].imshow(image_to_analyze_cropped_gray, cmap='gray')
   # ax[0].set_title('Original Image') 
   # ax[0].axis('off')
   # ax[1].imshow(image_closing_gray, cmap='gray')
@@ -184,9 +188,9 @@ def analyze_failure_matrix(image_filename):
   # ax[2].imshow(final_image, cmap='gray')
   # ax[2].set_title('Failures founds: {0:.4g}'.format(similarity))
   # ax[2].axis('off')
-  # ax[3].imshow(image_original)
+  # ax[3].imshow(image_to_analyze_cropped)
   # ax[3].set_title('Original image with demarcated failures')
   # ax[3].axis('off')
   # plt.show()
 
-  return height, width, quantity_failures, f'./reports/report_{image_filename}'
+  return height, width, quantity_failures, f'./assets/reports/batch_{batch}.jpg'
