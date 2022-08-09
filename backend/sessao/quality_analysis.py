@@ -32,9 +32,9 @@ def cut_shirt_print(image_filename, image_type, r_width, r_height):
 
   # Threshold to get just the signature (INVERTED)
   retval, thresh_gray = cv.threshold(image_gray, thresh=100, maxval=255, \
-                                  type=cv.THRESH_BINARY_INV)
+                                     type=cv.THRESH_BINARY_INV)
   contours, hierarchy = cv.findContours(thresh_gray,cv.RETR_LIST, \
-                                      cv.CHAIN_APPROX_SIMPLE)
+                                        cv.CHAIN_APPROX_SIMPLE)
 
   # Dimensions
   dimensions = image.shape
@@ -44,10 +44,10 @@ def cut_shirt_print(image_filename, image_type, r_width, r_height):
   data = []
   quantity_rectangles = 0
   for cont in contours:
-      x,y,w,h = cv.boundingRect(cont)
-      if w < width and h < height:
-        data.append({ 'initial_x': x, 'initial_y': y, 'final_x': w, 'final_y': h })
-        quantity_rectangles += 1
+    x,y,w,h = cv.boundingRect(cont)
+    if w < width and h < height:
+      data.append({ 'initial_x': x, 'initial_y': y, 'final_x': w, 'final_y': h })
+      quantity_rectangles += 1
 
   biggest_x = 0
   smallest_x = width * 2
@@ -132,61 +132,61 @@ def analyze_print_format(image_reference_cropped, image_to_analyze_cropped, heig
   print('')
 
 def analyze_failure_matrix(image_filename):
-    print('Starting analyze of matrix...')
+  print('Starting analyze of matrix...')
 
-    # Read image
-    image_original = cv.imread('./data_files/' + image_filename)
+  # Read image
+  image_original = cv.imread('./data_files/' + image_filename)
 
-    # Dilatation. Close small holes
-    kernel = np.ones((3, 3), np.uint8)
-    image_closing = cv.morphologyEx(image_original, cv.MORPH_CLOSE, kernel)
+  # Dilatation. Close small holes
+  kernel = np.ones((3, 3), np.uint8)
+  image_closing = cv.morphologyEx(image_original, cv.MORPH_CLOSE, kernel)
 
-    # Convert to grayscale
-    image_original_gray = cv.cvtColor(image_original, cv.COLOR_BGR2GRAY)
-    image_closing_gray = cv.cvtColor(image_closing, cv.COLOR_BGR2GRAY)
+  # Convert to grayscale
+  image_original_gray = cv.cvtColor(image_original, cv.COLOR_BGR2GRAY)
+  image_closing_gray = cv.cvtColor(image_closing, cv.COLOR_BGR2GRAY)
 
-    # Verify similarity between two images
-    dimensions = image_original.shape
-    height = dimensions[0]
-    width = dimensions[1]
-    similarity = 1 - cv.norm(image_original_gray, image_closing_gray, cv.NORM_L2) / (height * width)
+  # Verify similarity between two images
+  dimensions = image_original.shape
+  height = dimensions[0]
+  width = dimensions[1]
+  similarity = 1 - cv.norm(image_original_gray, image_closing_gray, cv.NORM_L2) / (height * width)
 
-    # Subtraction of two images
-    final_image = cv.absdiff(image_original_gray, image_closing_gray)
+  # Subtraction of two images
+  final_image = cv.absdiff(image_original_gray, image_closing_gray)
 
-    # Threshold to get just the signature (INVERTED)
-    retval, thresh_gray = cv.threshold(final_image, thresh=10, maxval=25, \
-                                    type=cv.THRESH_BINARY_INV)
+  # Threshold to get just the signature (INVERTED)
+  retval, thresh_gray = cv.threshold(final_image, thresh=10, maxval=25, \
+                                     type=cv.THRESH_BINARY_INV)
 
-    contours, hierarchy = cv.findContours(thresh_gray,cv.RETR_LIST, \
-                                    cv.CHAIN_APPROX_SIMPLE)
+  contours, hierarchy = cv.findContours(thresh_gray,cv.RETR_LIST, \
+                                        cv.CHAIN_APPROX_SIMPLE)
 
-    # Draw rectangle around the holes
-    quantity_failures = 0
-    for cont in contours:
-        x,y,w,h = cv.boundingRect(cont)
+  # Draw rectangle around the holes
+  quantity_failures = 0
+  for cont in contours:
+    x,y,w,h = cv.boundingRect(cont)
 
-        if w < width * (40 / 100) and h < height * (40 / 100):
-            cv.rectangle(image_original, (x,y), (x+w,y+h), (200,0,0), 2)
-            quantity_failures += 1
+    if w < width * (40 / 100) and h < height * (40 / 100):
+      cv.rectangle(image_original, (x,y), (x+w,y+h), (200,0,0), 2)
+      quantity_failures += 1
 
-    cv.imwrite(f'./reports/report_{image_filename}', image_original)
+  cv.imwrite(f'./reports/report_{image_filename}', image_original)
 
-    cv.imshow("Original Image", image_original)
+  cv.imshow("Original Image", image_original)
 
-    # fig, ax = plt.subplots(ncols=4, figsize=(15, 5))
-    # ax[0].imshow(image_original_gray, cmap='gray')
-    # ax[0].set_title('Original Image') 
-    # ax[0].axis('off')
-    # ax[1].imshow(image_closing_gray, cmap='gray')
-    # ax[1].set_title('Closing Image (Expected)')
-    # ax[1].axis('off')
-    # ax[2].imshow(final_image, cmap='gray')
-    # ax[2].set_title('Failures founds: {0:.4g}'.format(similarity))
-    # ax[2].axis('off')
-    # ax[3].imshow(image_original)
-    # ax[3].set_title('Original image with demarcated failures')
-    # ax[3].axis('off')
-    # plt.show()
+  # fig, ax = plt.subplots(ncols=4, figsize=(15, 5))
+  # ax[0].imshow(image_original_gray, cmap='gray')
+  # ax[0].set_title('Original Image') 
+  # ax[0].axis('off')
+  # ax[1].imshow(image_closing_gray, cmap='gray')
+  # ax[1].set_title('Closing Image (Expected)')
+  # ax[1].axis('off')
+  # ax[2].imshow(final_image, cmap='gray')
+  # ax[2].set_title('Failures founds: {0:.4g}'.format(similarity))
+  # ax[2].axis('off')
+  # ax[3].imshow(image_original)
+  # ax[3].set_title('Original image with demarcated failures')
+  # ax[3].axis('off')
+  # plt.show()
 
-    return height, width, quantity_failures, f'./reports/report_{image_filename}'
+  return height, width, quantity_failures, f'./reports/report_{image_filename}'
