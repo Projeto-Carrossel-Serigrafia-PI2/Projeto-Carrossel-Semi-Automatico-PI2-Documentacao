@@ -108,3 +108,25 @@ def cut_shirt_print(image_filename, image_type, r_width, r_height):
     cv.imwrite('./cropped/to_analyze.jpg', image_cut)
 
   return image_reference_width or r_width, image_reference_height or r_height
+
+def analyze_print_format(image_reference_cropped, image_to_analyze_cropped, height, width):
+  print('Starting analyze format...')
+
+  similarity = 1 - (cv.norm(image_reference_cropped, image_to_analyze_cropped, cv.NORM_L2) / (height * width))
+  final_image = cv.absdiff(image_reference_cropped, image_to_analyze_cropped)
+
+  print('SIMILARITY: {}'.format(similarity))
+
+  # fig, ax = plt.subplots(ncols=3,figsize=(15,5))
+  # ax[0].imshow(image_reference_cropped, cmap='gray')
+  # ax[0].set_title('Original Image') 
+  # ax[0].axis('off')
+  # ax[1].imshow(image_to_analyze_cropped, cmap='gray')
+  # ax[1].set_title('Edge Image')
+  # ax[1].axis('off')
+  # ax[2].imshow(final_image, cmap='gray')
+  # ax[2].set_title('Edge Image')
+  # ax[2].axis('off')
+  # plt.show()
+
+  print('')
