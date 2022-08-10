@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 dirname = os.path.dirname(__file__)
-path_photo = os.path.join(dirname, './assets/')
+path_photo = os.path.join(dirname, '../assets/')
 
 def take_photo(batch):
   # open a camera for video capturing
@@ -194,3 +194,34 @@ def analyze_failure_matrix(image_to_analyze_cropped, batch):
   # plt.show()
 
   return height, width, quantity_failures, f'./assets/reports/batch_{batch}.jpg'
+
+def analyze_colors(image_reference, image_to_analyze):
+  # Images must be cropped (image_reference & image_to_analyze)
+  hsv_image_reference = cv.cvtColor(image_reference, cv.COLOR_BGR2HSV)
+  hsv_image_to_analyze = cv.cvtColor(image_to_analyze, cv.COLOR_BGR2HSV)
+
+  h_bins = 50
+  s_bins = 60
+  hist_size = [h_bins, s_bins]
+  h_ranges = [0, 180]
+  s_ranges = [0, 256]
+  ranges = h_ranges + s_ranges
+  channels = [0, 1]
+
+  hist_image_reference = cv.calcHist([hsv_image_reference], channels, None, hist_size, ranges, accumulate=False)
+  cv.normalize(hist_image_reference, hist_image_reference, alpha=0, beta=1, norm_type=cv.NORM_MINMAX)
+  hist_image_to_analyze = cv.calcHist([hsv_image_to_analyze], channels, None, hist_size, ranges, accumulate=False)
+  cv.normalize(hist_image_to_analyze, hist_image_to_analyze, alpha=0, beta=1, norm_type=cv.NORM_MINMAX)
+
+  similarity = cv.compareHist(hist_image_reference, hist_image_to_analyze, cv.HISTCMP_CORREL)
+
+  # fig, ax = plt.subplots(ncols=2,figsize=(15,5))
+  # ax[0].imshow(image_reference, cmap='RdYlGn')
+  # ax[0].set_title('Original Image') 
+  # ax[0].axis('off')
+  # ax[1].imshow(image_to_analyze, cmap='gray')
+  # ax[1].set_title('Edge Image')
+  # ax[1].axis('off')
+  # plt.show()
+
+  return str(similarity)
