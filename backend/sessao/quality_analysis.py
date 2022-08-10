@@ -122,8 +122,6 @@ def analyze_print_format(image_reference_cropped, image_to_analyze_cropped, heig
   similarity = 1 - (cv.norm(image_reference_cropped, image_to_analyze_cropped, cv.NORM_L2) / (height * width))
   final_image = cv.absdiff(image_reference_cropped, image_to_analyze_cropped)
 
-  print('SIMILARITY: {}'.format(similarity))
-
   # fig, ax = plt.subplots(ncols=3,figsize=(15,5))
   # ax[0].imshow(image_reference_cropped, cmap='gray')
   # ax[0].set_title('Original Image') 
@@ -136,7 +134,7 @@ def analyze_print_format(image_reference_cropped, image_to_analyze_cropped, heig
   # ax[2].axis('off')
   # plt.show()
 
-  print('')
+  return str(similarity)
 
 def analyze_failure_matrix(image_to_analyze_cropped, batch):
   print('Starting analyze of matrix...')
@@ -193,7 +191,7 @@ def analyze_failure_matrix(image_to_analyze_cropped, batch):
   # ax[3].axis('off')
   # plt.show()
 
-  return height, width, quantity_failures, f'./assets/reports/batch_{batch}.jpg'
+  return quantity_failures
 
 def analyze_colors(image_reference, image_to_analyze):
   # Images must be cropped (image_reference & image_to_analyze)
