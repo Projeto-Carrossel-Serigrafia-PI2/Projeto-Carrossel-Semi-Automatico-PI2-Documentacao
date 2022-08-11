@@ -1,5 +1,11 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from sessao.quality_analysis import *
+import cv2 as cv
+import base64
+from PIL import Image
+import io
+import os
 
 # from carrossel.settings import CONFIG
 
@@ -7,6 +13,9 @@ from sessao.models import Producao, BaseProducao, Lote
 
 import asyncio
 import keyboard # For debugging
+
+dirname = os.path.dirname(__file__)
+path_photo = os.path.join(dirname, '../assets/')
 
 CONFIG = {
 	'FLASHCURE': {
@@ -88,7 +97,31 @@ def encoderHandler(channel):
 			print(state['driedBatchShirts'], ' shirts dried!')
 
 			if(state['driedBatchShirts'] > state['parameters']['batches'][state['batch']]['shirts']):
-				# takePhoto()
+				# Take a photo
+				take_photo(state['batch'])
+
+				# Get reference image and convert from base64 to image
+				production = Producao.objects.last()
+				image_data = base64.b64decode(production.image.split(',')[1])
+				image_file = open(path_photo + 'reference_photo/image_reference.jpg', 'wb')
+				image_file.write(image_data)
+				image_file.close()
+
+				# Cut shirt print
+				image_reference_width, image_reference_height = cut_shirt_print('image_reference.jpg', 'reference', 0, 0)
+				_, _ = cut_shirt_print('batch_' + str(state['batch']) + '.jpg', 'to_analyze', image_reference_width, image_reference_height)
+				
+				image_reference_cropped = cv.imread(path_photo + 'reference_photo/image_reference.jpg')
+				image_to_analyze_cropped = cv.imread(path_photo + 'batches_photos/batch_' + str(state['batch']) + '.jpg')
+				
+				# Analysis
+				similarity_format = analyze_print_format(image_reference_cropped, image_to_analyze_cropped, image_reference_height, image_reference_width)
+				quantity_failures = analyze_failure_matrix(image_to_analyze_cropped, state['batch'])
+				similarity_color = analyze_colors(image_reference_cropped, image_to_analyze_cropped)
+				# print('similarity_format: ' + similarity_format)
+				# print('quantity_failures: ' + str(quantity_failures))
+				# print('similarity_color: ' + similarity_color)
+
 				print('Photo taken!')
 				print('Batch finished!')
 				state['waitingNewBatch'] = True
