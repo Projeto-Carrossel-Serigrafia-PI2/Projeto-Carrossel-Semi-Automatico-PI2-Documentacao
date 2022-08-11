@@ -24,6 +24,13 @@ class ProductionService {
       action: 1
     });
   }
+
+  productionSubmitTime(elapsedTime) {
+    return api.post('/controleProducao/', {
+      action: 2,
+      elapsedTime
+    });
+  }
 }
 
 const productionService = new ProductionService();

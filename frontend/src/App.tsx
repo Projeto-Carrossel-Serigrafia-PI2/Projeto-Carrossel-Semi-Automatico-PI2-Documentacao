@@ -7,14 +7,16 @@ function App() {
   const [parameters, setParameters] = useState({
     paints: [],
     shirtQuantity: 0,
-    batches: 0
+    batches: 0,
+    speed: 0
   });
 
   const [state, setState] = useState({
     paint: 0,
     batch: 0,
     temperatures: [0, 0],
-    waitingNewBatch: false
+    waitingNewBatch: false,
+    inSession: false
   });
 
   return (

@@ -32,7 +32,7 @@ export function Production() {
   const [quantityTShirts, setQuantityTShirts] = useState(0);
   const [speed, setSpeed] = useState(0);
   const [colors, setColors] = useState<ColorProps[]>(data);
-  const { parameters, setParameters, setState } = useContext(StateContext);
+  const { state, setParameters, setState } = useContext(StateContext);
   const { setPage } = useContext(PageContext);
   const navigate = useNavigate();
 
@@ -90,7 +90,7 @@ export function Production() {
   }
 
   async function handleCreateProduction() {
-    if(parameters.paints.length)
+    if(state.inSession)
       notify_error(
         `Uma produção já está em progresso! Pause ou finalize-a antes
          de começar outra.`
@@ -140,7 +140,8 @@ export function Production() {
                 }
               }),
               shirts: production.totalDeCamisetas,
-              batches: Math.ceil(production.totalDeCamisetas/4)
+              batches: Math.ceil(production.totalDeCamisetas/4),
+              speed
             });
 
             window.updateInterval = setInterval(() => {

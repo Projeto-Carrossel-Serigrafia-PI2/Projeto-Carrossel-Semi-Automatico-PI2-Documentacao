@@ -14,8 +14,11 @@ import Temperature from '../components/dashboard/Temperature';
 import Speed from '../components/dashboard/Speed';
 import BatchModal from '../components/dashboard/BatchModal';
 
+import { notify_success } from '../utils/toastify'
+
 export function Dashboard() {
   const { state, parameters } = useContext(StateContext);
+  const [ previousInSession, setPreviousInSession ] = useState(false);
   const main = useRef();
   const h1 = useRef();
   const content = useRef();
@@ -39,6 +42,12 @@ export function Dashboard() {
     }
   }, []);
 
+  useEffect(() => {
+    if(!state.inSession && state.inSession != previousInSession)
+      notify_success('Sessão finalizada!');
+    setPreviousInSession(state.inSession);
+  }, [state.inSession]);
+
   return (
     <div id="dashboard" style={!parameters.paints.length ? {display: 'flex'} : {}}>
       <ToastContainer />
@@ -52,7 +61,6 @@ export function Dashboard() {
 
             <div ref={content} className="content">
               <Shirts />
-              <div className="speed"></div>
               <Paint />
               <Time />
               <Temperature />

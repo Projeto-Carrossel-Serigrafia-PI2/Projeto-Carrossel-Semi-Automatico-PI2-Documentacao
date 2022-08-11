@@ -10,7 +10,6 @@ import '../../styles/components/dashboard/BatchModal.scss';
 export default function BatchModal(props) {
 	function nextBatch() {
 		productionService.productionNextBatch().then((response) => {
-			console.log(response)
 			if(response.data.error)
 				notify_error('Falha ao avançar para o próximo lote!');
 			else

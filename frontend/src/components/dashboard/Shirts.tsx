@@ -12,7 +12,6 @@ import StateContext from '../../contexts/StateContext';
 
 export default function Shirts() {
 	const { parameters, state } = useContext(StateContext);
-	const [ inSession, setInSession ] = useState(true);
 	const [ driedShirts, setDriedShirts ] = useState(0);
 	const [ qualityResults, setQualityResults ] = useState([]);
 
@@ -55,12 +54,11 @@ export default function Shirts() {
 	}
 
 	useEffect(() => {
-		if(state.batch >= parameters.batches && parameters.batches)
-			setInSession(false);
-
+		if(!state.inSession)
+			setDriedShirts(parameters.shirts);
 		else
 			setDriedShirts(Math.min(parameters.shirts, state.batch * 4));
-	}, [state.batch]);
+	}, [state.batch, state.inSession]);
 
 	return (
 		<div className="shirts">
@@ -148,7 +146,7 @@ export default function Shirts() {
 						</div>
 
 						<div className="analysis">
-							{ inSession
+							{ state.inSession
 								? <>
 									<MoonLoader speedMultiplier="0.5" />
 									<p>Aguardando produção</p>

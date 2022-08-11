@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 
 import ProgressBar from './ProgressBar';
 
@@ -8,7 +8,6 @@ import '../../styles/components/dashboard/Speed.scss';
 
 export default function Speed() {
 	const { parameters } = useContext(StateContext); // Needs to have chosen speed
-	const [ currentSpeed, setCurrentSpeed ] = useState(2);
 
 	const speeds = [0, 3];
 
@@ -23,7 +22,7 @@ export default function Speed() {
 					<ProgressBar
 						unit=""
 						limits={speeds}
-						current={currentSpeed}
+						current={parameters.speed}
 						width="80%"
 						height="1.85em"
 						color="#FD9E47"

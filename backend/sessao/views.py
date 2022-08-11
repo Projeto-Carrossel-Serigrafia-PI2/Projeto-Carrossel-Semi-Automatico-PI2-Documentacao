@@ -92,7 +92,11 @@ def encoderHandler(channel):
 				# takePhoto()
 				print('Photo taken!')
 				print('Batch finished!')
-				state['waitingNewBatch'] = True
+				if(state['batch'] + 1 == len(state['parameters']['batches'])):
+					state['inSession'] = False
+					print('Production finished!')
+				else:
+					state['waitingNewBatch'] = True
 
 		# If we completed a full rotation
 		if(state['rotation'] > 3):
@@ -194,5 +198,6 @@ class StateView(APIView):
 			'paint': state['paint'],
 			'batch': state['batch'],
 			'waitingNewBatch': state['waitingNewBatch'],
-			'temperatures': temperatures
+			'temperatures': temperatures,
+			'inSession': state['inSession']
 		})
