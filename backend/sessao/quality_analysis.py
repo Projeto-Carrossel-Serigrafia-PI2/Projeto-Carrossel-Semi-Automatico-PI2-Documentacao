@@ -122,18 +122,6 @@ def analyze_print_format(image_reference_cropped, image_to_analyze_cropped, heig
   similarity = 1 - (cv.norm(image_reference_cropped, image_to_analyze_cropped, cv.NORM_L2) / (height * width))
   final_image = cv.absdiff(image_reference_cropped, image_to_analyze_cropped)
 
-  # fig, ax = plt.subplots(ncols=3,figsize=(15,5))
-  # ax[0].imshow(image_reference_cropped, cmap='gray')
-  # ax[0].set_title('Original Image') 
-  # ax[0].axis('off')
-  # ax[1].imshow(image_to_analyze_cropped, cmap='gray')
-  # ax[1].set_title('Edge Image')
-  # ax[1].axis('off')
-  # ax[2].imshow(final_image, cmap='gray')
-  # ax[2].set_title('Edge Image')
-  # ax[2].axis('off')
-  # plt.show()
-
   return str(similarity)
 
 def analyze_failure_matrix(image_to_analyze_cropped, batch):
@@ -174,23 +162,6 @@ def analyze_failure_matrix(image_to_analyze_cropped, batch):
 
   cv.imwrite(path_photo + 'reports/batch_' + str(batch) + '.jpg', image_to_analyze_cropped)
 
-  # cv.imshow("Original Image", image_to_analyze_cropped)
-
-  # fig, ax = plt.subplots(ncols=4, figsize=(15, 5))
-  # ax[0].imshow(image_to_analyze_cropped_gray, cmap='gray')
-  # ax[0].set_title('Original Image') 
-  # ax[0].axis('off')
-  # ax[1].imshow(image_closing_gray, cmap='gray')
-  # ax[1].set_title('Closing Image (Expected)')
-  # ax[1].axis('off')
-  # ax[2].imshow(final_image, cmap='gray')
-  # ax[2].set_title('Failures founds: {0:.4g}'.format(similarity))
-  # ax[2].axis('off')
-  # ax[3].imshow(image_to_analyze_cropped)
-  # ax[3].set_title('Original image with demarcated failures')
-  # ax[3].axis('off')
-  # plt.show()
-
   return quantity_failures
 
 def analyze_colors(image_reference_cropped, image_to_analyze_cropped):
@@ -212,14 +183,5 @@ def analyze_colors(image_reference_cropped, image_to_analyze_cropped):
   cv.normalize(hist_image_to_analyze_cropped, hist_image_to_analyze_cropped, alpha=0, beta=1, norm_type=cv.NORM_MINMAX)
 
   similarity = cv.compareHist(hist_image_reference_cropped, hist_image_to_analyze_cropped, cv.HISTCMP_CORREL)
-
-  # fig, ax = plt.subplots(ncols=2,figsize=(15,5))
-  # ax[0].imshow(image_reference_cropped, cmap='RdYlGn')
-  # ax[0].set_title('Original Image') 
-  # ax[0].axis('off')
-  # ax[1].imshow(image_to_analyze_cropped, cmap='gray')
-  # ax[1].set_title('Edge Image')
-  # ax[1].axis('off')
-  # plt.show()
 
   return str(similarity)
