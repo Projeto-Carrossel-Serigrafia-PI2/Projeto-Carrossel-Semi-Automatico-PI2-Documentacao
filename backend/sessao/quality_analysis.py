@@ -104,7 +104,7 @@ def cut_shirt_print(image_filename, image_type, r_width, r_height):
       interpolation=cv.INTER_AREA
     )
 
-    cv.imwrite(path_photo + 'reference_photo/' + image_filename)
+    cv.imwrite(path_photo + 'reference_photo/' + image_filename, image_cut)
   else:
     image_cut = cv.resize(
       image_cut,
@@ -112,7 +112,7 @@ def cut_shirt_print(image_filename, image_type, r_width, r_height):
       interpolation=cv.INTER_AREA
     )
 
-    cv.imwrite(path_photo + 'batches_photos/' + image_filename)
+    cv.imwrite(path_photo + 'batches_photos/' + image_filename, image_cut)
 
   return image_reference_width or r_width, image_reference_height or r_height
 
@@ -157,7 +157,7 @@ def analyze_failure_matrix(image_to_analyze_cropped, batch):
   final_image = cv.absdiff(image_to_analyze_cropped_gray, image_closing_gray)
 
   # Threshold to get just the signature (INVERTED)
-  retval, thresh_gray = cv.threshold(final_image, thresh=10, maxval=25, \
+  retval, thresh_gray = cv.threshold(final_image, thresh=50, maxval=122, \
                                      type=cv.THRESH_BINARY_INV)
 
   contours, hierarchy = cv.findContours(thresh_gray,cv.RETR_LIST, \
@@ -168,13 +168,13 @@ def analyze_failure_matrix(image_to_analyze_cropped, batch):
   for cont in contours:
     x,y,w,h = cv.boundingRect(cont)
 
-    if w < width * (40 / 100) and h < height * (40 / 100):
-      cv.rectangle(image_to_analyze_cropped, (x,y), (x+w,y+h), (200,0,0), 2)
+    if (w < width * (40 / 100) and w > 4) and (h < height * (40 / 100) and h > 4):
+      cv.rectangle(image_to_analyze_cropped, (x,y), (x+w,y+h), (255,0,0), 2)
       quantity_failures += 1
 
   cv.imwrite(path_photo + 'reports/batch_' + str(batch) + '.jpg', image_to_analyze_cropped)
 
-  cv.imshow("Original Image", image_to_analyze_cropped)
+  # cv.imshow("Original Image", image_to_analyze_cropped)
 
   # fig, ax = plt.subplots(ncols=4, figsize=(15, 5))
   # ax[0].imshow(image_to_analyze_cropped_gray, cmap='gray')
@@ -193,10 +193,10 @@ def analyze_failure_matrix(image_to_analyze_cropped, batch):
 
   return quantity_failures
 
-def analyze_colors(image_reference, image_to_analyze):
-  # Images must be cropped (image_reference & image_to_analyze)
-  hsv_image_reference = cv.cvtColor(image_reference, cv.COLOR_BGR2HSV)
-  hsv_image_to_analyze = cv.cvtColor(image_to_analyze, cv.COLOR_BGR2HSV)
+def analyze_colors(image_reference_cropped, image_to_analyze_cropped):
+  # Images must be cropped (image_reference_cropped & image_to_analyze_cropped)
+  hsv_image_reference_cropped = cv.cvtColor(image_reference_cropped, cv.COLOR_BGR2HSV)
+  hsv_image_to_analyze_cropped = cv.cvtColor(image_to_analyze_cropped, cv.COLOR_BGR2HSV)
 
   h_bins = 50
   s_bins = 60
@@ -206,18 +206,18 @@ def analyze_colors(image_reference, image_to_analyze):
   ranges = h_ranges + s_ranges
   channels = [0, 1]
 
-  hist_image_reference = cv.calcHist([hsv_image_reference], channels, None, hist_size, ranges, accumulate=False)
-  cv.normalize(hist_image_reference, hist_image_reference, alpha=0, beta=1, norm_type=cv.NORM_MINMAX)
-  hist_image_to_analyze = cv.calcHist([hsv_image_to_analyze], channels, None, hist_size, ranges, accumulate=False)
-  cv.normalize(hist_image_to_analyze, hist_image_to_analyze, alpha=0, beta=1, norm_type=cv.NORM_MINMAX)
+  hist_image_reference_cropped = cv.calcHist([hsv_image_reference_cropped], channels, None, hist_size, ranges, accumulate=False)
+  cv.normalize(hist_image_reference_cropped, hist_image_reference_cropped, alpha=0, beta=1, norm_type=cv.NORM_MINMAX)
+  hist_image_to_analyze_cropped = cv.calcHist([hsv_image_to_analyze_cropped], channels, None, hist_size, ranges, accumulate=False)
+  cv.normalize(hist_image_to_analyze_cropped, hist_image_to_analyze_cropped, alpha=0, beta=1, norm_type=cv.NORM_MINMAX)
 
-  similarity = cv.compareHist(hist_image_reference, hist_image_to_analyze, cv.HISTCMP_CORREL)
+  similarity = cv.compareHist(hist_image_reference_cropped, hist_image_to_analyze_cropped, cv.HISTCMP_CORREL)
 
   # fig, ax = plt.subplots(ncols=2,figsize=(15,5))
-  # ax[0].imshow(image_reference, cmap='RdYlGn')
+  # ax[0].imshow(image_reference_cropped, cmap='RdYlGn')
   # ax[0].set_title('Original Image') 
   # ax[0].axis('off')
-  # ax[1].imshow(image_to_analyze, cmap='gray')
+  # ax[1].imshow(image_to_analyze_cropped, cmap='gray')
   # ax[1].set_title('Edge Image')
   # ax[1].axis('off')
   # plt.show()
