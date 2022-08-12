@@ -41,11 +41,4 @@ class LoteSerializer(serializers.ModelSerializer):
         model = models.Lote
         fields = '__all__'           
 
-    def update(self, instance, validated_data):
-        instance.image = validated_data.get('image', instance.image)
-        ##implementar aqui a validação da camiseta
-        instance.aprovado = 'n'
-        instance.save()
-        return instance
-       
     
