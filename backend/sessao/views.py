@@ -3,8 +3,6 @@ from rest_framework.views import APIView
 from sessao.quality_analysis import *
 import cv2 as cv
 import base64
-from PIL import Image
-import io
 import os
 
 # from carrossel.settings import CONFIG
