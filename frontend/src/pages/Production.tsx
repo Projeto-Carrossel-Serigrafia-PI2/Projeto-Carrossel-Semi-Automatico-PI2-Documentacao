@@ -34,7 +34,7 @@ export function Production() {
   const [paints, setPaints] = useState<PaintProps[]>([]);
   const [quantityTShirts, setQuantityTShirts] = useState(0);
   const [speed, setSpeed] = useState(0);
-  const [imageUpload, setImageUpload] = useState<File>();
+  const [imageUpload, setImageUpload] = useState<string | ArrayBuffer>('');
   const [imageTaken, setImageTaken] = useState('');
   const [colors, setColors] = useState<ColorProps[]>(data);
   const [isModalPhotoOpen, setIsModalPhotoOpen] = useState(false);
@@ -177,6 +177,15 @@ export function Production() {
     }
   }
 
+  function convertFileToBase64(file: File) {
+    let reader = new FileReader();
+    reader.readAsDataURL(file)
+
+    reader.onload = (e) => {
+      setImageUpload(e.target?.result!)
+    } 
+  }
+
   useEffect(() => {
     async function getAllPaintsType() {
       const response = await paintService.paintGetAll();
@@ -249,21 +258,21 @@ export function Production() {
             <ButtonTakePhoto
               title="Enviar foto"
               icon={<FiUpload size={18} color="#39393a" />}
-              filename={imageUpload ? imageUpload.name : ''}
+              filename={imageUpload ? "imagem salva!" : ''}
               mode="upload"
               onChange={(e) => {
                 setImageTaken('');
-                setImageUpload(e.target.files![0]);
+                convertFileToBase64(e.target.files![0])
               }}
             />
             <ButtonTakePhoto
               title="Tirar foto"
               icon={<FiCamera size={18} color="#39393a" />}
-              filename={imageTaken ? 'image.png' : ''}
+              filename={imageTaken ? 'imagem salva!' : ''}
               mode="taken"
               onClick={() => {
                 openModalPhoto();
-                setImageUpload(undefined);
+                setImageUpload('');
               }}
             />
           </div>
