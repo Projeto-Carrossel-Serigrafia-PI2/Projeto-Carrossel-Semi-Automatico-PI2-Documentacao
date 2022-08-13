@@ -144,6 +144,7 @@ export function Production() {
               speed
             });
 
+            clearInterval(window.updateInterval);
             window.updateInterval = setInterval(() => {
               productionService.productionState().then((response) => {
                 setState(response.data);

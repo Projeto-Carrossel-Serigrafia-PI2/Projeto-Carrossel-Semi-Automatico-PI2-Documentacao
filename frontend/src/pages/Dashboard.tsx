@@ -4,6 +4,8 @@ import { ToastContainer } from 'react-toastify';
 
 import StateContext from '../contexts/StateContext';
 
+import productionService from '../services/productionService';
+
 import '../styles/pages/Dashboard.scss';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -13,12 +15,15 @@ import Shirts from '../components/dashboard/Shirts';
 import Temperature from '../components/dashboard/Temperature';
 import Speed from '../components/dashboard/Speed';
 import BatchModal from '../components/dashboard/BatchModal';
+import PauseModal from '../components/dashboard/PauseModal';
 
-import { notify_success } from '../utils/toastify'
+import { notify_success, notify_error } from '../utils/toastify'
 
 export function Dashboard() {
   const { state, parameters } = useContext(StateContext);
   const [ previousInSession, setPreviousInSession ] = useState(false);
+  const [ isPaused, setIsPaused ] = useState(false);
+
   const main = useRef();
   const h1 = useRef();
   const content = useRef();
@@ -33,9 +38,42 @@ export function Dashboard() {
     }
   }
 
+  function toggleProduction() {
+    productionService.productionToggle().then((response) => {
+      if(response.data.error) {
+        if(response.data.type == 1)
+          notify_error('Falha ao pausar/despausar! Nenhuma produção em sessão!');
+        else if(response.data.type == 4)
+          notify_error('Falha ao pausar/despausar! Carrossel não alinhado!');
+        else if(response.data.type == 0)
+          notify_error('Falha ao pausar/despausar! Erro interno!');
+        else
+          notify_error('Falha ao pausar/despausar! Erro desconhecido! @_@');
+      }
+
+      else
+        setIsPaused(!isPaused);
+    });
+  }
+
+  function finishProduction() {
+    productionService.productionForceFinish().then((response) => {
+      if(response.data.error) {
+        if(resposen.data.type == 1)
+          notify_error('Falha ao forçar término de produção! Nenhuma produção em sessão!');
+        else if(response.data.type == 0)
+          notify_error('Falha ao pausar/despausar! Erro interno!');
+        else
+          notify_error('Falha ao pausar/despausar! Erro desconhecido! @_@');
+      }
+    });
+  }
+
   useEffect(() => {
     calculateHeights();
     window.addEventListener('resize', calculateHeights);
+
+    setIsPaused(false);
 
     return () => {
       window.removeEventListener('resize', calculateHeights);
@@ -43,8 +81,10 @@ export function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if(!state.inSession && state.inSession != previousInSession)
+    if(!state.inSession && state.inSession != previousInSession) {
       notify_success('Sessão finalizada!');
+      clearInterval(window.updateInterval);
+    }
     setPreviousInSession(state.inSession);
   }, [state.inSession]);
 
@@ -54,15 +94,26 @@ export function Dashboard() {
       <BatchModal 
         isOpen={state.waitingNewBatch}
       />
+      <PauseModal 
+        isOpen={isPaused}
+        toggleProduction={toggleProduction}
+      />
 
       { parameters.paints.length
         ? <div ref={main} className="main">
-            <h1 ref={h1}>Dashboard</h1>
+            <div className="title-control">
+              <h1 ref={h1}>Dashboard</h1>
+              
+              <div>
+                <button onClick={() => toggleProduction()}>{isPaused ? 'Resumir' : 'Pausar'} produção</button>
+                <button onClick={() => finishProduction()}>Finalizar produção</button>
+              </div>
+            </div>
 
             <div ref={content} className="content">
               <Shirts />
               <Paint />
-              <Time />
+              <Time isPaused={isPaused} />
               <Temperature />
               <Speed />
             </div>

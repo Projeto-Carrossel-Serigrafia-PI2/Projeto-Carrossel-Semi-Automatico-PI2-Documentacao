@@ -35,10 +35,12 @@ state = {
 	'batch': 0,
 	'driedBatchShirts': -1,
 	'temperature': 100,
-	'inSession': False,
-	'waitingNewBatch': False,
 	'encoderCounter': 0,
+	'lastRotation': -1,
+	'inSession': False,
 	'motorInUse': False,
+	'waitingNewBatch': False,
+	'isPaused': False
 }
 
 async def dryShirt():
@@ -68,42 +70,47 @@ def encoderHandler(channel):
 
 		state['rotation'] += 1
 
-		# If the first shirt with the newest color has arrived at the flashcure position
-		if(state['rotation'] == CONFIG['FLASHCURE']['POSITION']):
-			paints = state['parameters']['paints']
-			currentPaint = paints[state['paint']]['base']
-			# flashcureController.setTemperature(currentPaint.temperaturaSecagem)
-			print('Changed temperature!')
+		if(not state['isPaused']):
+			# If the first shirt with the newest color has arrived at the flashcure position
+			if(state['rotation'] == CONFIG['FLASHCURE']['POSITION']):
+				paints = state['parameters']['paints']
+				currentPaint = paints[state['paint']]['base']
+				# flashcureController.setTemperature(currentPaint.temperaturaSecagem)
+				print('Changed temperature!')
 
-			# Starting counting dried shirts when we start drying the last color of the batch
-			if(state['driedBatchShirts'] == -1 and state['paint'] + 1 >= len(state['parameters']['paints'])):
-				print('Started counting dried shirts!')
-				state['driedBatchShirts'] = 0
+				# Starting counting dried shirts when we start drying the last color of the batch
+				if(state['driedBatchShirts'] == -1 and state['paint'] + 1 >= len(state['parameters']['paints'])):
+					print('Started counting dried shirts!')
+					state['driedBatchShirts'] = 0
 
-		# If a shirt with the newest color has arrived at the flashcure position
-		if(state['paint'] > 0 or state['rotation'] >= CONFIG['FLASHCURE']['POSITION']):
-			asyncio.run(dryShirt())
+			# If a shirt with the newest color has arrived at the flashcure position
+			if(state['paint'] > 0 or state['rotation'] >= CONFIG['FLASHCURE']['POSITION']):
+				asyncio.run(dryShirt())
 
-		if(state['driedBatchShirts'] != -1):
-			state['driedBatchShirts'] += 1
-			print(state['driedBatchShirts'], ' shirts dried!')
+			if(state['driedBatchShirts'] != -1):
+				state['driedBatchShirts'] += 1
+				print(state['driedBatchShirts'], ' shirts dried!')
 
-			if(state['driedBatchShirts'] > state['parameters']['batches'][state['batch']]['shirts']):
-				# takePhoto()
-				print('Photo taken!')
-				print('Batch finished!')
-				if(state['batch'] + 1 == len(state['parameters']['batches'])):
-					state['inSession'] = False
-					print('Production finished!')
-				else:
-					state['waitingNewBatch'] = True
+				if(state['driedBatchShirts'] > state['parameters']['batches'][state['batch']]['shirts']):
+					# takePhoto()
+					print('Photo taken!')
+					print('Batch finished!')
+					if(state['batch'] + 1 == len(state['parameters']['batches'])):
+						state['inSession'] = False
+						print('Production finished!')
+					else:
+						state['waitingNewBatch'] = True
 
-		# If we completed a full rotation
-		if(state['rotation'] > 3):
-			state['rotation'] = 0
+			# If we completed a full rotation
+			if(state['rotation'] > 3):
+				state['rotation'] = 0
 
-			if(state['driedBatchShirts'] == -1):
-				state['paint'] += 1
+				if(state['driedBatchShirts'] == -1):
+					state['paint'] += 1
+
+		else:
+			if(state['rotation'] > 3):
+				state['rotation'] = 0
 
 		state['encoderCounter'] = 0
 		state['motorInUse'] = False
@@ -112,6 +119,18 @@ def encoderHandler(channel):
 #	GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=25)
 keyboard.add_hotkey('page down', pedalHandler, args=(3,))
 keyboard.add_hotkey('page up', encoderHandler, args=(7,))
+
+def resetState():
+	state['paint'] = 0
+	state['batch'] = 0
+	state['driedBatchShirts'] = -1
+	state['encoderCounter'] = 0
+	state['rotation'] = 0
+	state['lastRotation'] = -1
+	state['waitingNewBatch'] = False
+	state['motorInUse'] = False
+	state['inSession'] = False
+	state['isPaused'] = False
 
 def setupProduction():
 	production = Producao.objects.last()
@@ -123,13 +142,7 @@ def setupProduction():
 	state['parameters']['shirts'] = production.totalDeCamisetas
 	state['parameters']['speed'] = production.velocidade
 
-	state['paint'] = 0
-	state['batch'] = 0
-	state['driedBatchShirts'] = -1
-	state['encoderCounter'] = 0
-	state['rotation'] = 0
-	state['motorInUse'] = False
-	state['waitingNewBatch'] = False
+	resetState()
 	
 	state['inSession'] = True
 
@@ -144,6 +157,8 @@ def startNextBatch():
 
 	if(state['batch'] >= len(state['parameters']['batches'])):
 		state['inSession'] = False
+		resetState()
+		return
 
 	state['paint'] = 0
 	state['driedBatchShirts'] = -1
@@ -152,6 +167,14 @@ def startNextBatch():
 
 def getTemperatures():
 	return [112, 30]
+
+def toggleProduction():
+	if(state['isPaused']):
+		state['isPaused'] = False
+		state['lastRotation'] = -1
+	else:
+		state['isPaused'] = True
+		state['lastRotation'] = state['rotation']
 
 class ControleProducaoView(APIView):
 	def post(self, request):
@@ -166,29 +189,47 @@ class ControleProducaoView(APIView):
 
 			elif(action == 1): # Next batch
 				if(not state['inSession']):
-					return Response({'error': True, 'description': 'Not in session.'})
+					return Response({'error': True, 'type': 1, 'description': 'Not in session.'})
 				if(not state['waitingNewBatch']):
-					return Response({'error': True, 'description': 'Not waiting for next batch.'})
+					return Response({'error': True, 'type': 2, 'description': 'Not waiting for next batch.'})
 				startNextBatch()
 				return Response({'error': False})
 
 			elif(action == 2): # Submit time
 				elapsedTime = request.data['elapsedTime']
 				if(elapsedTime <= 0):
-					return Response({'error': True, 'description': 'Invalid elapsed time given.'})
+					return Response({'error': True, 'type': 3, 'description': 'Invalid elapsed time given.'})
 
 				production = Producao.objects.last()
 				production.tempoDeProducao = elapsedTime
 				production.save()
 
 			elif(action == 3): # Request quality analysis
-				return Response({'error': True, 'description': 'To be implemented.'})
+				return Response({'error': True, 'type': 11, 'description': 'To be implemented.'})
 
-			return Response({'error': True, 'description': 'Invalid control action.'})
+			elif(action == 4): # Toggle production
+				if(not state['inSession']):
+					return Response({'error': True, 'type': 1, 'description': 'Not in session.'})
+				if(state['isPaused'] and state['lastRotation'] != state['rotation']):
+					return Response({'error': True, 'type': 4, 'description': 'Carousel alignment is not equal to alignment before the pause.'})
+				
+				toggleProduction()
+
+				return Response({'error': False})
+
+			elif(action == 5): # Force production finish
+				if(not state['inSession']):
+					return Response({'error': True, 'type': 1, 'description': 'Not in session.'})
+
+				resetState()
+
+				return Response({'error': False})
+
+			return Response({'error': True, 'type': 10, 'description': 'Invalid control action.'})
 
 		except Exception as e:
 			print(e)
-			return Response({'error': True, 'description': 'Internal error.'})
+			return Response({'error': True, 'type': 0, 'description': 'Internal error.'})
 
 class StateView(APIView):
 	def get(self, request):

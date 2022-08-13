@@ -31,6 +31,18 @@ class ProductionService {
       elapsedTime
     });
   }
+
+  productionToggle() {
+    return api.post('/controleProducao/', {
+      action: 4
+    });
+  }
+
+  productionForceFinish() {
+    return api.post('/controleProducao/', {
+      action: 5
+    });
+  }
 }
 
 const productionService = new ProductionService();

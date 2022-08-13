@@ -5,13 +5,13 @@ import productionService from '../../services/productionService';
 
 import '../../styles/components/dashboard/Time.scss';
 
-export default function Time() {
+export default function Time(props) {
 	const { state } = useContext(StateContext);
 	const [ previousInSession, setPreviousInSession ] = useState(false);
 	const [ hour, setHour ] = useState(0);
 	const [ minute, setMinute ] = useState(0);
 	const [ second, setSecond ] = useState(0);
-	const [ isPaused, setIsPaused ] = useState(false);
+	const [ isDone, setisDone ] = useState(false);
 	const [ elapsedTime, setElapsedTime ] = useState(0);
 
 	let interval = null;
@@ -24,7 +24,6 @@ export default function Time() {
 	function counter() {
 		const now = Date.now();
 
-		console.log(elapsedTime)
 		setElapsedTime(elapsedTime + (now - before)/1000);
 
 		setHour(Math.floor(elapsedTime/3600));
@@ -43,16 +42,17 @@ export default function Time() {
 	}, []);
 
 	useEffect(() => {
-		if(!isPaused)
+		if(!(isDone || props.isPaused))
 		 setTimeout(counter, 1000);
-	}, [elapsedTime]);
+		//console.log('isDone', isDone, 'isPaused', props.isPaused)
+	}, [elapsedTime, props.isPaused]);
 
 	useEffect(() => {
 		if(!state.inSession && state.inSession != previousInSession) {
 			localStorage.setItem('elapsedTime', elapsedTime);
 			productionService.productionSubmitTime(elapsedTime);
 			
-			setIsPaused(true);
+			setisDone(true);
 		}
 
 		setPreviousInSession(state.inSession);

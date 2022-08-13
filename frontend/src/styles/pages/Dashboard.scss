@@ -16,11 +16,38 @@
     flex-direction: column;
     overflow: hidden;
 
-    > h1 {
-      color: #39393A;
-      font-size: 2rem;
-      margin: 3.5rem 0 0 5rem;
-      box-sizing: border-box;
+    > .title-control {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 3.5rem;
+
+      > h1 {
+        color: #39393A;
+        font-size: 2rem;
+        margin: 3.5rem 0 0 0;
+        box-sizing: border-box;
+      }
+
+      > div {
+        > button {
+          font-size: 0.8em;
+          padding: 1em 1.2em;
+          border-radius: 0.5em;
+          background-color: #1f272d;
+          border: 0;
+          outline: none;
+          cursor: pointer;
+          color: white;
+          transition: 150ms;
+          margin-left: 1em;
+
+          &:hover {
+            transform: scale(1.1);
+          }
+        }
+      } 
     }
 
     > .content {

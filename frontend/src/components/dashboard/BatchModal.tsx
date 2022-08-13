@@ -1,11 +1,10 @@
-import Modal from 'react-modal';
 import SyncLoader from 'react-spinners/SyncLoader';
+
+import DashboardModal from './Modal'
 
 import StateContext from '../../contexts/StateContext';
 import productionService from '../../services/productionService';
 import { notify_error, notify_success } from '../../utils/toastify';
-
-import '../../styles/components/dashboard/BatchModal.scss';
 
 export default function BatchModal(props) {
 	function nextBatch() {
@@ -18,18 +17,15 @@ export default function BatchModal(props) {
 	}
 
 	return (
-		<Modal
-			isOpen={props.isOpen}
-			shouldCloseOnEsc={false}
-			className="batch-modal"
-			overlayClassName="modal-overlay"
-		>
-			<span>Lote finalizado</span>
-			<span>Troque as camisetas e pressione o botão para continuar</span>
+		<DashboardModal isOpen={props.isOpen}>
+			<div>
+				<span>Lote finalizado</span>
+				<span>Troque as camisetas e pressione o botão para continuar</span>
+			</div>
 
 			<SyncLoader className="spinner" loading={true} color="#1f272d" />
 
 			<button onClick={nextBatch}>Continuar</button>
-		</Modal>
+		</DashboardModal>
 	);
 }

@@ -1,4 +1,4 @@
-.batch-modal {
+.dashboard-modal {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -14,9 +14,14 @@
 	background-color: white;
 	border-radius: 1em;
 
-	> span {
-		font-size: 2em;
-		text-align: center;
+	> div {
+		display: flex;
+		flex-direction: column;
+		
+		> span {
+			font-size: 2em;
+			text-align: center;
+		}	
 	}
 
 	> button {
