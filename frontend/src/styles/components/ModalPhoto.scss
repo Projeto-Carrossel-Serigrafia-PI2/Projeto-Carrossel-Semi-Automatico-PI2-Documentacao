@@ -1,0 +1,19 @@
+#modal-photo-container {
+  > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .buttons-photo-group {
+    display: flex;
+    flex-direction: row;
+
+    margin-top: 2rem;
+
+    > div {
+      margin-left: 2rem;
+    }
+  }
+}
