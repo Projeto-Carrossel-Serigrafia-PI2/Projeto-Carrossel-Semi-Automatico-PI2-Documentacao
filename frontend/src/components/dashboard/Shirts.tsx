@@ -13,6 +13,7 @@ import StateContext from '../../contexts/StateContext';
 export default function Shirts() {
 	const { parameters, state } = useContext(StateContext);
 	const [ driedShirts, setDriedShirts ] = useState(0);
+	const [ spinnerSize, setSpinnerSize ] = useState(35);
 	const [ qualityResults, setQualityResults ] = useState([]);
 
 	const chartOptions = {
@@ -52,6 +53,19 @@ export default function Shirts() {
 
 		setQualityResults(results);
 	}
+
+	function resizeSpinner() {
+		return window.screen.width <= 1024 ? setSpinnerSize(45) : setSpinnerSize(60);
+	}
+
+	useEffect(() => {
+	    resizeSpinner();
+	    window.addEventListener('resize', resizeSpinner);
+
+	    return () => {
+	      window.removeEventListener('resize', resizeSpinner);
+	    }
+	  }, []);
 
 	useEffect(() => {
 		if(!state.inSession)
@@ -148,7 +162,7 @@ export default function Shirts() {
 						<div className="analysis">
 							{ state.inSession
 								? <>
-									<MoonLoader speedMultiplier="0.5" />
+									<MoonLoader speedMultiplier="0.5" size={spinnerSize} />
 									<p>Aguardando produção</p>
 								  </>
 								: <button onClick={getResults}>Iniciar análise</button>
