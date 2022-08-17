@@ -151,7 +151,8 @@ export function Production() {
               });
             }, 1000);
 
-            localStorage.setItem('elapsedTime', 0);
+            localStorage.removeItem('elapsedTime');
+            localStorage.removeItem('before');
             navigate(`/dashboard/`);
             setPage('dashboard');
             notify_success('Produção criada e inicializada com sucesso!');

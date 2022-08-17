@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 
 import StateContext from '../../contexts/StateContext';
 import productionService from '../../services/productionService';
@@ -13,9 +13,9 @@ export default function Time(props) {
 	const [ second, setSecond ] = useState(0);
 	const [ isDone, setisDone ] = useState(false);
 	const [ elapsedTime, setElapsedTime ] = useState(0);
+	const [ before, setBefore ] = useState(Date.now());
 
-	let interval = null;
-	let before = Date.now();
+	const skipUpdate = useRef(false);
 
 	function addLeadingZeros(num, totalLength) {
 		return String(num).padStart(totalLength, '0');
@@ -30,21 +30,31 @@ export default function Time(props) {
 		setMinute(Math.floor((elapsedTime%3600)/60));
 		setSecond(Math.floor(elapsedTime%60));
 
-		before = now;
+		setBefore(now);
+
+		localStorage.setItem('elapsedTime', elapsedTime)
+		localStorage.setItem('before', before)
 	}
 
 	useEffect(() => {
 		const storagedTime = localStorage.getItem('elapsedTime');
-		if(storagedTime)
-			setElapsedTime(parseInt(storagedTime));
+		const storagedBefore = localStorage.getItem('before');
 
-		return () => localStorage.setItem('elapsedTime', elapsedTime)
+		if(storagedTime) {
+			setElapsedTime(parseInt(storagedTime));
+			skipUpdate.current = true;
+		}
+
+		if(storagedBefore)
+			setBefore(parseInt(storagedBefore));
 	}, []);
 
 	useEffect(() => {
-		if(!(isDone || props.isPaused))
-		 setTimeout(counter, 1000);
-		//console.log('isDone', isDone, 'isPaused', props.isPaused)
+		if(skipUpdate.current)
+			skipUpdate.current = false;
+		else
+			if(!(isDone || props.isPaused))
+			 setTimeout(counter, 1000);
 	}, [elapsedTime, props.isPaused]);
 
 	useEffect(() => {
