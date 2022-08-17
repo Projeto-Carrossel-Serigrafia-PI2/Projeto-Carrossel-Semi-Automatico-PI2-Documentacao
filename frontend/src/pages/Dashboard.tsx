@@ -90,7 +90,6 @@ export function Dashboard() {
 
   return (
     <div id="dashboard" style={!parameters.paints.length ? {display: 'flex'} : {}}>
-      <ToastContainer />
       <BatchModal 
         isOpen={state.waitingNewBatch}
       />
