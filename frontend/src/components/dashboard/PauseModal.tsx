@@ -7,7 +7,6 @@ export default function PauseModal(props) {
 		<DashboardModal isOpen={props.isOpen}>
 			<div>
 				<span>Produção pausada</span>
-				<span>Mantenha o carrossel alinhado como estava antes da pausa para resumir a produção</span>
 			</div>
 
 			<SyncLoader className="spinner" loading={true} color="#1f272d" />

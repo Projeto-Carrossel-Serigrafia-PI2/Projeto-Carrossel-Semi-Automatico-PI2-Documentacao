@@ -43,6 +43,12 @@ class ProductionService {
       action: 5
     });
   }
+
+  productionRepaint() {
+    return api.post('/controleProducao/', {
+      action: 6
+    });
+  }
 }
 
 const productionService = new ProductionService();

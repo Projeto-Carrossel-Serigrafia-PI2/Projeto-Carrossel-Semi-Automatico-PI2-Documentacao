@@ -16,6 +16,7 @@ import Temperature from '../components/dashboard/Temperature';
 import Speed from '../components/dashboard/Speed';
 import BatchModal from '../components/dashboard/BatchModal';
 import PauseModal from '../components/dashboard/PauseModal';
+import RepaintingModal from '../components/dashboard/RepaintingModal';
 
 import { notify_success, notify_error } from '../utils/toastify'
 
@@ -23,6 +24,7 @@ export function Dashboard() {
   const { state, parameters } = useContext(StateContext);
   const [ previousInSession, setPreviousInSession ] = useState(false);
   const [ isPaused, setIsPaused ] = useState(false);
+  const [ isRepainting, setIsRepainting ] = useState(false);
 
   const main = useRef();
   const h1 = useRef();
@@ -43,8 +45,8 @@ export function Dashboard() {
       if(response.data.error) {
         if(response.data.type == 1)
           notify_error('Falha ao pausar/despausar! Nenhuma produção em sessão!');
-        else if(response.data.type == 4)
-          notify_error('Falha ao pausar/despausar! Carrossel não alinhado!');
+        else if(response.data.type == 6)
+          notify_error('Falha ao pausar/despausar! Repique em andamento!');
         else if(response.data.type == 0)
           notify_error('Falha ao pausar/despausar! Erro interno!');
         else
@@ -59,13 +61,33 @@ export function Dashboard() {
   function finishProduction() {
     productionService.productionForceFinish().then((response) => {
       if(response.data.error) {
-        if(resposen.data.type == 1)
+        if(response.data.type == 1)
           notify_error('Falha ao forçar término de produção! Nenhuma produção em sessão!');
         else if(response.data.type == 0)
-          notify_error('Falha ao pausar/despausar! Erro interno!');
+          notify_error('Falha ao forçar término de produção! Erro interno!');
         else
-          notify_error('Falha ao pausar/despausar! Erro desconhecido! @_@');
+          notify_error('Falha ao forçar término de produção! Erro desconhecido! @_@');
       }
+    });
+  }
+
+  function toggleRepainting() {
+    productionService.productionRepaint().then((response) => {
+      if(response.data.error) {
+        if(response.data.type == 1)
+          notify_error('Falha ao realizar/finalizar repique! Nenhuma produção em sessão!');
+        else if(response.data.type == 4)
+          notify_error('Falha ao realizar/finalizar repique! Carrossel não alinhado!');
+        else if(response.data.type == 5)
+          notify_error('Falha ao realizar/finalizar repique! Produção pausada!');
+        else if(response.data.type == 0)
+          notify_error('Falha ao realizar/finalizar repique! Erro interno!');
+        else
+          notify_error('Falha ao realizar/finalizar repique! Erro desconhecido! @_@');
+      }
+
+      else
+        setIsRepainting(!isRepainting);
     });
   }
 
@@ -97,6 +119,10 @@ export function Dashboard() {
         isOpen={isPaused}
         toggleProduction={toggleProduction}
       />
+      <RepaintingModal 
+        isOpen={isRepainting}
+        toggleRepainting={toggleRepainting}
+      />
 
       { parameters.paints.length
         ? <div ref={main} className="main">
@@ -104,6 +130,7 @@ export function Dashboard() {
               <h1 ref={h1}>Dashboard</h1>
               
               <div>
+                <button onClick={() => toggleRepainting()}>Repique</button>
                 <button onClick={() => toggleProduction()}>{isPaused ? 'Resumir' : 'Pausar'} produção</button>
                 <button onClick={() => finishProduction()}>Finalizar produção</button>
               </div>

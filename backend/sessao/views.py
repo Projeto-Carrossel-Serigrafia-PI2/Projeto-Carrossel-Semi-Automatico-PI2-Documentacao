@@ -40,7 +40,8 @@ state = {
 	'inSession': False,
 	'motorInUse': False,
 	'waitingNewBatch': False,
-	'isPaused': False
+	'isPaused': False,
+	'isRepainting': False
 }
 
 async def dryShirt():
@@ -55,7 +56,7 @@ async def dryShirt():
 
 def pedalHandler(channel):
 	# if(state['inSession'] and not motorController.isRotating):
-	if(state['inSession'] and not state['motorInUse'] and not state['waitingNewBatch']):
+	if(state['inSession'] and not state['motorInUse'] and not state['waitingNewBatch'] and not state['isPaused']):
 		# flashcureController.stop()
 		# motorController.start()
 		print('Pedal pressed & motor started!')
@@ -70,7 +71,7 @@ def encoderHandler(channel):
 
 		state['rotation'] += 1
 
-		if(not state['isPaused']):
+		if(not state['isRepainting']):
 			# If the first shirt with the newest color has arrived at the flashcure position
 			if(state['rotation'] == CONFIG['FLASHCURE']['POSITION']):
 				paints = state['parameters']['paints']
@@ -131,6 +132,7 @@ def resetState():
 	state['motorInUse'] = False
 	state['inSession'] = False
 	state['isPaused'] = False
+	state['isRepainting'] = False
 
 def setupProduction():
 	production = Producao.objects.last()
@@ -168,12 +170,12 @@ def startNextBatch():
 def getTemperatures():
 	return [112, 30]
 
-def toggleProduction():
-	if(state['isPaused']):
-		state['isPaused'] = False
+def toggleRepainting():
+	if(state['isRepainting']):
+		state['isRepainting'] = False
 		state['lastRotation'] = -1
 	else:
-		state['isPaused'] = True
+		state['isRepainting'] = True
 		state['lastRotation'] = state['rotation']
 
 class ControleProducaoView(APIView):
@@ -210,10 +212,10 @@ class ControleProducaoView(APIView):
 			elif(action == 4): # Toggle production
 				if(not state['inSession']):
 					return Response({'error': True, 'type': 1, 'description': 'Not in session.'})
-				if(state['isPaused'] and state['lastRotation'] != state['rotation']):
-					return Response({'error': True, 'type': 4, 'description': 'Carousel alignment is not equal to alignment before the pause.'})
+				if(state['isRepainting']):
+					return Response({'error': True, 'type': 6, 'description': 'Repainting in progress.'})
 				
-				toggleProduction()
+				state['isPaused'] = not state['isPaused']
 
 				return Response({'error': False})
 
@@ -222,6 +224,18 @@ class ControleProducaoView(APIView):
 					return Response({'error': True, 'type': 1, 'description': 'Not in session.'})
 
 				resetState()
+
+				return Response({'error': False})
+
+			elif(action == 6): # Repainting
+				if(not state['inSession']):
+					return Response({'error': True, 'type': 1, 'description': 'Not in session.'})
+				if(state['isPaused']):
+					return Response({'error': True, 'type': 5, 'description': 'Session is paused.'})
+				if(state['isRepainting'] and state['lastRotation'] != state['rotation']):
+					return Response({'error': True, 'type': 4, 'description': 'Carousel alignment is not equal to alignment before the repainting started.'})
+
+				toggleRepainting()
 
 				return Response({'error': False})
 
