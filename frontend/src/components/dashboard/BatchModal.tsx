@@ -4,7 +4,9 @@ import DashboardModal from './Modal'
 
 import StateContext from '../../contexts/StateContext';
 import productionService from '../../services/productionService';
+
 import { notify_error, notify_success } from '../../utils/toastify';
+import errorHandler from '../../utils/errorHandler';
 
 export default function BatchModal(props) {
 	function nextBatch() {
@@ -13,7 +15,7 @@ export default function BatchModal(props) {
 				notify_error('Falha ao avançar para o próximo lote!');
 			else
 				notify_success('Lote avançado com sucesso!');
-		});
+		}).catch(errorHandler);
 	}
 
 	return (

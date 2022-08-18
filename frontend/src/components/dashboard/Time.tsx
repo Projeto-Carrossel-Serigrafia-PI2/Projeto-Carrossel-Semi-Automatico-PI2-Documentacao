@@ -5,6 +5,8 @@ import productionService from '../../services/productionService';
 
 import '../../styles/components/dashboard/Time.scss';
 
+import errorHandler from '../../utils/errorHandler';
+
 export default function Time(props) {
 	const { state } = useContext(StateContext);
 	const [ previousInSession, setPreviousInSession ] = useState(false);
@@ -60,7 +62,7 @@ export default function Time(props) {
 	useEffect(() => {
 		if(!state.inSession && state.inSession != previousInSession) {
 			localStorage.setItem('elapsedTime', elapsedTime);
-			productionService.productionSubmitTime(elapsedTime);
+			productionService.productionSubmitTime(elapsedTime).catch(errorHandler);
 			
 			setisDone(true);
 		}

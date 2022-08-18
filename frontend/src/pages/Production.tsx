@@ -13,11 +13,13 @@ import StateContext from '../contexts/StateContext';
 import PageContext from '../contexts/PageContext';
 
 import '../styles/pages/Production.scss';
+
 import {
   notify_error,
   notify_success,
   notify_warning,
 } from '../utils/toastify';
+import errorHandler from '../utils/errorHandler';
 
 const data: ColorProps[] = [
   {
@@ -148,6 +150,14 @@ export function Production() {
             window.updateInterval = setInterval(() => {
               productionService.productionState().then((response) => {
                 setState(response.data);
+              }).catch((error) => {
+                if(error.code == 'ERR_NETWORK') {
+                  notify_error('Conexão com o back-end falhou! Interrompendo atualizações de estado!');
+
+                  clearInterval(window.updateInterval);
+                }
+                else
+                  notify_error('Falha ao comunicar com o back-end. Código: ' + error.code);
               });
             }, 1000);
 
@@ -157,20 +167,16 @@ export function Production() {
             setPage('dashboard');
             notify_success('Produção criada e inicializada com sucesso!');
           }
-        }).catch((e) => {
-          notify_error('Não foi possível executar a produção!');
-        });
-      }).catch(() => {
-        notify_error('Não foi possível criar a produção!');
-      });  
+        }).catch(errorHandler);
+      }).catch(errorHandler);  
     }
   }
 
   useEffect(() => {
     async function getAllPaintsType() {
-      const response = await paintService.paintGetAll();
-
-      setPaints(response);
+      paintService.paintGetAll().then((response) => {
+        setPaints(response);
+      }).catch(errorHandler);
     }
 
     getAllPaintsType();

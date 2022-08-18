@@ -5,6 +5,8 @@ import StateContext from '../../contexts/StateContext';
 
 import '../../styles/components/dashboard/Paint.scss';
 
+import errorHandler from '../../utils/errorHandler';
+
 export default function Paint() {
 	const [ paints, setPaints ] = useState([]);
 	const { parameters, state } = useContext(StateContext);
@@ -17,7 +19,7 @@ export default function Paint() {
 	useEffect(() => {
 		paintService.paintGetAll().then((data) => {
 			setPaints(data);
-		});
+		}).catch(errorHandler);
 	}, []);
 
 	return (

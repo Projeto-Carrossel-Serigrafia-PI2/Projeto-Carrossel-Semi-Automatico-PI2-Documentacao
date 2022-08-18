@@ -19,6 +19,7 @@ import PauseModal from '../components/dashboard/PauseModal';
 import RepaintingModal from '../components/dashboard/RepaintingModal';
 
 import { notify_success, notify_error } from '../utils/toastify'
+import errorHandler from '../utils/errorHandler';
 
 export function Dashboard() {
   const { state, parameters } = useContext(StateContext);
@@ -55,7 +56,7 @@ export function Dashboard() {
 
       else
         setIsPaused(!isPaused);
-    });
+    }).catch(errorHandler);
   }
 
   function finishProduction() {
@@ -68,7 +69,7 @@ export function Dashboard() {
         else
           notify_error('Falha ao forçar término de produção! Erro desconhecido! @_@');
       }
-    });
+    }).catch(errorHandler);
   }
 
   function toggleRepainting() {
@@ -88,7 +89,7 @@ export function Dashboard() {
 
       else
         setIsRepainting(!isRepainting);
-    });
+    }).catch(errorHandler);
   }
 
   useEffect(() => {
