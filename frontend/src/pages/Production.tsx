@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { FiPlus, FiMinus, FiCamera, FiUpload } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiMinus } from 'react-icons/fi';
 
 import { Input } from '../components/Input';
 import { ButtonRequest } from '../components/ButtonRequest';
 import { ButtonEditParam } from '../components/ButtonEditParam';
+import { ButtonTakePhoto } from '../components/ButtonTakePhoto';
+import { ModalPhoto } from '../components/ModalPhoto';
 import productionService from '../services/productionService';
 import paintService from '../services/paintService';
 import { ColorProps, PaintProps } from '../utils/types';
@@ -33,10 +35,19 @@ export function Production() {
   const [paints, setPaints] = useState<PaintProps[]>([]);
   const [quantityTShirts, setQuantityTShirts] = useState(0);
   const [speed, setSpeed] = useState(0);
+  const [imageUpload, setImageUpload] = useState<string | ArrayBuffer>('');
+  const [imageTaken, setImageTaken] = useState('');
   const [colors, setColors] = useState<ColorProps[]>(data);
   const { state, setParameters, setState } = useContext(StateContext);
   const { setPage } = useContext(PageContext);
-  const navigate = useNavigate();
+
+  const openModalPhoto = async () => {
+    setIsModalPhotoOpen(true);
+  };
+
+  const closeModalPhoto = () => {
+    setIsModalPhotoOpen(false);
+  };
 
   function handleIncreaseTShirts() {
     setQuantityTShirts(quantityTShirts + 4);
@@ -124,6 +135,7 @@ export function Production() {
         totalDeCamisetas: quantityTShirts,
         velocidade: speed,
         base_producao_create: data_colors,
+        image: imageTaken ? imageTaken : imageUpload,
       };
 
       productionService.productionCreate(production).then((res) => {
@@ -172,6 +184,15 @@ export function Production() {
     }
   }
 
+  function convertFileToBase64(file: File) {
+    let reader = new FileReader();
+    reader.readAsDataURL(file)
+
+    reader.onload = (e) => {
+      setImageUpload(e.target?.result!)
+    } 
+  }
+
   useEffect(() => {
     async function getAllPaintsType() {
       paintService.paintGetAll().then((response) => {
@@ -185,6 +206,14 @@ export function Production() {
   return (
     <div id="production">
       <h1>Produção</h1>
+
+      <ModalPhoto
+        isModalOpen={isModalPhotoOpen}
+        setIsModalOpen={setIsModalPhotoOpen}
+        closeModal={closeModalPhoto}
+        image={imageTaken}
+        setImage={setImageTaken}
+      />
 
       <main>
         <section className="input-group">
@@ -229,6 +258,33 @@ export function Production() {
           </div>
         </section>
 
+        <section className="input-group">
+          <h2>Foto da estampa para referência:</h2>
+
+          <div>
+            <ButtonTakePhoto
+              title="Enviar foto"
+              icon={<FiUpload size={18} color="#39393a" />}
+              filename={imageUpload ? "imagem salva!" : ''}
+              mode="upload"
+              onChange={(e) => {
+                setImageTaken('');
+                convertFileToBase64(e.target.files![0])
+              }}
+            />
+            <ButtonTakePhoto
+              title="Tirar foto"
+              icon={<FiCamera size={18} color="#39393a" />}
+              filename={imageTaken ? 'imagem salva!' : ''}
+              mode="taken"
+              onClick={() => {
+                openModalPhoto();
+                setImageUpload('');
+              }}
+            />
+          </div>
+        </section>
+
         <h2>Cores:</h2>
 
         <section className="colors-section">
@@ -254,7 +310,8 @@ export function Production() {
               </section>
 
               <section className="input-group">
-                <h4>Base da tinta:</h4>
+                <h4>Base de tinta:</h4>
+
                 <select
                   value={paints.find((paint) => paint.id === item.id)?.type}
                   onChange={(e) => handleFormChangeTypeColor(index, e)}

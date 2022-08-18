@@ -12,11 +12,11 @@ import { notify_success, notify_update, notify_error } from '../utils/toastify';
 import '../styles/components/ModalPaints.scss';
 
 export function ModalPaints(props: ModalProps) {
-  const [typePaint, setTypePaint] = useState(props.paint.type);
+  const [typePaint, setTypePaint] = useState(props.paint!.type);
   const [dryingTemperature, setDryingTemperature] = useState(
-    props.paint.dryingTemperature
+    props.paint!.dryingTemperature
   );
-  const [dryingTime, setDryingTime] = useState(props.paint.dryingTime);
+  const [dryingTime, setDryingTime] = useState(props.paint!.dryingTime);
 
   const handleIncreaseTemperature = () => {
     setDryingTemperature(dryingTemperature + 5);
@@ -53,7 +53,7 @@ export function ModalPaints(props: ModalProps) {
   const handleUpdatePaint = async () => {
     try {
       await paintService.paintUpdate({
-        id: props.paint.id,
+        id: props.paint!.id,
         type: typePaint,
         dryingTemperature,
         dryingTime,

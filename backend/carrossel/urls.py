@@ -22,14 +22,14 @@ from sessao.views import ControleProducaoView, StateView
 
 route = routers.DefaultRouter()
 
-route.register(r'base',SessaoViewSets.baseViewSets, basename='base')
-route.register(r'producao',SessaoViewSets.ProducaoViewSets, basename='producao')
-route.register(r'baseProducao',SessaoViewSets.BaseProducaoViewSets,basename = 'baseProducao')
-
+route.register(r'base', SessaoViewSets.baseViewSets, basename='base')
+route.register(r'producao', SessaoViewSets.ProducaoViewSets, basename='producao')
+route.register(r'baseProducao', SessaoViewSets.BaseProducaoViewSets,basename='baseProducao')
+route.register(r'lote', SessaoViewSets.LoteViewSets,basename='lote')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('controleProducao/', ControleProducaoView.as_view()),
     path('estado/', StateView.as_view()),
-    path('',include(route.urls))
+    path('', include(route.urls))
 ]

@@ -1,9 +1,6 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from sessao.api import serializers
-from sessao import models 
-from rest_framework.decorators import action    
-from rest_framework.response import Response
-
+from sessao import models
 
 class baseViewSets (viewsets.ModelViewSet):
    serializer_class = serializers.BaseSerializer
@@ -17,3 +14,6 @@ class BaseProducaoViewSets (viewsets.ModelViewSet):
     serializer_class = serializers.BaseProducaoSerializer
     queryset = models.BaseProducao.objects.all()
 
+class LoteViewSets (viewsets.ModelViewSet):
+   serializer_class = serializers.LoteSerializer
+   queryset = models.Lote.objects.all()    

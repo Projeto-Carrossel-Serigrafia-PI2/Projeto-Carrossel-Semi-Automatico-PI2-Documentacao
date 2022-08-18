@@ -11,15 +11,32 @@ export interface OptionProps {
 export interface ModalProps {
   isModalOpen: boolean;
   closeModal(): void;
-  paint: PaintProps;
+  paint?: PaintProps;
   mode?: 'editar' | 'criar';
   setSessionActive?: (value: string) => void;
   setIsModalOpen?: (value: boolean) => void;
 }
 
+export interface ModalPhotoProps {
+  isModalOpen: boolean;
+  closeModal(): void;
+  setIsModalOpen?: (value: boolean) => void;
+  image?: string;
+  setImage?: (value: string) => void;
+}
+
 export interface ButtonEditParamProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: React.ReactElement;
+}
+
+export interface ButtonTakePhotoProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  icon: React.ReactElement;
+  title: string;
+  filename?: string;
+  mode: 'upload' | 'taken';
+  onClick?(): void;
 }
 
 export interface ButtonRequestProps
