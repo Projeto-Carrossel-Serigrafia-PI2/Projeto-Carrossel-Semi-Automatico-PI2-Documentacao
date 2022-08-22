@@ -38,8 +38,12 @@ export function Production() {
   const [imageUpload, setImageUpload] = useState<string | ArrayBuffer>('');
   const [imageTaken, setImageTaken] = useState('');
   const [colors, setColors] = useState<ColorProps[]>(data);
+  const [isModalPhotoOpen, setIsModalPhotoOpen] = useState(false);
+  
   const { state, setParameters, setState } = useContext(StateContext);
   const { setPage } = useContext(PageContext);
+  
+  const navigate = useNavigate();
 
   const openModalPhoto = async () => {
     setIsModalPhotoOpen(true);
