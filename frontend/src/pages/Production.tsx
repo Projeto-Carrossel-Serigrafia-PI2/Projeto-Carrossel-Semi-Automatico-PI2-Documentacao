@@ -42,6 +42,8 @@ export function Production() {
   
   const { state, setParameters, setState } = useContext(StateContext);
   const { setPage } = useContext(PageContext);
+  
+  const navigate = useNavigate();
 
   const openModalPhoto = async () => {
     setIsModalPhotoOpen(true);
