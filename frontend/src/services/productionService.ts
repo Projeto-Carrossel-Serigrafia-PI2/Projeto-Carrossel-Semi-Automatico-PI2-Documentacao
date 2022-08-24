@@ -19,6 +19,10 @@ class ProductionService {
   productionState() {
     return api.get('/estado/');
   }
+
+  productionGetAll() {
+    return api.get('/producao/');
+  }
 }
 
 const productionService = new ProductionService();
