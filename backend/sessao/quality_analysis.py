@@ -13,7 +13,6 @@ def take_photo(batch):
   ret, frame = image.read()
 
   # display the captured image
-  cv.imshow('image', frame)
 
   # save image
   cv.imwrite(path_photo + 'batches_photos/batch_' + str(batch) + '.jpg', frame) 
