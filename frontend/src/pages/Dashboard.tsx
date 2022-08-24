@@ -105,7 +105,7 @@ export function Dashboard() {
 
   useEffect(() => {
     if(!state.inSession && state.inSession != previousInSession) {
-      notify_success('Sessão finalizada!');
+      notify_success('Produção finalizada!');
       clearInterval(window.updateInterval);
     }
     setPreviousInSession(state.inSession);
