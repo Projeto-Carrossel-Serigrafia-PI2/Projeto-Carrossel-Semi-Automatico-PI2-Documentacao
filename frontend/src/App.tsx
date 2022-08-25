@@ -16,7 +16,8 @@ function App() {
     batch: 0,
     temperatures: [0, 0],
     waitingNewBatch: false,
-    inSession: false
+    inSession: false,
+    isPaused: false
   });
 
   return (

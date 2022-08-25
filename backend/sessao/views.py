@@ -284,5 +284,6 @@ class StateView(APIView):
 			'batch': state['batch'],
 			'waitingNewBatch': state['waitingNewBatch'],
 			'temperatures': temperatures,
-			'inSession': state['inSession']
+			'inSession': state['inSession'],
+			'isPaused': state['isPaused']
 		})
