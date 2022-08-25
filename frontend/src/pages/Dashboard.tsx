@@ -15,7 +15,7 @@ import Shirts from '../components/dashboard/Shirts';
 import Temperature from '../components/dashboard/Temperature';
 import Speed from '../components/dashboard/Speed';
 import BatchModal from '../components/dashboard/BatchModal';
-import PauseModal from '../components/dashboard/PauseModal';
+import PauseOverlay from '../components/dashboard/PauseOverlay';
 import RepaintingModal from '../components/dashboard/RepaintingModal';
 
 import { notify_success, notify_error } from '../utils/toastify'
@@ -116,8 +116,8 @@ export function Dashboard() {
       <BatchModal 
         isOpen={state.waitingNewBatch}
       />
-      <PauseModal 
-        isOpen={isPaused}
+      <PauseOverlay 
+        isPaused={isPaused}
         toggleProduction={toggleProduction}
       />
       <RepaintingModal 
