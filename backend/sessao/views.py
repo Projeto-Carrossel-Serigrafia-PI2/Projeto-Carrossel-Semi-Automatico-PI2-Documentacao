@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 from sessao.quality_analysis import *
 import cv2 as cv
 import base64
-from PIL import Image
 import io
 import os
 
@@ -94,7 +93,6 @@ def encoderHandler(channel):
 
 		if(state['driedBatchShirts'] != -1):
 			state['driedBatchShirts'] += 1
-			print(state['driedBatchShirts'], ' shirts dried!')
 
 			if(state['driedBatchShirts'] > state['parameters']['batches'][state['batch']]['shirts']):
 				# Take a photo
@@ -118,13 +116,37 @@ def encoderHandler(channel):
 				similarity_format = analyze_print_format(image_reference_cropped, image_to_analyze_cropped, image_reference_height, image_reference_width)
 				quantity_failures = analyze_failure_matrix(image_to_analyze_cropped, state['batch'])
 				similarity_color = analyze_colors(image_reference_cropped, image_to_analyze_cropped)
-				# print('similarity_format: ' + similarity_format)
-				# print('quantity_failures: ' + str(quantity_failures))
-				# print('similarity_color: ' + similarity_color)
+
+				# Get current batch
+				print('CURRENT BATCH ID: ' + str(state['parameters']['batches'][state['batch']]['id']))
+				print('ARRAY OH BATCHES:')
+				print(state['parameters']['batches'])
+				print('BATCH: ', state['batch'])
+				current_batch = Lote.objects.filter(id=state['parameters']['batches'][state['batch']]['id'])[0]
+
+				# convert image to base64
+				with open(path_photo + 'batches_photos/batch_' + str(state['batch']) + '.jpg', "rb") as img_file:
+					image_batch_b64 = base64.b64encode(img_file.read())
+
+				with open(path_photo + 'reports/batch_' + str(state['batch']) + '.jpg', "rb") as img_file:
+					image_batch_report_b64 = base64.b64encode(img_file.read())
+				
+				# save image and analysis into database
+
+				current_batch.image = image_batch_b64
+				current_batch.imageFalhas = image_batch_report_b64
+				current_batch.similaridadeFormato = similarity_format
+				current_batch.similaridadeCor = similarity_color
+				current_batch.quantidadeDeFalhas = quantity_failures
+				current_batch.save()
 
 				print('Photo taken!')
 				print('Batch finished!')
 				state['waitingNewBatch'] = True
+			# 	state['driedBatchShirts'] = 1
+			# 	state['batch'] += 1
+			
+			# print(state['driedBatchShirts'], ' shirts dried! Batch: ', str(state['batch']))
 
 		# If we completed a full rotation
 		if(state['rotation'] > 3):
