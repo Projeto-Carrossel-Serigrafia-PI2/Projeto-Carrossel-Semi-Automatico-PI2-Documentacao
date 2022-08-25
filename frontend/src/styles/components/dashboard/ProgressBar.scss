@@ -6,6 +6,10 @@
 	border-radius: 4em;
 	font-weight: bold;
 
+	span {
+		font-size: 1.2em;
+	}
+
 	> div {
 		position: relative;
 		border-radius: 4em;
@@ -30,5 +34,13 @@
 
 	> .higher {
 		right: 0;
+	}
+}
+
+@media only screen and (max-width: 1024px) {
+	.progress-bar {
+		span {
+			font-size: 1.6em;
+		}
 	}
 }
