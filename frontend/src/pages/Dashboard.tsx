@@ -24,7 +24,6 @@ import errorHandler from '../utils/errorHandler';
 export function Dashboard() {
   const { state, parameters } = useContext(StateContext);
   const [ previousInSession, setPreviousInSession ] = useState(false);
-  const [ isPaused, setIsPaused ] = useState(false);
   const [ isRepainting, setIsRepainting ] = useState(false);
 
   const main = useRef();
@@ -53,9 +52,6 @@ export function Dashboard() {
         else
           notify_error('Falha ao pausar/despausar! Erro desconhecido! @_@');
       }
-
-      else
-        setIsPaused(!isPaused);
     }).catch(errorHandler);
   }
 
@@ -96,8 +92,6 @@ export function Dashboard() {
     calculateHeights();
     window.addEventListener('resize', calculateHeights);
 
-    setIsPaused(false);
-
     return () => {
       window.removeEventListener('resize', calculateHeights);
     }
@@ -117,7 +111,7 @@ export function Dashboard() {
         isOpen={state.waitingNewBatch}
       />
       <PauseOverlay 
-        isPaused={isPaused}
+        isPaused={state.isPaused}
         toggleProduction={toggleProduction}
       />
       <RepaintingModal 
@@ -132,7 +126,7 @@ export function Dashboard() {
               
               <div>
                 <button onClick={() => toggleRepainting()}>Repique</button>
-                <button onClick={() => toggleProduction()}>{isPaused ? 'Resumir' : 'Pausar'} produção</button>
+                <button onClick={() => toggleProduction()}>{state.isPaused ? 'Resumir' : 'Pausar'} produção</button>
                 <button onClick={() => finishProduction()}>Finalizar produção</button>
               </div>
             </div>
@@ -140,7 +134,7 @@ export function Dashboard() {
             <div ref={content} className="content">
               <Shirts />
               <Paint />
-              <Time isPaused={isPaused} />
+              <Time isPaused={state.isPaused} />
               <Temperature />
               <Speed />
             </div>
