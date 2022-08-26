@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Base64 } from 'js-base64';
 
 import { QualitySection } from '../components/QualitySection';
 import { BatchProps, ProductionProps } from '../utils/types';
@@ -28,14 +27,15 @@ export function QualityReport() {
   async function handleChooseBatch(e) {
     setBatchSelectedId(e.target.value);
     const batch = await batchService.batchGetOne(e.target.value);
+
     let image_string: string = batch.image;
     image_string = image_string.slice(2, batch.image.length - 1);
     batch.image = image_string;
 
-    let image_failures_string: string = batch.image;
+    let image_failures_string: string = batch.imageFalhas;
     image_failures_string = image_failures_string.slice(
       2,
-      batch.image.length - 1
+      batch.imageFalhas.length - 1
     );
     batch.imageFalhas = image_failures_string;
 
@@ -51,6 +51,7 @@ export function QualityReport() {
     };
 
     setBatchSelected(batch_formatted);
+    console.log(batch_formatted)
   }
 
   useEffect(() => {
@@ -93,7 +94,6 @@ export function QualityReport() {
         });
       }
       setBatches(data_formatted.reverse());
-      console.log(data_formatted);
     }
 
     getAllBatches();
@@ -191,7 +191,7 @@ export function QualityReport() {
           <QualitySection
             qualityType='Qualidade da matriz'
             imageReference={productionSelected.image}
-            imageBatch={batchSelected?.image}
+            imageBatch={batchSelected?.image_failures}
             reportDescription='A qualidade da matriz avalia se a estampa possui
           falhas em sua área, isto é, se possui pontos sem tintas, riscos, etc.
           Como resultado, é mostrado a imagem com retângulos nas regiões onde
