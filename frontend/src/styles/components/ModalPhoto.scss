@@ -1,9 +1,23 @@
 #modal-photo-container {
+  max-width: 100rem;
+
   > div {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+  }
+
+  .react-html5-camera-photo {
+    > video {
+      width: 100%;
+    }
+  }
+
+  > div {
+    > img {
+      max-width: 100%;
+    }
   }
 
   .buttons-photo-group {
@@ -16,4 +30,28 @@
       margin-left: 2rem;
     }
   }
+}
+
+@media screen and (max-width: 1024px) {
+  #modal-photo-container {
+    max-height: 80%;
+
+    .react-html5-camera-photo {
+      > video {
+        width: 100%;
+      }
+    }
+
+    > div {
+      > img {
+        max-width: 100%;
+      }
+    }
+  }
+  
+  .ReactModal__Content.ReactModal__Content--after-open {
+    max-width: 50%;
+    max-height: 80%;
+  }
+  
 }
