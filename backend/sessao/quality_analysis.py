@@ -12,8 +12,6 @@ def take_photo(batch):
   # return a tuple, first element is bool and second is frame
   ret, frame = image.read()
 
-  # display the captured image
-
   # save image
   cv.imwrite(path_photo + 'batches_photos/batch_' + str(batch) + '.jpg', frame) 
   

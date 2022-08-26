@@ -23,7 +23,13 @@ class BaseProducao(models.Model):
     cor = models.TextField('cor', max_length=200, default='branca')
 
 class Lote(models.Model):
-    quantidadeDeCamisetas = models.IntegerField('quantidade de camisetas', default=4)
     producao = models.ForeignKey(Producao, on_delete=models.CASCADE)
+    quantidadeDeCamisetas = models.IntegerField('quantidade de camisetas', default=4)
     image = models.TextField('Image', null=True)
+    imageFalhas = models.TextField('Image', null=True)
+    similaridadeFormato = models.TextField('Image', null=True)
+    similaridadeCor = models.TextField('Image', null=True)
+    quantidadeDeFalhas = models.IntegerField('quantidade de camisetas',  null=True)
     aprovado = models.TextField('Aprovado', null=True , max_length=1)
+
+    
