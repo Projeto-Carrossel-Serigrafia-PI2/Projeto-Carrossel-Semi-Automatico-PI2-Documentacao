@@ -14,13 +14,14 @@ import { ColorProps, PaintProps } from '../utils/types';
 import StateContext from '../contexts/StateContext';
 import PageContext from '../contexts/PageContext';
 
+import '../styles/pages/Production.scss';
+
 import {
   notify_error,
   notify_success,
   notify_warning,
 } from '../utils/toastify';
-
-import '../styles/pages/Production.scss';
+import errorHandler from '../utils/errorHandler';
 
 const data: ColorProps[] = [
   {
@@ -38,9 +39,11 @@ export function Production() {
   const [imageTaken, setImageTaken] = useState('');
   const [colors, setColors] = useState<ColorProps[]>(data);
   const [isModalPhotoOpen, setIsModalPhotoOpen] = useState(false);
-
-  const { parameters, setParameters, setState } = useContext(StateContext);
+  
+  const { state, setParameters, setState } = useContext(StateContext);
   const { setPage } = useContext(PageContext);
+  
+  const navigate = useNavigate();
 
   const openModalPhoto = async () => {
     setIsModalPhotoOpen(true);
@@ -49,8 +52,6 @@ export function Production() {
   const closeModalPhoto = () => {
     setIsModalPhotoOpen(false);
   };
-
-  let navigate = useNavigate();
 
   function handleIncreaseTShirts() {
     setQuantityTShirts(quantityTShirts + 4);
@@ -106,7 +107,7 @@ export function Production() {
   }
 
   async function handleCreateProduction() {
-    if(parameters.paints.length)
+    if(state.inSession)
       notify_error(
         `Uma produção já está em progresso! Pause ou finalize-a antes
          de começar outra.`
@@ -142,8 +143,6 @@ export function Production() {
       };
 
       productionService.productionCreate(production).then((res) => {
-        const production_id = res.data.base_producao_get[0].producao;
-
         productionService.productionStart().then((response) => {
           if(response.data.error) {
             notify_error('Não foi possível executar a produção!');
@@ -152,28 +151,40 @@ export function Production() {
 
           else {
             setParameters({
-              paints: production.base_producao_create,
-              shirtQuantity: production.totalDeCamisetas,
-              batches: Math.ceil(production.totalDeCamisetas/4)
+              paints: production.base_producao_create.map((paint) => {
+                return {
+                  color: paint.cor,
+                  base: paint.base
+                }
+              }),
+              shirts: production.totalDeCamisetas,
+              batches: Math.ceil(production.totalDeCamisetas/4),
+              speed
             });
 
+            clearInterval(window.updateInterval);
             window.updateInterval = setInterval(() => {
               productionService.productionState().then((response) => {
                 setState(response.data);
-                console.log(response.data)
+              }).catch((error) => {
+                if(error.code == 'ERR_NETWORK') {
+                  notify_error('Conexão com o back-end falhou! Interrompendo atualizações de estado!');
+
+                  clearInterval(window.updateInterval);
+                }
+                else
+                  notify_error('Falha ao comunicar com o back-end. Código: ' + error.code);
               });
             }, 1000);
 
+            localStorage.removeItem('elapsedTime');
+            localStorage.removeItem('before');
             navigate(`/dashboard/`);
             setPage('dashboard');
             notify_success('Produção criada e inicializada com sucesso!');
           }
-        }).catch((e) => {
-          notify_error('Não foi possível executar a produção!');
-        });
-      }).catch(() => {
-        notify_error('Não foi possível criar a produção!');
-      });  
+        }).catch(errorHandler);
+      }).catch(errorHandler);  
     }
   }
 
@@ -188,9 +199,9 @@ export function Production() {
 
   useEffect(() => {
     async function getAllPaintsType() {
-      const response = await paintService.paintGetAll();
-
-      setPaints(response);
+      paintService.paintGetAll().then((response) => {
+        setPaints(response);
+      }).catch(errorHandler);
     }
 
     getAllPaintsType();

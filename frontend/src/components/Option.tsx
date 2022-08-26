@@ -17,7 +17,7 @@ export function Option(props: OptionProps) {
           {props.title}
         </h2>
       ) : (
-        <Link to={props.route!} style={{ textDecoration: 'none' }}>
+        <Link to={props.disabled? '#' : props.route!} style={{ textDecoration: 'none' }}>
           <h2
             className={
               props.active ? 'session-active session-title' : 'session-title'
