@@ -1,4 +1,5 @@
 import { api } from './api';
+import { ProductionProps } from '../utils/types';
 
 class ProductionService {
   productionCreate(data: any) {
@@ -12,7 +13,7 @@ class ProductionService {
 
   productionStart() {
     return api.post('/controleProducao/', {
-      action: 0
+      action: 0,
     });
   }
 
@@ -22,6 +23,13 @@ class ProductionService {
 
   productionGetAll() {
     return api.get('/producao/');
+  }
+
+  async productionGetOne(id: number) {
+    const response = await api.get('/producao/');
+    return response.data.find(
+      (production: ProductionProps) => production.id == id
+    );
   }
 }
 

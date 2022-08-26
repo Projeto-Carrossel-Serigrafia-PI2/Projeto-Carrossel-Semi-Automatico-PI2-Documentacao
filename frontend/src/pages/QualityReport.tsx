@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Base64 } from 'js-base64';
 
 import { QualitySection } from '../components/QualitySection';
 import { BatchProps, ProductionProps } from '../utils/types';
@@ -10,18 +11,46 @@ import '../styles/pages/QualityReport.scss';
 export function QualityReport() {
   const [productions, setProductions] = useState<ProductionProps[]>([]);
   const [batches, setBatches] = useState<BatchProps[]>([]);
-  const [productionSelected, setProductionSelected] = useState(0);
+  const [productionSelectedId, setProductionSelectedId] = useState(0);
+  const [productionSelected, setProductionSelected] =
+    useState<ProductionProps>();
   const [batchSelectedId, setBatchSelectedId] = useState(0);
-  const [batchSelected, setBatchSelected] = useState(0);
+  const [batchSelected, setBatchSelected] = useState<BatchProps>();
   const [batchesFiltered, setBatchesFiltered] = useState<BatchProps[]>([]);
 
-  function handleChooseProduction(e) {
-    setProductionSelected(e.target.value);
+  async function handleChooseProduction(e) {
+    setProductionSelectedId(e.target.value);
+    const production = await productionService.productionGetOne(e.target.value);
+    setProductionSelected(production);
     setBatchSelectedId(0);
   }
 
-  function handleChooseBatch(e) {
+  async function handleChooseBatch(e) {
     setBatchSelectedId(e.target.value);
+    const batch = await batchService.batchGetOne(e.target.value);
+    let image_string: string = batch.image;
+    image_string = image_string.slice(2, batch.image.length - 1);
+    batch.image = image_string;
+
+    let image_failures_string: string = batch.image;
+    image_failures_string = image_failures_string.slice(
+      2,
+      batch.image.length - 1
+    );
+    batch.imageFalhas = image_failures_string;
+
+    let batch_formatted = {
+      id: batch.id,
+      image: batch.image,
+      image_failures: batch.imageFalhas,
+      production_id: batch.producao,
+      quantity_shirts: batch.quantidadeDeCamisetas,
+      quantity_failures: batch.quantidadeDeFalhas,
+      similarity_colors: batch.similaridadeCor,
+      similarity_format: batch.similaridadeFormato,
+    };
+
+    setBatchSelected(batch_formatted);
   }
 
   useEffect(() => {
@@ -55,6 +84,7 @@ export function QualityReport() {
         data_formatted.push({
           id: response.data[i].id,
           image: response.data[i].image,
+          image_failures: response.data[i].imageFalhas,
           production_id: response.data[i].producao,
           quantity_shirts: response.data[i].quantidadeDeCamisetas,
           quantity_failures: response.data[i].quantidadeDeFalhas,
@@ -63,6 +93,7 @@ export function QualityReport() {
         });
       }
       setBatches(data_formatted.reverse());
+      console.log(data_formatted);
     }
 
     getAllBatches();
@@ -72,9 +103,9 @@ export function QualityReport() {
     function getBatchesFromProduction() {
       let data_filtered: BatchProps[] = [];
 
-      if (productionSelected > 0) {
+      if (productionSelectedId > 0) {
         data_filtered = batches.filter(
-          (batch) => batch.production_id == productionSelected
+          (batch) => batch.production_id == productionSelectedId
         );
       }
 
@@ -82,7 +113,7 @@ export function QualityReport() {
     }
 
     getBatchesFromProduction();
-  }, [productionSelected]);
+  }, [productionSelectedId]);
 
   return (
     <div id='quality-report'>
@@ -90,7 +121,7 @@ export function QualityReport() {
         <h1>Relatório de Qualidade</h1>
 
         <select
-          value={productionSelected}
+          value={productionSelectedId}
           onChange={(e) => handleChooseProduction(e)}
           className='dropdown'
         >
@@ -108,7 +139,7 @@ export function QualityReport() {
           className='dropdown'
         >
           <option value=''>Selecione o Lote</option>
-          {productionSelected
+          {productionSelectedId
             ? batchesFiltered?.map((batch, index) => (
                 <option key={batch.id} value={batch.id}>
                   Lote n° {index + 1}
@@ -124,46 +155,50 @@ export function QualityReport() {
             Lote n°{' '}
             {batchesFiltered.findIndex((batch) => batch.id == batchSelectedId) +
               1}{' '}
-            (Produção n° {productionSelected} | Data:{' '}
-            {
-              productions.filter(
-                (production) => production.id == productionSelected
-              )[0].created_at
-            }
+            (Produção n° {productionSelected.id} | Data:{' '}
+            {new Date(productionSelected.create_date).toLocaleDateString(
+              'pt-BR'
+            )}
             )
           </h2>
 
           <QualitySection
             qualityType='Qualidade do formato'
-            imageReference='https://imgcentauro-a.akamaihd.net/900x900/85769819A1/camisa-adams-soccer-masculina-img.jpg'
-            imageBatch='https://imgcentauro-a.akamaihd.net/900x900/85769819A1/camisa-adams-soccer-masculina-img.jpg'
+            imageReference={productionSelected.image}
+            imageBatch={batchSelected?.image}
             reportDescription='A qualidade do formato avalia o contorno da estampa,
             isto é, se a estampa foi impressa como o esperado, sem falhas. Como
             resultado, é obtido um valor em porcentagem (0% a 100%), no qual
             quanto mais próximo do 100%, melhor é a qualidade da estampa.'
-            reportResult='Qualidade: 100%'
+            reportResult={`Qualidade: ${(
+              Number(batchSelected?.similarity_format) * 100
+            ).toFixed(2)}%`}
           />
 
           <QualitySection
             qualityType='Qualidade da cor'
-            imageReference='https://imgcentauro-a.akamaihd.net/900x900/85769819A1/camisa-adams-soccer-masculina-img.jpg'
-            imageBatch='https://imgcentauro-a.akamaihd.net/900x900/85769819A1/camisa-adams-soccer-masculina-img.jpg'
+            imageReference={productionSelected.image}
+            imageBatch={batchSelected?.image}
             reportDescription='A qualidade da cor avalia a tonalidade da cor da
           estampa, isto é, se a estampa foi impressa com a cor esperada. Como
           resultado, é obtido um valor em porcentagem (0% a 100%), no qual quanto
           mais próximo do 100%, melhor é a qualidade da estampa.'
-            reportResult='Qualidade: 90%'
+            reportResult={`Qualidade: ${(
+              Number(batchSelected?.similarity_colors) * 100
+            ).toFixed(2)}%`}
           />
 
           <QualitySection
             qualityType='Qualidade da matriz'
-            imageReference='https://imgcentauro-a.akamaihd.net/900x900/85769819A1/camisa-adams-soccer-masculina-img.jpg'
-            imageBatch='https://imgcentauro-a.akamaihd.net/900x900/85769819A1/camisa-adams-soccer-masculina-img.jpg'
+            imageReference={productionSelected.image}
+            imageBatch={batchSelected?.image}
             reportDescription='A qualidade da matriz avalia se a estampa possui
           falhas em sua área, isto é, se possui pontos sem tintas, riscos, etc.
           Como resultado, é mostrado a imagem com retângulos nas regiões onde
           foram encontradas possíveis falhas e a sua respectiva quantidade.'
-            reportResult='Quantidade: 4'
+            reportResult={`Quantidade de falhas: ${Number(
+              batchSelected?.quantity_failures
+            )}`}
           />
         </main>
       ) : null}

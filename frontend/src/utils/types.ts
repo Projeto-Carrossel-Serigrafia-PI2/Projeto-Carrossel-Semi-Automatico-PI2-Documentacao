@@ -71,7 +71,7 @@ export interface ColorProps {
 export interface QualitySectionProps {
   qualityType: string;
   imageReference: string;
-  imageBatch: string;
+  imageBatch?: string;
   reportDescription: string;
   reportResult: string;
 }
@@ -93,6 +93,7 @@ export interface ProductionProps {
 export interface BatchProps {
   id: number;
   image: string;
+  image_failures: string;
   production_id: number;
   quantity_shirts: number;
   quantity_failures: number;
