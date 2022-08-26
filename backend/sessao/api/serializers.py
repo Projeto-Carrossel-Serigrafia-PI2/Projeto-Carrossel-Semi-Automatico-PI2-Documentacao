@@ -42,5 +42,3 @@ class LoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Lote
         fields = '__all__'           
-
-    

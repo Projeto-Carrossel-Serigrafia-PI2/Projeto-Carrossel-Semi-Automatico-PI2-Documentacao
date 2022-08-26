@@ -11,10 +11,10 @@ import StateContext from '../contexts/StateContext';
 import '../styles/components/ModalConfirm.scss';
 
 export function ModalConfirm(props: ModalProps) {
-  const { parameters } = useContext(StateContext);
+  const { state } = useContext(StateContext);
 
   const handleDeletePaint = async () => {
-    if(parameters.paints.length)
+    if(state.inSession)
       notify_error('Não é possível excluir uma base enquanto uma produção está em progresso!');
 
     else {

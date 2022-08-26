@@ -31,6 +31,37 @@ class ProductionService {
       (production: ProductionProps) => production.id == id
     );
   }
+
+  productionNextBatch() {
+    return api.post('/controleProducao/', {
+      action: 1
+    });
+  }
+
+  productionSubmitTime(elapsedTime) {
+    return api.post('/controleProducao/', {
+      action: 2,
+      elapsedTime
+    });
+  }
+
+  productionToggle() {
+    return api.post('/controleProducao/', {
+      action: 4
+    });
+  }
+
+  productionForceFinish() {
+    return api.post('/controleProducao/', {
+      action: 5
+    });
+  }
+
+  productionRepaint() {
+    return api.post('/controleProducao/', {
+      action: 6
+    });
+  }
 }
 
 const productionService = new ProductionService();

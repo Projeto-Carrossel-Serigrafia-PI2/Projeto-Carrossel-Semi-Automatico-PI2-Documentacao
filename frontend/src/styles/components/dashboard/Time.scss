@@ -1,0 +1,22 @@
+.time {
+  grid-area: time;
+
+  > .info {
+    > h1 {
+      color: #357D41;
+      font-size: 5em;
+    }
+  }
+}
+
+@media only screen and (max-width: 1024px) {
+  .time {
+    line-height: 0;
+
+    > .info {
+      > h1 {
+        font-size: 3.5em;
+      }
+    }
+  }
+}
