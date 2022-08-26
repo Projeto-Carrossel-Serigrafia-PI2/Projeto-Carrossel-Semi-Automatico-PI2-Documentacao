@@ -12,13 +12,18 @@ export function QualitySection(props: QualitySectionProps) {
       <aside>
         <div className='quality-photo-group'>
           <h4>Imagem Referência</h4>
-          <img src={props.imageReference} alt='' style={{ width: 300 }} />
+          <div>
+            <img src={props.imageReference} alt='' />
+          </div>
         </div>
         <div className='quality-photo-group'>
           <h4>Imagem Lote</h4>
-          <img src={props.imageBatch} alt='' style={{ width: 300 }} />
+          <div>
+            <img src={`data:image/png;base64,${props.imageBatch}`} alt='' />
+          </div>
         </div>
-        <div>
+        <div className='quality-report-session'>
+          <div />
           <h4>Relatório</h4>
           <p>{props.reportDescription}</p>
           <span>{props.reportResult}</span>
