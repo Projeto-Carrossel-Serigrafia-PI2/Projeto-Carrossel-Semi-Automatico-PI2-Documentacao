@@ -44,7 +44,7 @@ export function Dashboard() {
     productionService.productionToggle().then((response) => {
       if(response.data.error) {
         if(response.data.type == 1)
-          notify_error('Falha ao pausar/despausar! Nenhuma produção em sessão!');
+          notify_error('Falha ao pausar/despausar! Nenhuma produção em progresso!');
         else if(response.data.type == 6)
           notify_error('Falha ao pausar/despausar! Repique em andamento!');
         else if(response.data.type == 0)
@@ -59,7 +59,7 @@ export function Dashboard() {
     productionService.productionForceFinish().then((response) => {
       if(response.data.error) {
         if(response.data.type == 1)
-          notify_error('Falha ao forçar término de produção! Nenhuma produção em sessão!');
+          notify_error('Falha ao forçar término de produção! Nenhuma produção em progresso!');
         else if(response.data.type == 0)
           notify_error('Falha ao forçar término de produção! Erro interno!');
         else
