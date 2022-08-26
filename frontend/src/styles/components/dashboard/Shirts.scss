@@ -1,0 +1,142 @@
+.shirts {
+  grid-area: shirts;
+
+  > .info {
+    width: 100%;
+    overflow: hidden;
+
+    > .drying {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      font-size: 2em;
+
+      > .amount {
+        line-height: 0;
+        text-align: center;
+      }
+
+      > .analysis {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 1 1 auto;
+
+        > button, p {
+          margin-top: 1em;
+        }
+
+        > button {
+          background-color: #1f272d;
+          border: none;
+          outline: none;
+          padding: 1.2em 1em;
+          border-radius: 0.25em;
+          color: white;
+          font-weight: bold;
+          cursor: pointer;
+          transition: 100ms;
+          backface-visibility: hidden;
+
+          &:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+          }
+
+          &:hover {
+            transform: scale(1.08);
+          }
+        }
+      }
+    }
+
+    > .quality {
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      display: block;
+
+      .carousel-root, .carousel {
+        width: 100%;
+        height: 100%;
+
+        .slider-wrapper, .slider {
+          height: 100%;
+        }
+
+        .control-arrow {
+          background-color: #80808080;
+        }
+      }
+
+      .result {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .overall {
+        > table {
+          height: 35%;
+          width: 100%;
+          background-color: #D9D9D9;
+          border: none;
+          border-collapse: collapse;
+          font-size: 1.4em;
+
+          > tr {
+            &:nth-child(even) {
+              background-color: white;
+            }
+
+            > td {
+              border: none;
+              padding: 0 1em;
+
+              &:first-child {
+                padding-left: 1em;
+                text-align: left;
+              }
+
+              &:last-child {
+                text-align: center;
+              }
+            }
+          }
+        }
+      }
+
+      .batches {
+        height: 100%;
+        width: 100%;
+        background-color: #D9D9D9;
+        border: none;
+        border-collapse: collapse;
+        font-size: 1.4em;
+
+        > tr {
+          &:nth-child(even) {
+            background-color: white;
+          }
+
+          > td {
+            border: none;
+            padding: 0 1em;
+
+            &:first-child {
+              padding-left: 1em;
+              text-align: left;
+            }
+
+            &:last-child {
+              text-align: center;
+            }
+          }
+        }
+      }
+    }
+  }
+}
