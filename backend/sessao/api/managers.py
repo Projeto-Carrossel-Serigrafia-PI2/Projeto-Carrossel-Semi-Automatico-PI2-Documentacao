@@ -1,8 +1,5 @@
-from math import prod
 from django.apps import apps
 from django.db import transaction, models
-
-
 
 class ProducaoManager(models.Manager):
     def create_from_json(self, data):

@@ -5,7 +5,8 @@ class ProductionService {
     return api.post('/producao/', {
       totalDeCamisetas: data.totalDeCamisetas,
       velocidade: data.velocidade,
-      base_producao_create: data.base_producao_create
+      base_producao_create: data.base_producao_create,
+      image: data.image,
     });
   }
 
@@ -17,6 +18,37 @@ class ProductionService {
 
   productionState() {
     return api.get('/estado/');
+  }
+
+  productionNextBatch() {
+    return api.post('/controleProducao/', {
+      action: 1
+    });
+  }
+
+  productionSubmitTime(elapsedTime) {
+    return api.post('/controleProducao/', {
+      action: 2,
+      elapsedTime
+    });
+  }
+
+  productionToggle() {
+    return api.post('/controleProducao/', {
+      action: 4
+    });
+  }
+
+  productionForceFinish() {
+    return api.post('/controleProducao/', {
+      action: 5
+    });
+  }
+
+  productionRepaint() {
+    return api.post('/controleProducao/', {
+      action: 6
+    });
   }
 }
 

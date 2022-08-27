@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { FiPlus, FiMinus, FiCamera, FiUpload } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiMinus } from 'react-icons/fi';
 
 import { Input } from '../components/Input';
 import { ButtonRequest } from '../components/ButtonRequest';
 import { ButtonEditParam } from '../components/ButtonEditParam';
+import { ButtonTakePhoto } from '../components/ButtonTakePhoto';
+import { ModalPhoto } from '../components/ModalPhoto';
 import productionService from '../services/productionService';
 import paintService from '../services/paintService';
 import { ColorProps, PaintProps } from '../utils/types';
@@ -13,11 +15,13 @@ import StateContext from '../contexts/StateContext';
 import PageContext from '../contexts/PageContext';
 
 import '../styles/pages/Production.scss';
+
 import {
   notify_error,
   notify_success,
   notify_warning,
 } from '../utils/toastify';
+import errorHandler from '../utils/errorHandler';
 
 const data: ColorProps[] = [
   {
@@ -31,10 +35,23 @@ export function Production() {
   const [paints, setPaints] = useState<PaintProps[]>([]);
   const [quantityTShirts, setQuantityTShirts] = useState(0);
   const [speed, setSpeed] = useState(0);
+  const [imageUpload, setImageUpload] = useState<string | ArrayBuffer>('');
+  const [imageTaken, setImageTaken] = useState('');
   const [colors, setColors] = useState<ColorProps[]>(data);
-  const { parameters, setParameters, setState } = useContext(StateContext);
+  const [isModalPhotoOpen, setIsModalPhotoOpen] = useState(false);
+  
+  const { state, setParameters, setState } = useContext(StateContext);
   const { setPage } = useContext(PageContext);
+  
   const navigate = useNavigate();
+
+  const openModalPhoto = async () => {
+    setIsModalPhotoOpen(true);
+  };
+
+  const closeModalPhoto = () => {
+    setIsModalPhotoOpen(false);
+  };
 
   function handleIncreaseTShirts() {
     setQuantityTShirts(quantityTShirts + 4);
@@ -90,7 +107,7 @@ export function Production() {
   }
 
   async function handleCreateProduction() {
-    if(parameters.paints.length)
+    if(state.inSession)
       notify_error(
         `Uma produção já está em progresso! Pause ou finalize-a antes
          de começar outra.`
@@ -122,11 +139,10 @@ export function Production() {
         totalDeCamisetas: quantityTShirts,
         velocidade: speed,
         base_producao_create: data_colors,
+        image: imageTaken ? imageTaken : imageUpload,
       };
 
       productionService.productionCreate(production).then((res) => {
-        const production_id = res.data.base_producao_get[0].producao;
-
         productionService.productionStart().then((response) => {
           if(response.data.error) {
             notify_error('Não foi possível executar a produção!');
@@ -135,36 +151,57 @@ export function Production() {
 
           else {
             setParameters({
-              paints: production.base_producao_create,
-              shirtQuantity: production.totalDeCamisetas,
-              batches: Math.ceil(production.totalDeCamisetas/4)
+              paints: production.base_producao_create.map((paint) => {
+                return {
+                  color: paint.cor,
+                  base: paint.base
+                }
+              }),
+              shirts: production.totalDeCamisetas,
+              batches: Math.ceil(production.totalDeCamisetas/4),
+              speed
             });
 
+            clearInterval(window.updateInterval);
             window.updateInterval = setInterval(() => {
               productionService.productionState().then((response) => {
                 setState(response.data);
-                console.log(response.data)
+              }).catch((error) => {
+                if(error.code == 'ERR_NETWORK') {
+                  notify_error('Conexão com o back-end falhou! Interrompendo atualizações de estado!');
+
+                  clearInterval(window.updateInterval);
+                }
+                else
+                  notify_error('Falha ao comunicar com o back-end. Código: ' + error.code);
               });
             }, 1000);
 
+            localStorage.removeItem('elapsedTime');
+            localStorage.removeItem('before');
             navigate(`/dashboard/`);
             setPage('dashboard');
             notify_success('Produção criada e inicializada com sucesso!');
           }
-        }).catch((e) => {
-          notify_error('Não foi possível executar a produção!');
-        });
-      }).catch(() => {
-        notify_error('Não foi possível criar a produção!');
-      });  
+        }).catch(errorHandler);
+      }).catch(errorHandler);  
     }
+  }
+
+  function convertFileToBase64(file: File) {
+    let reader = new FileReader();
+    reader.readAsDataURL(file)
+
+    reader.onload = (e) => {
+      setImageUpload(e.target?.result!)
+    } 
   }
 
   useEffect(() => {
     async function getAllPaintsType() {
-      const response = await paintService.paintGetAll();
-
-      setPaints(response);
+      paintService.paintGetAll().then((response) => {
+        setPaints(response);
+      }).catch(errorHandler);
     }
 
     getAllPaintsType();
@@ -173,6 +210,14 @@ export function Production() {
   return (
     <div id="production">
       <h1>Produção</h1>
+
+      <ModalPhoto
+        isModalOpen={isModalPhotoOpen}
+        setIsModalOpen={setIsModalPhotoOpen}
+        closeModal={closeModalPhoto}
+        image={imageTaken}
+        setImage={setImageTaken}
+      />
 
       <main>
         <section className="input-group">
@@ -217,6 +262,33 @@ export function Production() {
           </div>
         </section>
 
+        <section className="input-group">
+          <h2>Foto da estampa para referência:</h2>
+
+          <div>
+            <ButtonTakePhoto
+              title="Enviar foto"
+              icon={<FiUpload size={18} color="#39393a" />}
+              filename={imageUpload ? "imagem salva!" : ''}
+              mode="upload"
+              onChange={(e) => {
+                setImageTaken('');
+                convertFileToBase64(e.target.files![0])
+              }}
+            />
+            <ButtonTakePhoto
+              title="Tirar foto"
+              icon={<FiCamera size={18} color="#39393a" />}
+              filename={imageTaken ? 'imagem salva!' : ''}
+              mode="taken"
+              onClick={() => {
+                openModalPhoto();
+                setImageUpload('');
+              }}
+            />
+          </div>
+        </section>
+
         <h2>Cores:</h2>
 
         <section className="colors-section">
@@ -242,7 +314,8 @@ export function Production() {
               </section>
 
               <section className="input-group">
-                <h4>Base da tinta:</h4>
+                <h4>Base de tinta:</h4>
+
                 <select
                   value={paints.find((paint) => paint.id === item.id)?.type}
                   onChange={(e) => handleFormChangeTypeColor(index, e)}

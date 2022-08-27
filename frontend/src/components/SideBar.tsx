@@ -6,11 +6,15 @@ import { RiPaintFill, RiDashboardLine } from 'react-icons/ri';
 import { Option } from '../components/Option';
 
 import PageContext from '../contexts/PageContext';
+import StateContext from '../contexts/StateContext';
+
+import { notify_error } from '../utils/toastify';
 
 import '../styles/components/SideBar.scss';
 
 export function SideBar() {
   const { page, setPage } = useContext(PageContext);
+  const { state } = useContext(StateContext);
 
   const location = useLocation();
 
@@ -18,6 +22,20 @@ export function SideBar() {
     const currentPage = location.pathname == '/' ? 'production' : location.pathname.substr(1, location.pathname.length - 2);
 
     setPage(currentPage);
+  }
+
+  function setCurrentPage(page) {
+    if(page == 'quality') {
+      if(state.isPaused)
+        setPage(page);
+      else
+        notify_error('Produção em andamento! Pause a produção para habilitar a navegação para a página de qualidade!');
+    }
+
+    else if(state.inSession)
+      notify_error('Produção em andamento! Finalize a produção para habilitar a navegação!');
+    else
+      setPage(page);
   }
 
   useEffect(() => {
@@ -42,8 +60,9 @@ export function SideBar() {
           active={page === 'production'}
           route="/"
           onClick={() => {
-            setPage('production');
+            setCurrentPage('production');
           }}
+          disabled={state.inSession ? true : false}
         />
 
         <Option
@@ -57,8 +76,9 @@ export function SideBar() {
           active={page === 'dashboard'}
           route="/dashboard/"
           onClick={() => {
-            setPage('dashboard');
+            setCurrentPage('dashboard');
           }}
+          disabled={state.inSession ? true : false}
         />
 
         <Option
@@ -72,8 +92,9 @@ export function SideBar() {
           active={page === 'paints'}
           route="/paints/"
           onClick={() => {
-            setPage('paints');
+            setCurrentPage('paints');
           }}
+          disabled={state.inSession ? true : false}
         />
 
         <Option
@@ -81,6 +102,7 @@ export function SideBar() {
           title="Verificar Qualidade"
           route="/quality/"
           onClick={() => {}}
+          disabled={state.inSession ? true : false}
         />
       </main>
     </div>
