@@ -1,4 +1,4 @@
-efrom rest_framework.response import Response
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from sessao.quality_analysis import *
 import cv2 as cv
@@ -8,7 +8,7 @@ import os
 # from carrossel.settings import CONFIG
 
 from sessao.models import Producao, BaseProducao, Lote
-from embarcados import MotorController
+from embarcado.motor import MotorController
 
 import asyncio
 import keyboard # For debugging
