@@ -14,7 +14,7 @@ CONFIG = {
 
 # Before using an instance, set GPIO mode to BCM
 class MotorController:
-	def __init__(self, speed, channel=13, speeds=CONFIG['SPEEDS'], frequency=1):	
+	def __init__(self, speed, channel=13, speeds=CONFIG['SPEEDS'], frequency=1000):	
 		GPIO.setup(channel, GPIO.OUT)
 
 		self.isRotating = False
