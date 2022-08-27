@@ -98,10 +98,11 @@ export function SideBar() {
         />
 
         <Option
-          icon={<FaAward size={18} color="#E8E7EA" />}
-          title="Verificar Qualidade"
-          route="/quality/"
-          onClick={() => {}}
+          icon={<FaAward size={18} color={page === 'quality-report' ? '#B193EE' : '#E8E7EA'} />}
+          title="Relatório de Qualidade"
+          active={page === 'quality-report'}
+          route="/quality-report/"
+          onClick={() => setCurrentPage('quality-report')}
           disabled={state.inSession ? true : false}
         />
       </main>

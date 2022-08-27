@@ -24,12 +24,14 @@ class ProducaoSerializer(serializers.ModelSerializer):
   
     class Meta:
         model = models.Producao
-        fields = ( 
+        fields = (
+            "id",
             "totalDeCamisetas",
             "velocidade",
             "base_producao_create",
             "base_producao_get",
-            "image"
+            "image",
+            "create_date"
         )
 
     def create(self, validated_data):

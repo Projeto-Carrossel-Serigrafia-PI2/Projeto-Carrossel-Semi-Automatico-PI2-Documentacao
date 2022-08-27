@@ -85,7 +85,6 @@ export function ModalPaints(props: ModalProps) {
           backgroundColor: 'rgba(0, 0, 0, 0.75)',
         },
         content: {
-          width: '39.5rem',
           top: '50%',
           left: '50%',
           right: 'auto',
@@ -156,10 +155,12 @@ export function ModalPaints(props: ModalProps) {
           </div>
         </div>
 
-        <ButtonRequest
-          title="Salvar"
-          onClick={props.mode === 'criar' ? handleNewPaint : handleUpdatePaint}
-        />
+        <div className='button-box'>
+          <ButtonRequest
+            title="Salvar"
+            onClick={props.mode === 'criar' ? handleNewPaint : handleUpdatePaint}
+          />
+        </div>
       </div>
     </Modal>
   );

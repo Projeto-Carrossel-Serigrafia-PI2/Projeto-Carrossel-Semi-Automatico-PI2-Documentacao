@@ -1,0 +1,59 @@
+#quality-report {
+  > header {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+
+    > h1 {
+      color: #39393a;
+      font-size: 3rem;
+      margin: 3.5rem 0 0 5rem;
+  
+      align-self: flex-start;
+    }
+
+    > select {
+      width: 16rem;
+      height: 3.2rem;
+      border: 0;
+      border-radius: 0.6rem;
+      background-color: #fff;
+      outline: none;
+      cursor: pointer;
+
+      padding: 0.7rem;
+      margin-left: 3rem;
+      color: #6a6a6b;
+
+      &:nth-child(2) {
+        width: 25rem;
+      }
+    }
+  }
+
+  > main {
+    margin: 0 7rem;
+    padding-bottom: 3rem;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  #quality-report {
+    > header {
+      > h1 {
+        font-size: 2.2rem;
+      }
+
+      >select {
+        margin-left: 2rem;
+      }
+    }
+
+    > main {
+      > h2 {
+        font-size: 2rem;
+        margin-top: 4rem;
+      }
+    }
+  }
+}
