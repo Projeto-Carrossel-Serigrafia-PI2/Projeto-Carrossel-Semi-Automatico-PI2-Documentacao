@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import { Dashboard } from './pages/Dashboard';
 import { Production } from './pages/Production';
 import { Paints } from './pages/Paints';
+import { QualityReport } from './pages/QualityReport';
 import { SideBar } from './components/SideBar';
 
 import PageContext from './contexts/PageContext';
@@ -24,6 +25,7 @@ export function Router() {
           <Route path="/" element={<Production />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/paints" element={<Paints />} />
+          <Route path="/quality-report" element={<QualityReport />} />
         </Routes>
       </PageContext.Provider>
     </BrowserRouter>

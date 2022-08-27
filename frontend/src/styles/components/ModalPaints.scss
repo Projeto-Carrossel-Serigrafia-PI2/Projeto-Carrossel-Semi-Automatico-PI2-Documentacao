@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
 
+  width: 50rem;
+
   > h3 {
     text-align: center;
   }
@@ -42,6 +44,24 @@
       border-radius: 0.5rem;
 
       overflow: hidden;
+    }
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  #modal-session {
+    .param-box {
+      > div {
+        width: 50%;
+      }
+    }
+
+    .button-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      margin-top: 3rem;
     }
   }
 }

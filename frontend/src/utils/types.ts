@@ -67,3 +67,36 @@ export interface ColorProps {
   color: string;
   type: number;
 }
+
+export interface QualitySectionProps {
+  qualityType: string;
+  imageReference: string;
+  imageBatch?: string;
+  reportDescription: string;
+  reportResult: string;
+}
+
+export interface ProductionProps {
+  id: number;
+  paints?: {
+    id: number;
+    base_id: number;
+    production_id: number;
+    color: string;
+  }[];
+  created_at: string;
+  image_reference: string;
+  total_shirts: number;
+  speed: number;
+}
+
+export interface BatchProps {
+  id: number;
+  image: string;
+  image_failures: string;
+  production_id: number;
+  quantity_shirts: number;
+  quantity_failures: number;
+  similarity_colors: string;
+  similarity_format: string;
+}
