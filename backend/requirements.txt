@@ -4,3 +4,5 @@ django-cors-headers==3.13.0
 keyboard==0.13.5
 asyncio==3.4.3
 opencv-python==4.6.0.66
+smbus2
+mlx90614

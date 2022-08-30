@@ -11,6 +11,9 @@ from sessao.models import Producao, BaseProducao, Lote
 from embarcado.motor import MotorController
 
 import RPi.GPIO as GPIO
+from smbus2 import SMBus
+from mlx90614 import MLX90614
+
 import asyncio
 
 dirname = os.path.dirname(__file__)
@@ -47,6 +50,9 @@ GPIO.setup(CONFIG['PIN']['PEDAL'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
 GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=10)
+
+i2cBus = SMBus(1)
+temperatureSensor = MLX90614(i2cBus, address=0x5A)
 
 motorController = MotorController(2)
 # flashcureController = FlashcureController.instance(0)
@@ -214,7 +220,7 @@ def startNextBatch():
 	state['waitingNewBatch'] = False
 
 def getTemperatures():
-	return [112, 30]
+	return [temperatureSensor.get_object_1(), temperatureSensor.get_ambient()]
 
 def toggleRepainting():
 	if(state['isRepainting']):
