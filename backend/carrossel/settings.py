@@ -141,8 +141,16 @@ CONFIG = {
         'PEDAL': 3,
         'ENCODER': 24,
     },
-    'MOTOR_FREQUENCY': 1000,
-    'SPEEDS': [0, 20, 40, 60, 80, 100],
-    'TEMPERATURE_LIMITS': [0, 1000],
+    'MOTOR': {
+        'FREQUENCY': 1000,
+        'SPEEDS': [0, 20, 40, 60, 80, 100]
+    },
+    'FLASHCURE': {
+        'LIMITS': [0, 1000],
+        'POSITION': 2
+    },
+    'CAMERA': {
+        'POSITION': 3
+    },
     'ENCODER_HOLES': 20
 }
