@@ -12,17 +12,11 @@ from embarcado.motor import MotorController
 
 import RPi.GPIO as GPIO
 import asyncio
-import keyboard # For debugging
 
 dirname = os.path.dirname(__file__)
 path_photo = os.path.join(dirname, '../assets/')
 
 MOTOR_STEP = CONFIG['ENCODER_HOLES']/4
-
-GPIO.setmode(GPIO.BCM)
-
-motorController = MotorController(2)
-# flashcureController = FlashcureController.instance(0)
 state = {
 	'parameters': {
 		'paints': [],
@@ -43,9 +37,19 @@ state = {
 	'isRepainting': False
 }
 
-#	GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
+GPIO.cleanup()
+GPIO.remove_event_detect(CONFIG['PIN']['ENCODER'])
+GPIO.remove_event_detect(CONFIG['PIN']['PEDAL'])
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(CONFIG['PIN']['ENCODER'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(CONFIG['PIN']['PEDAL'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
 GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=10)
-keyboard.add_hotkey('page down', pedalHandler, args=(3,))
+
+motorController = MotorController(2)
+# flashcureController = FlashcureController.instance(0)
 
 async def dryShirt():
 	paints = state['parameters']['paints']
@@ -66,7 +70,7 @@ def pedalHandler(channel):
 def encoderHandler(channel):
 	if(not GPIO.input(channel)):
 		return
-	
+
 	global state
 	state['encoderCounter'] += 1
 
