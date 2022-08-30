@@ -5,7 +5,7 @@ import cv2 as cv
 import base64
 import os
 
-# from carrossel.settings import CONFIG
+from carrossel.settings import CONFIG
 
 from sessao.models import Producao, BaseProducao, Lote
 from embarcado.motor import MotorController
@@ -15,16 +15,6 @@ import keyboard # For debugging
 
 dirname = os.path.dirname(__file__)
 path_photo = os.path.join(dirname, '../assets/')
-
-CONFIG = {
-	'FLASHCURE': {
-		'POSITION': 2
-	},
-	'CAMERA': {
-		'POSITION': 3
-	},
-	'ENCODER_HOLES': 4,
-}
 
 MOTOR_STEP = CONFIG['ENCODER_HOLES']/4
 

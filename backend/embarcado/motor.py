@@ -1,27 +1,16 @@
 import RPi.GPIO as GPIO
 
-CONFIG = {
-    'PIN': {
-        'MOTOR': 13,
-        'FLASHCURE': 5,
-        'PEDAL': 3,
-        'ENCODER': 1,
-    },
-    'FREQUENCY': 1,
-    'SPEEDS': [0, 20, 40, 60, 80, 100],
-    'ENCODER_HOLES': 20,
-}
+from carrossel.settings import CONFIG
 
 # Before using an instance, set GPIO mode to BCM
 class MotorController:
-	def __init__(self, speed, channel=13, speeds=CONFIG['SPEEDS'], frequency=1000):	
+	def __init__(self, speed, channel=CONFIG['PIN']['MOTOR'], speeds=CONFIG['MOTOR']['SPEEDS'], frequency=CONFIG['MOTOR']['FREQUENCY']):	
 		GPIO.setup(channel, GPIO.OUT)
 
 		self.isRotating = False
 		self.speeds = speeds
 		self.speed = speeds[speed]
 		self.pwm = GPIO.PWM(channel, frequency)
-
 
 	def __del__(self):
 		self.pwm.stop()

@@ -133,3 +133,16 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CONFIG = {
+    'PIN': {
+        'MOTOR': 13,
+        'FLASHCURE': 5,
+        'PEDAL': 3,
+        'ENCODER': 24,
+    },
+    'MOTOR_FREQUENCY': 1000,
+    'SPEEDS': [0, 20, 40, 60, 80, 100],
+    'TEMPERATURE_LIMITS': [0, 1000],
+    'ENCODER_HOLES': 20
+}
