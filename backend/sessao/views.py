@@ -18,7 +18,7 @@ path_photo = os.path.join(dirname, '../assets/')
 
 MOTOR_STEP = CONFIG['ENCODER_HOLES']/4
 
-# motorController = MotorController.instance(0)
+motorController = MotorController(2)
 # flashcureController = FlashcureController.instance(0)
 state = {
 	'parameters': {
@@ -35,7 +35,6 @@ state = {
 	'encoderCounter': 0,
 	'lastRotation': -1,
 	'inSession': False,
-	'motorInUse': False,
 	'waitingNewBatch': False,
 	'isPaused': False,
 	'isRepainting': False
@@ -52,18 +51,16 @@ async def dryShirt():
 	print('Flashcure is off!')
 
 def pedalHandler(channel):
-	# if(state['inSession'] and not motorController.isRotating):
-	if(state['inSession'] and not state['motorInUse'] and not state['waitingNewBatch'] and not state['isPaused']):
+	if(state['inSession'] and not motorController.isRotating and not state['waitingNewBatch'] and not state['isPaused']):
 		# flashcureController.stop()
-		# motorController.start()
+		motorController.start()
 		print('Pedal pressed & motor started!')
-		state['motorInUse'] = True
 
 def encoderHandler(channel):
 	state['encoderCounter'] += 1
 
 	if(state['encoderCounter'] >= MOTOR_STEP):
-		# motorController.stop()
+		motorController.stop()
 		print('Motor stopped!')
 
 		state['rotation'] += 1
@@ -155,7 +152,6 @@ def encoderHandler(channel):
 				state['rotation'] = 0
 
 		state['encoderCounter'] = 0
-		state['motorInUse'] = False
 
 #	GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
 #	GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=25)
@@ -170,7 +166,6 @@ def resetState():
 	state['rotation'] = 0
 	state['lastRotation'] = -1
 	state['waitingNewBatch'] = False
-	state['motorInUse'] = False
 	state['inSession'] = False
 	state['isPaused'] = False
 	state['isRepainting'] = False
@@ -192,7 +187,7 @@ def setupProduction():
 def startProduction():
 	paints = state['parameters']['paints']
 	currentPaint = paints[state['paint']]['base']
-	# motorController.setSpeed(state['parameters']['speed'])
+	motorController.setSpeed(state['parameters']['speed'])
 	# flashcureController.setTemperature(currentPaint.temperaturaSecagem)
 
 def startNextBatch():

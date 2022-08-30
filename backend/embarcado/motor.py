@@ -5,6 +5,7 @@ from carrossel.settings import CONFIG
 # Before using an instance, set GPIO mode to BCM
 class MotorController:
 	def __init__(self, speed, channel=CONFIG['PIN']['MOTOR'], speeds=CONFIG['MOTOR']['SPEEDS'], frequency=CONFIG['MOTOR']['FREQUENCY']):	
+		GPIO.setmode(GPIO.BCM)
 		GPIO.setup(channel, GPIO.OUT)
 
 		self.isRotating = False
@@ -14,6 +15,7 @@ class MotorController:
 
 	def __del__(self):
 		self.pwm.stop()
+		GPIO.cleanup()
 
 	def start(self):
 		self.pwm.start(self.speed)
