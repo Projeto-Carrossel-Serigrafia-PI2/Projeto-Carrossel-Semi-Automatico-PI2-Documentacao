@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Chart from 'react-apexcharts';
 
 import { QualitySection } from '../components/QualitySection';
 import { BatchProps, ProductionProps } from '../utils/types';
@@ -16,11 +17,54 @@ export function QualityReport() {
   const [batchSelectedId, setBatchSelectedId] = useState(0);
   const [batchSelected, setBatchSelected] = useState<BatchProps>();
   const [batchesFiltered, setBatchesFiltered] = useState<BatchProps[]>([]);
+  const [batchesMetrics, setBatchesMetrics] = useState<any>([]);
+  const [productionMetrics, setProductionMetrics] = useState<any>([]);
+
+  const chartOptions = {
+    chart: {
+      toolbar: {
+        show: false,
+      },
+    },
+    legend: {
+      position: 'right',
+    },
+    colors: ['#333C83', '#F24A72', '#FDAF75', '#EAEA7F'],
+    plotOptions: {
+      pie: {
+        customScale: 1,
+      },
+    },
+  };
+
+  const overallChartOptions = {
+    ...chartOptions,
+    title: {
+      text: 'Resultados gerais',
+      align: 'center',
+    },
+    labels: ['Lotes aprovados', 'Lotes não aprovados'],
+  };
 
   async function handleChooseProduction(e) {
     setProductionSelectedId(e.target.value);
     const production = await productionService.productionGetOne(e.target.value);
-    setProductionSelected(production);
+    setProductionSelected({
+      id: production.id,
+      created_at: new Date(production.create_date).toLocaleDateString('pt-BR'),
+      image_reference: production.image,
+      total_shirts: production.totalDeCamisetas,
+      speed: production.velocidade,
+      paints: production.base_producao_get.map((item: any) => {
+        return {
+          id: item.id,
+          base_id: item.base,
+          production_id: item.producao,
+          color: item.cor,
+        };
+      }),
+    });
+
     setBatchSelectedId(0);
   }
 
@@ -51,7 +95,6 @@ export function QualityReport() {
     };
 
     setBatchSelected(batch_formatted);
-    console.log(batch_formatted)
   }
 
   useEffect(() => {
@@ -68,6 +111,14 @@ export function QualityReport() {
           image_reference: response.data[i].image,
           total_shirts: response.data[i].totalDeCamisetas,
           speed: response.data[i].velocidade,
+          paints: response.data[i].base_producao_get.map((item: any) => {
+            return {
+              id: item.id,
+              base_id: item.base,
+              production_id: item.producao,
+              color: item.cor,
+            };
+          }),
         });
       }
       setProductions(data_formatted.reverse());
@@ -110,6 +161,42 @@ export function QualityReport() {
       }
 
       setBatchesFiltered(data_filtered.reverse());
+
+      let approved = 0;
+      let disapproved = 0;
+
+      for (let i = 0; i < data_filtered.length; i++) {
+        if (
+          Number(data_filtered[i].similarity_format) >= 0.8 &&
+          Number(data_filtered[i].similarity_colors) >= 0.8 &&
+          data_filtered[i].quantity_failures <= 5
+        ) {
+          approved += 1;
+        } else {
+          disapproved += 1;
+        }
+      }
+
+      let quality_format_average = 0;
+      let quality_color_average = 0;
+      let quality_matrix_average = 0;
+
+      for (let i = 0; i < data_filtered.length; i++) {
+        quality_format_average += Number(data_filtered[i].similarity_format);
+        quality_color_average += Number(data_filtered[i].similarity_colors);
+        quality_matrix_average += data_filtered[i].quantity_failures;
+      }
+
+      quality_format_average = quality_format_average / data_filtered.length;
+      quality_color_average = quality_color_average / data_filtered.length;
+      quality_matrix_average = quality_matrix_average / data_filtered.length;
+
+      setBatchesMetrics([approved, disapproved]);
+      setProductionMetrics({
+        format: (quality_format_average * 100).toFixed(2),
+        color: (quality_color_average * 100).toFixed(2),
+        matrix: ((1 - (quality_matrix_average * 4) / 100) * 100).toFixed(2),
+      });
     }
 
     getBatchesFromProduction();
@@ -120,51 +207,116 @@ export function QualityReport() {
       <header>
         <h1>Relatório de Qualidade</h1>
 
-        <select
-          value={productionSelectedId}
-          onChange={(e) => handleChooseProduction(e)}
-          className='dropdown'
-        >
-          <option value=''>Selecione a Produção</option>
-          {productions.map((production) => (
-            <option key={production.id} value={production.id}>
-              Produção n°: {production.id} | Data: {production.created_at}
-            </option>
-          ))}
-        </select>
+        <div>
+          <select
+            value={productionSelectedId}
+            onChange={(e) => handleChooseProduction(e)}
+            className='dropdown'
+          >
+            <option value=''>Selecione a Produção</option>
+            {productions.map((production) => (
+              <option key={production.id} value={production.id}>
+                Produção n°: {production.id} | Data: {production.created_at}
+              </option>
+            ))}
+          </select>
 
-        <select
-          value={batchSelectedId}
-          onChange={(e) => handleChooseBatch(e)}
-          className='dropdown'
-        >
-          <option value=''>Selecione o Lote</option>
-          {productionSelectedId
-            ? batchesFiltered?.map((batch, index) => (
-                <option key={batch.id} value={batch.id}>
-                  Lote n° {index + 1}
-                </option>
-              ))
-            : null}
-        </select>
+          <select
+            value={batchSelectedId}
+            onChange={(e) => handleChooseBatch(e)}
+            className='dropdown'
+          >
+            <option value=''>Selecione o Lote</option>
+            {productionSelectedId
+              ? batchesFiltered?.map((batch, index) => (
+                  <option key={batch.id} value={batch.id}>
+                    Lote n° {index + 1}
+                  </option>
+                ))
+              : null}
+          </select>
+        </div>
       </header>
+
+      {productionSelected ? (
+        <div className='container-resume'>
+          <section>
+            <table>
+              <tr>
+                <td>Produção:</td>
+                <td>n° {productionSelected.id}</td>
+              </tr>
+
+              <tr>
+                <td>Data:</td>
+                <td>{productionSelected.created_at}</td>
+              </tr>
+
+              <tr>
+                <td>Total de camisetas:</td>
+                <td>{productionSelected.total_shirts}</td>
+              </tr>
+
+              <tr>
+                <td>Lotes aprovados:</td>
+                <td>{batchesMetrics[0]}</td>
+              </tr>
+
+              <tr>
+                <td>Lotes não aprovados:</td>
+                <td>{batchesMetrics[1]}</td>
+              </tr>
+
+              <tr>
+                <td>Total de lotes:</td>
+                <td>{batchesMetrics.length}</td>
+              </tr>
+
+              <tr>
+                <td>Qualidade média do formato:</td>
+                <td>{productionMetrics.format}%</td>
+              </tr>
+
+              <tr>
+                <td>Qualidade média da cor:</td>
+                <td>{productionMetrics.color}%</td>
+              </tr>
+
+              <tr>
+                <td>Qualidade média da matriz:</td>
+                <td>{productionMetrics.matrix}%</td>
+              </tr>
+            </table>
+          </section>
+
+          <section>
+            <div className='chart-box'>
+              <Chart
+                // height={350}
+                width={400}
+                options={overallChartOptions}
+                series={batchesMetrics}
+                type='pie'
+              />
+            </div>
+          </section>
+        </div>
+      ) : null}
 
       {productionSelected && batchSelectedId ? (
         <main>
           <h2>
-            Lote n°{' '}
+            Produção n° {productionSelected.id} | Data:{' '}
+            {productionSelected.created_at}
+            &nbsp;(Lote n°&nbsp;
             {batchesFiltered.findIndex((batch) => batch.id == batchSelectedId) +
-              1}{' '}
-            (Produção n° {productionSelected.id} | Data:{' '}
-            {new Date(productionSelected.create_date).toLocaleDateString(
-              'pt-BR'
-            )}
+              1}
             )
           </h2>
 
           <QualitySection
             qualityType='Qualidade do formato'
-            imageReference={productionSelected.image}
+            imageReference={productionSelected.image_reference}
             imageBatch={batchSelected?.image}
             reportDescription='A qualidade do formato avalia o contorno da estampa,
             isto é, se a estampa foi impressa como o esperado, sem falhas. Como
@@ -177,7 +329,7 @@ export function QualityReport() {
 
           <QualitySection
             qualityType='Qualidade da cor'
-            imageReference={productionSelected.image}
+            imageReference={productionSelected.image_reference}
             imageBatch={batchSelected?.image}
             reportDescription='A qualidade da cor avalia a tonalidade da cor da
           estampa, isto é, se a estampa foi impressa com a cor esperada. Como
@@ -190,7 +342,7 @@ export function QualityReport() {
 
           <QualitySection
             qualityType='Qualidade da matriz'
-            imageReference={productionSelected.image}
+            imageReference={productionSelected.image_reference}
             imageBatch={batchSelected?.image_failures}
             reportDescription='A qualidade da matriz avalia se a estampa possui
           falhas em sua área, isto é, se possui pontos sem tintas, riscos, etc.
