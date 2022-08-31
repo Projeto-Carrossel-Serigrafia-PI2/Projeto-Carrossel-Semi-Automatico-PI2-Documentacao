@@ -15,6 +15,7 @@ class FlashcureController:
 		self.stop()
 		self.uart.close()
 
+	# Maybe there is a better way than setting temperature to 0
 	def stop(self):
 		self.setTemperature(0)
 		self.applyTemperature()

@@ -9,6 +9,7 @@ from carrossel.settings import CONFIG
 
 from sessao.models import Producao, BaseProducao, Lote
 from embarcado.motor import MotorController
+from embarcado.flashcure import FlashcureController
 
 import RPi.GPIO as GPIO
 from smbus2 import SMBus
@@ -37,7 +38,8 @@ state = {
 	'inSession': False,
 	'waitingNewBatch': False,
 	'isPaused': False,
-	'isRepainting': False
+	'isRepainting': False,
+	'isAdjustingFlashcure': False
 }
 
 GPIO.cleanup()
@@ -52,10 +54,15 @@ GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandle
 GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=10)
 
 i2cBus = SMBus(1)
-temperatureSensor = MLX90614(i2cBus, address=0x5A)
+temperatureSensor = MLX90614(i2cBus, address=CONFIG['PIN']['SENSOR'])
 
 motorController = MotorController(2)
-# flashcureController = FlashcureController.instance(0)
+flashcureController = FlashcureController()
+
+def requestTemperatureChange(temperature):
+	height = flashcureController.setTemperature(temperature)
+	if(height != None):
+		state['isAdjustingFlashcure'] = height
 
 async def dryShirt():
 	paints = state['parameters']['paints']
@@ -91,7 +98,7 @@ def encoderHandler(channel):
 			if(state['rotation'] == CONFIG['FLASHCURE']['POSITION']):
 				paints = state['parameters']['paints']
 				currentPaint = paints[state['paint']]['base']
-				# flashcureController.setTemperature(currentPaint.temperaturaSecagem)
+				requestTemperatureChange(currentPaint.temperaturaSecagem)
 				print('Changed temperature!')
 
 				# Starting counting dried shirts when we start drying the last color of the batch
@@ -185,6 +192,7 @@ def resetState():
 	state['inSession'] = False
 	state['isPaused'] = False
 	state['isRepainting'] = False
+	state['isAdjustingFlashcure'] = False
 
 def setupProduction():
 	production = Producao.objects.last()
@@ -204,7 +212,7 @@ def startProduction():
 	paints = state['parameters']['paints']
 	currentPaint = paints[state['paint']]['base']
 	motorController.setSpeed(state['parameters']['speed'])
-	# flashcureController.setTemperature(currentPaint.temperaturaSecagem)
+	requestTemperatureChange(currentPaint.temperaturaSecagem)
 
 def startNextBatch():
 	state['batch'] += 1
@@ -288,6 +296,12 @@ class ControleProducaoView(APIView):
 					return Response({'error': True, 'type': 4, 'description': 'Carousel alignment is not equal to alignment before the repainting started.'})
 
 				toggleRepainting()
+
+				return Response({'error': False})
+
+			elif(action == 7): # Confirm flashcure position change
+				flashcureController.applyTemperature()
+				state['isAdjustingFlashcure'] = False
 
 				return Response({'error': False})
 
