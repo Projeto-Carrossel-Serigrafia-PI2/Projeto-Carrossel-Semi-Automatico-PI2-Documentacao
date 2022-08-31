@@ -9,7 +9,7 @@ from carrossel.settings import CONFIG
 
 from sessao.models import Producao, BaseProducao, Lote
 from embarcado.motor import MotorController
-from embarcado.flashcure import FlashcureController
+#from embarcado.flashcure import FlashcureController
 
 import RPi.GPIO as GPIO
 from smbus2 import SMBus
@@ -42,27 +42,10 @@ state = {
 	'isAdjustingFlashcure': False
 }
 
-GPIO.cleanup()
-GPIO.remove_event_detect(CONFIG['PIN']['ENCODER'])
-GPIO.remove_event_detect(CONFIG['PIN']['PEDAL'])
-
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(CONFIG['PIN']['ENCODER'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(CONFIG['PIN']['PEDAL'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
-GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=10)
-
-i2cBus = SMBus(1)
-temperatureSensor = MLX90614(i2cBus, address=CONFIG['PIN']['SENSOR'])
-
-motorController = MotorController(2)
-flashcureController = FlashcureController()
-
-def requestTemperatureChange(temperature):
-	height = flashcureController.setTemperature(temperature)
-	if(height != None):
-		state['isAdjustingFlashcure'] = height
+#def requestTemperatureChange(temperature):
+#	height = flashcureController.setTemperature(temperature)
+#	if(height != None):
+#		state['isAdjustingFlashcure'] = height
 
 async def dryShirt():
 	paints = state['parameters']['paints']
@@ -212,7 +195,7 @@ def startProduction():
 	paints = state['parameters']['paints']
 	currentPaint = paints[state['paint']]['base']
 	motorController.setSpeed(state['parameters']['speed'])
-	requestTemperatureChange(currentPaint.temperaturaSecagem)
+	#requestTemperatureChange(currentPaint.temperaturaSecagem)
 
 def startNextBatch():
 	state['batch'] += 1
@@ -237,6 +220,27 @@ def toggleRepainting():
 	else:
 		state['isRepainting'] = True
 		state['lastRotation'] = state['rotation']
+
+GPIO.setmode(GPIO.BCM)
+
+try:
+	GPIO.cleanup()
+except Exception as e:
+	print(e)
+
+print(CONFIG['PIN']['ENCODER'])
+
+GPIO.setup(CONFIG['PIN']['ENCODER'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(CONFIG['PIN']['PEDAL'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
+GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=10)
+
+i2cBus = SMBus(1)
+temperatureSensor = MLX90614(i2cBus, address=CONFIG['PIN']['SENSOR'])
+
+motorController = MotorController(2)
+#flashcureController = FlashcureController()
 
 class ControleProducaoView(APIView):
 	def post(self, request):

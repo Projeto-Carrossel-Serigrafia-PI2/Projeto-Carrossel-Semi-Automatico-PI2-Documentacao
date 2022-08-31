@@ -17,7 +17,8 @@ class FlashcureController:
 
 	# Maybe there is a better way than setting temperature to 0
 	def stop(self):
-		self.setTemperature(0)
+		self.temperature = 0
+		self.luminosity = 0
 		self.applyTemperature()
 
 	def __calculateHeightAndLuminosity(self):

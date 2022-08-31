@@ -138,7 +138,7 @@ CONFIG = {
     'PIN': {
         'MOTOR': 13,
         'FLASHCURE': 5,
-        'PEDAL': 3,
+        'PEDAL': 19,
         'ENCODER': 24,
         'SENSOR': 0x5A
     },
