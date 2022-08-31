@@ -25,11 +25,11 @@ class FlashcureController:
 
 	def setTemperature(self, temperature):
 		if(temperature > self.limits[1]):
-		    self.temperature = self.limits[1]
-        elif(temperature < self.limits[0]):
-		    self.temperature = self.limits[0]
-        else:
-		    self.temperature = temperature
+			self.temperature = self.limits[1]
+		elif(temperature < self.limits[0]):
+			self.temperature = self.limits[0]
+		else:
+			self.temperature = temperature
 
 		height, luminosity = self.__calculateHeightAndLuminosity()
 
