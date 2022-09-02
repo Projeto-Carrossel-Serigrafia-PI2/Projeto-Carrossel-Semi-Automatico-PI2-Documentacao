@@ -42,7 +42,8 @@ state = {
 	'isAdjustingFlashcure': False
 }
 
-#def requestTemperatureChange(temperature):
+def requestTemperatureChange(temperature):
+	print('Mudou temperatura')
 #	height = flashcureController.setTemperature(temperature)
 #	if(height != None):
 #		state['isAdjustingFlashcure'] = height
@@ -66,6 +67,7 @@ def pedalHandler(channel):
 def encoderHandler(channel):
 	if(not GPIO.input(channel)):
 		return
+	print('ENCODER INCREMENTOU')
 
 	global state
 	state['encoderCounter'] += 1
@@ -211,7 +213,8 @@ def startNextBatch():
 	state['waitingNewBatch'] = False
 
 def getTemperatures():
-	return [temperatureSensor.get_object_1(), temperatureSensor.get_ambient()]
+	return [temperatureSensor.get_obj_temp(), temperatureSensor.get_amb_temp()]
+	#return [120, 30]
 
 def toggleRepainting():
 	if(state['isRepainting']):
