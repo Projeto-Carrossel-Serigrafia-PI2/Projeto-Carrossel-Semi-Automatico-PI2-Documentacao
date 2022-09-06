@@ -16,7 +16,7 @@ export default function ProgressBar(props) {
 				color: props.color,
 				height: props.height ? props.height : undefined
 			} }>
-				<span>{`${props.current} ${props.unit}`}</span>
+				<span>{`${props.current.toFixed(1)} ${props.unit}`}</span>
 			</div>
 
 			<span className="limit lower">{`${props.limits[0]} ${props.unit}`}</span>

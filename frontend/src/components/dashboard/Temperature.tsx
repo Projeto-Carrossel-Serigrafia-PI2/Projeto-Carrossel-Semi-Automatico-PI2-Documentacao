@@ -34,7 +34,7 @@ export default function Temperature() {
 					
 					<ProgressBar
 						unit="°C"
-						limits={[0, 100]}
+						limits={temperatureLimits}
 						current={state.temperatures[1]}
 						width="80%"
 						height="1.85em"
