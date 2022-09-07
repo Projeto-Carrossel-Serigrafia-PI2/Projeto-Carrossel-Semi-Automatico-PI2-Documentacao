@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
+import Keyboard from 'react-simple-keyboard';
 import { FiPlus, FiMinus, FiCamera, FiUpload } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,6 +15,7 @@ import { ColorProps, PaintProps } from '../utils/types';
 import StateContext from '../contexts/StateContext';
 import PageContext from '../contexts/PageContext';
 
+import 'react-simple-keyboard/build/css/index.css';
 import '../styles/pages/Production.scss';
 
 import {
@@ -39,6 +41,12 @@ export function Production() {
   const [imageTaken, setImageTaken] = useState('');
   const [colors, setColors] = useState<ColorProps[]>(data);
   const [isModalPhotoOpen, setIsModalPhotoOpen] = useState(false);
+
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [keyboardObject, setKeyboardObject] = useState(null);
+  const [isVirtualKeyboardActive, setIsVirtualKeyboardActive] = useState(false);
+  const [focusedInput, setFocusedInput] = useState(null);
+  const [focusedInputIndex, setFocusedInputIndex] = useState(null);
   
   const { state, setParameters, setState } = useContext(StateContext);
   const { setPage } = useContext(PageContext);
@@ -197,6 +205,29 @@ export function Production() {
     } 
   }
 
+  function updateKeyboardHeight() {
+    const keyboard = document.getElementsByClassName('simple-keyboard')[0];
+
+    setKeyboardHeight(keyboard.offsetHeight);
+  }
+
+  function onInputFocus(index, e) {
+    setFocusedInput(e.target);
+    setFocusedInputIndex(index);
+  }
+
+  function onKeyPress(key) {
+    if(focusedInput && key.length == 1) {
+      focusedInput.value += key;
+
+      const artificialEvent = {
+        target: focusedInput
+      };
+
+      handleFormChangeColor(focusedInputIndex, artificialEvent);
+    }
+  }
+
   useEffect(() => {
     async function getAllPaintsType() {
       paintService.paintGetAll().then((response) => {
@@ -205,6 +236,8 @@ export function Production() {
     }
 
     getAllPaintsType();
+    if(window.innerWidth <= 1024)
+      setIsVirtualKeyboardActive(true);
   }, []);
 
   return (
@@ -309,6 +342,7 @@ export function Production() {
                     value={item.color}
                     onChange={(e) => handleFormChangeColor(index, e)}
                     autoFocus
+                    onFocus={(e) => onInputFocus(index, e)}
                   />
                 </div>
               </section>
@@ -353,6 +387,14 @@ export function Production() {
           />
         </div>
       </main>
+
+      { isVirtualKeyboardActive ?
+        <>
+          <Keyboard onInit={updateKeyboardHeight} onKeyPress={onKeyPress} keyboardRef={r => setKeyboardObject(r)} />
+          <div className="keyboard-aux" style={{height: `${keyboardHeight}px`, width: "100%"}}></div>
+        </>
+        : null
+      }
     </div>
   );
 }

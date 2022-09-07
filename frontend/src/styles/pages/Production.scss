@@ -93,6 +93,12 @@
   }
 }
 
+.simple-keyboard {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+}
+
 @media screen and (max-width: 1024px) {
   #production {
     > main {
