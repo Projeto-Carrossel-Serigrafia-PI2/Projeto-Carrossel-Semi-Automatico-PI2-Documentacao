@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
-import Keyboard from 'react-simple-keyboard';
 import { FiPlus, FiMinus, FiCamera, FiUpload } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,8 +7,11 @@ import { ButtonRequest } from '../components/ButtonRequest';
 import { ButtonEditParam } from '../components/ButtonEditParam';
 import { ButtonTakePhoto } from '../components/ButtonTakePhoto';
 import { ModalPhoto } from '../components/ModalPhoto';
+import Keyboard from '../components/Keyboard';
+
 import productionService from '../services/productionService';
 import paintService from '../services/paintService';
+
 import { ColorProps, PaintProps } from '../utils/types';
 
 import StateContext from '../contexts/StateContext';
@@ -42,11 +44,9 @@ export function Production() {
   const [colors, setColors] = useState<ColorProps[]>(data);
   const [isModalPhotoOpen, setIsModalPhotoOpen] = useState(false);
 
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [keyboardObject, setKeyboardObject] = useState(null);
   const [isVirtualKeyboardActive, setIsVirtualKeyboardActive] = useState(false);
-  const [focusedInput, setFocusedInput] = useState(null);
-  const [focusedInputIndex, setFocusedInputIndex] = useState(null);
+  const [focusedElement, setFocusedElement] = useState(null);
+  const [focusedElementIndex, setFocusedElementIndex] = useState(null);
   
   const { state, setParameters, setState } = useContext(StateContext);
   const { setPage } = useContext(PageContext);
@@ -205,27 +205,13 @@ export function Production() {
     } 
   }
 
-  function updateKeyboardHeight() {
-    const keyboard = document.getElementsByClassName('simple-keyboard')[0];
-
-    setKeyboardHeight(keyboard.offsetHeight);
-  }
-
-  function onInputFocus(index, e) {
-    setFocusedInput(e.target);
-    setFocusedInputIndex(index);
-  }
-
-  function onKeyPress(key) {
-    if(focusedInput && key.length == 1) {
-      focusedInput.value += key;
-
-      const artificialEvent = {
-        target: focusedInput
-      };
-
-      handleFormChangeColor(focusedInputIndex, artificialEvent);
+  function onElementFocused(e) {
+    if(e.target.attributes.requestskeyboard) {
+      setFocusedElement(e.target);
+      setFocusedElementIndex(parseInt(e.target.attributes.index.value));
     }
+    else
+      setFocusedElement(null);
   }
 
   useEffect(() => {
@@ -241,7 +227,7 @@ export function Production() {
   }, []);
 
   return (
-    <div id="production">
+    <div id="production" onFocus={onElementFocused}>
       <h1>Produção</h1>
 
       <ModalPhoto
@@ -342,7 +328,8 @@ export function Production() {
                     value={item.color}
                     onChange={(e) => handleFormChangeColor(index, e)}
                     autoFocus
-                    onFocus={(e) => onInputFocus(index, e)}
+                    index={`${index}`}
+                    requestskeyboard="true"
                   />
                 </div>
               </section>
@@ -389,10 +376,7 @@ export function Production() {
       </main>
 
       { isVirtualKeyboardActive ?
-        <>
-          <Keyboard onInit={updateKeyboardHeight} onKeyPress={onKeyPress} keyboardRef={r => setKeyboardObject(r)} />
-          <div className="keyboard-aux" style={{height: `${keyboardHeight}px`, width: "100%"}}></div>
-        </>
+        <Keyboard focusedElement={focusedElement} focusedElementIndex={focusedElementIndex} sendKeyboardEvent={handleFormChangeColor} />
         : null
       }
     </div>
