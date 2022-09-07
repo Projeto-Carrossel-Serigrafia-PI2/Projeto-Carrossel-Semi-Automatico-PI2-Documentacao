@@ -22,7 +22,7 @@ export default function Temperature() {
 					<ProgressBar
 						unit="°C"
 						limits={temperatureLimits}
-						current={state.temperatures[0]}
+						current={state.temperatures[0].toFixed(1)}
 						width="80%"
 						height="1.85em"
 						color="#FF5555"
@@ -35,7 +35,7 @@ export default function Temperature() {
 					<ProgressBar
 						unit="°C"
 						limits={temperatureLimits}
-						current={state.temperatures[1]}
+						current={state.temperatures[1].toFixed(1)}
 						width="80%"
 						height="1.85em"
 						color="#277B96"
