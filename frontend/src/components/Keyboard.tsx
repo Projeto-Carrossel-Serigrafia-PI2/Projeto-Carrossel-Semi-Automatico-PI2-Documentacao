@@ -14,9 +14,13 @@ export default function Keyboard(props) {
   }
 
   function onKeyPress(key) {
-    if(props.focusedElement && key.length == 1) {
-      console.log(props)
-      props.focusedElement.value += key;
+    if(props.focusedElement) {
+      console.log(key)
+      if(key.length == 1)
+        props.focusedElement.value += key;
+
+      else if(key == '{bksp}')
+        props.focusedElement.value = props.focusedElement.value.substr(0, props.focusedElement.value.length - 1)
 
       const artificialEvent = {
         target: props.focusedElement
