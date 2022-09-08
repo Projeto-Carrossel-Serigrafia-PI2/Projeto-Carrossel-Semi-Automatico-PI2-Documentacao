@@ -6,6 +6,7 @@ export interface OptionProps {
   active?: boolean;
   onClick?(): void;
   route?: string;
+  disabled?: boolean;
 }
 
 export interface ModalProps {
