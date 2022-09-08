@@ -19,23 +19,32 @@ export function SideBar() {
   const location = useLocation();
 
   function getCurrentPage() {
-    const currentPage = location.pathname == '/' ? 'production' : location.pathname.substr(1, location.pathname.length - 2);
+    const currentPage =
+      location.pathname == '/'
+        ? 'production'
+        : location.pathname.substr(1, location.pathname.length - 2);
 
     setPage(currentPage);
   }
 
-  function setCurrentPage(page) {
-    if(page == 'quality') {
-      if(state.isPaused)
-        setPage(page);
-      else
-        notify_error('Produção em andamento! Pause a produção para habilitar a navegação para a página de qualidade!');
+  function setCurrentPage(page: string) {
+    if (!state.inSession) setPage(page);
+    else {
+      if (state.isPaused) {
+        if (page == 'quality-report' || page == 'dashboard') setPage(page);
+        else
+          notify_error(
+            'Produção em andamento! Finalize a produção para habilitar a navegação!'
+          );
+      } else {
+        if (page == 'dashboard') setPage(page);
+        else {
+          notify_error(
+            'Produção em andamento! Finalize a produção para habilitar a navegação!'
+          );
+        }
+      }
     }
-
-    else if(state.inSession)
-      notify_error('Produção em andamento! Finalize a produção para habilitar a navegação!');
-    else
-      setPage(page);
   }
 
   useEffect(() => {
@@ -43,7 +52,7 @@ export function SideBar() {
   }, []);
 
   return (
-    <div id="sidebar">
+    <div id='sidebar'>
       <header>
         <h1>Silkgician</h1>
       </header>
@@ -56,9 +65,9 @@ export function SideBar() {
               color={page === 'production' ? '#B193EE' : '#E8E7EA'}
             />
           }
-          title="Produção"
+          title='Produção'
           active={page === 'production'}
-          route="/"
+          route='/'
           onClick={() => {
             setCurrentPage('production');
           }}
@@ -72,13 +81,12 @@ export function SideBar() {
               color={page === 'dashboard' ? '#B193EE' : '#E8E7EA'}
             />
           }
-          title="Dashboard"
+          title='Dashboard'
           active={page === 'dashboard'}
-          route="/dashboard/"
+          route='/dashboard/'
           onClick={() => {
             setCurrentPage('dashboard');
           }}
-          disabled={state.inSession ? true : false}
         />
 
         <Option
@@ -88,9 +96,9 @@ export function SideBar() {
               color={page === 'paints' ? '#B193EE' : '#E8E7EA'}
             />
           }
-          title="Bases de tinta"
+          title='Bases de tinta'
           active={page === 'paints'}
-          route="/paints/"
+          route='/paints/'
           onClick={() => {
             setCurrentPage('paints');
           }}
@@ -98,12 +106,17 @@ export function SideBar() {
         />
 
         <Option
-          icon={<FaAward size={18} color={page === 'quality-report' ? '#B193EE' : '#E8E7EA'} />}
-          title="Relatório de Qualidade"
+          icon={
+            <FaAward
+              size={18}
+              color={page === 'quality-report' ? '#B193EE' : '#E8E7EA'}
+            />
+          }
+          title='Relatório de Qualidade'
           active={page === 'quality-report'}
-          route="/quality-report/"
+          route='/quality-report/'
           onClick={() => setCurrentPage('quality-report')}
-          disabled={state.inSession ? true : false}
+          disabled={state.inSession && !state.isPaused ? true : false}
         />
       </main>
     </div>
