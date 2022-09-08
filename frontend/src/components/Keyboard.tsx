@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import SimpleKeyboard from 'react-simple-keyboard';
 
@@ -7,9 +7,10 @@ import layout from 'simple-keyboard-layouts/build/layouts/brazilian';
 import '../styles/components/Keyboard.scss';
 
 export default function Keyboard(props) {
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [layoutName, setLayoutName] = useState(0);
-  const [keyboard, setKeyboard] = useState(null);
+  const [ keyboardHeight, setKeyboardHeight ] = useState(0);
+  const [ layoutName, setLayoutName ] = useState(0);
+  const [ keyboard, setKeyboard ] = useState(null);
+  const [ inUse, setInUse ] = useState('not-in-use');
 
   function updateKeyboardHeight() {
     const keyboard = document.getElementsByClassName('simple-keyboard')[0];
@@ -42,11 +43,20 @@ export default function Keyboard(props) {
     }
   }
 
+  useEffect(() => {
+    console.log(props.focusedElement)
+    if(props.focusedElement && props.focusedElement.attributes.requestskeyboard.value)
+      setInUse('in-use');
+
+    else
+      setInUse('not-in-use');
+  }, [props.focusedElement]);
+
   return (
     <>
-      <SimpleKeyboard onInit={updateKeyboardHeight} onKeyPress={onKeyPress} layout={layout.layout} layoutName={layoutName} keyboardRef={r => setKeyboard(r)} />
+      <SimpleKeyboard theme={`hg-theme-default ${inUse}`} onInit={updateKeyboardHeight} onKeyPress={onKeyPress} layout={layout.layout} layoutName={layoutName} keyboardRef={r => setKeyboard(r)} />
       { props.disableAux ? null
-        : <div className="keyboard-aux" style={{height: `${keyboardHeight}px`, width: "100%"}}></div>
+        : <div className="keyboard-aux" className={inUse} style={{height: `${keyboardHeight}px`, width: "100%"}}></div>
       }
     </>
   );
