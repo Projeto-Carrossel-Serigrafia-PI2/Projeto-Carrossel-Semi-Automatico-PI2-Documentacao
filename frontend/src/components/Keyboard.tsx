@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 import SimpleKeyboard from 'react-simple-keyboard';
 
+import '../styles/components/Keyboard.scss';
+
 export default function Keyboard(props) {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
@@ -20,14 +22,16 @@ export default function Keyboard(props) {
         target: props.focusedElement
       };
 
-      props.sendKeyboardEvent(props.focusedElementIndex, artificialEvent);
+      props.sendKeyboardEvent(artificialEvent, ...props.additionalArguments);
     }
   }
 
   return (
     <>
       <SimpleKeyboard onInit={updateKeyboardHeight} onKeyPress={onKeyPress} />
-      <div className="keyboard-aux" style={{height: `${keyboardHeight}px`, width: "100%"}}></div>
+      { props.disableAux ? null
+        : <div className="keyboard-aux" style={{height: `${keyboardHeight}px`, width: "100%"}}></div>
+      }
     </>
   );
 }

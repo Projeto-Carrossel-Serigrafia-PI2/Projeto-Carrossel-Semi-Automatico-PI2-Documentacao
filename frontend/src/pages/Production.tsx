@@ -78,8 +78,8 @@ export function Production() {
   }
 
   function handleFormChangeColor(
-    index: number,
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
   ) {
     let data: ColorProps[] = [...colors];
 
@@ -326,7 +326,7 @@ export function Production() {
                     }}
                     placeholder="Ex: azul"
                     value={item.color}
-                    onChange={(e) => handleFormChangeColor(index, e)}
+                    onChange={(e) => handleFormChangeColor(e, index)}
                     autoFocus
                     index={`${index}`}
                     requestskeyboard="true"
@@ -376,7 +376,7 @@ export function Production() {
       </main>
 
       { isVirtualKeyboardActive ?
-        <Keyboard focusedElement={focusedElement} focusedElementIndex={focusedElementIndex} sendKeyboardEvent={handleFormChangeColor} />
+        <Keyboard focusedElement={focusedElement} additionalArguments={[focusedElementIndex]} sendKeyboardEvent={handleFormChangeColor} />
         : null
       }
     </div>

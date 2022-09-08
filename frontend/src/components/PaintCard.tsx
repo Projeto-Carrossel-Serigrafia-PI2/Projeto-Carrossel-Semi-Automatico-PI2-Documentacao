@@ -1,49 +1,13 @@
 import { useState } from 'react';
 
 import { ButtonRequest } from './ButtonRequest';
-import { ModalPaints } from './ModalPaints';
-import { ModalConfirm } from './ModalConfirm';
 import { PaintProps } from '../utils/types';
 
 import '../styles/components/PaintCard.scss';
 
 export function PaintCard(props: PaintProps) {
-  const [isModalPaintsOpen, setIsModalPaintsOpen] = useState(false);
-  const [isModalConfirmOpen, setIsModalConfirmOpen] = useState(false);
-
-  const openModalPaints = () => {
-    setIsModalPaintsOpen(true);
-  };
-
-  const closeModalPaints = () => {
-    setIsModalPaintsOpen(false);
-  };
-
-  const openModalConfirm = () => {
-    setIsModalConfirmOpen(true);
-  };
-
-  const closeModalConfirm = () => {
-    setIsModalConfirmOpen(false);
-  };
-
   return (
     <div id="paint-card">
-      <ModalPaints
-        isModalOpen={isModalPaintsOpen}
-        setIsModalOpen={setIsModalPaintsOpen}
-        closeModal={closeModalPaints}
-        paint={props}
-        mode="editar"
-      />
-
-      <ModalConfirm
-        isModalOpen={isModalConfirmOpen}
-        setIsModalOpen={setIsModalConfirmOpen}
-        closeModal={closeModalConfirm}
-        paint={props}
-      />
-
       <div className="data-box">
         <h2>Base de tinta:</h2>
 
@@ -65,13 +29,13 @@ export function PaintCard(props: PaintProps) {
           <ButtonRequest
             title="Editar"
             color="#1F272D"
-            onClick={openModalPaints}
+            onClick={() => props.openModalPaints('editar', props)}
           />
         </div>
         <ButtonRequest
           title="Remover"
           color="#DE5757"
-          onClick={openModalConfirm}
+          onClick={() => props.openModalConfirm(props)}
         />
       </div>
     </div>

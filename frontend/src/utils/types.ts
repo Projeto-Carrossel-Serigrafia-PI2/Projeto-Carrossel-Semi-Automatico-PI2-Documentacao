@@ -60,6 +60,8 @@ export interface PaintProps {
   dryingTime: number;
   reload?: boolean;
   setReload?: (value: boolean) => void;
+  openModalPaint?: (mode: string, paint: object) => void;
+  openModalConfirm?: (paint: object) => void;
 }
 
 export interface ColorProps {
