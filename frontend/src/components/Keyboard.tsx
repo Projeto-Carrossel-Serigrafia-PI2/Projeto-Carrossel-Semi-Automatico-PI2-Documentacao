@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 import SimpleKeyboard from 'react-simple-keyboard';
 
+import layout from 'simple-keyboard-layouts/build/layouts/brazilian';
+
 import '../styles/components/Keyboard.scss';
 
 export default function Keyboard(props) {
@@ -42,7 +44,7 @@ export default function Keyboard(props) {
 
   return (
     <>
-      <SimpleKeyboard onInit={updateKeyboardHeight} onKeyPress={onKeyPress} layoutName={layoutName} keyboardRef={r => setKeyboard(r)} />
+      <SimpleKeyboard onInit={updateKeyboardHeight} onKeyPress={onKeyPress} layout={layout.layout} layoutName={layoutName} keyboardRef={r => setKeyboard(r)} />
       { props.disableAux ? null
         : <div className="keyboard-aux" style={{height: `${keyboardHeight}px`, width: "100%"}}></div>
       }
