@@ -16,6 +16,7 @@ export default function Time(props) {
 	const [ isDone, setisDone ] = useState(false);
 	const [ elapsedTime, setElapsedTime ] = useState(0);
 	const [ before, setBefore ] = useState(Date.now());
+	const [ wasPaused, setWasPaused ] = useState(false);
 
 	const skipUpdate = useRef(false);
 
@@ -23,14 +24,24 @@ export default function Time(props) {
 		return String(num).padStart(totalLength, '0');
 	}
 
+	function setFormattedTime(time=elapsedTime) {
+		setHour(Math.floor(time/3600));
+		setMinute(Math.floor((time%3600)/60));
+		setSecond(Math.floor(time%60));
+	}
+
 	function counter() {
 		const now = Date.now();
+		
+		if(wasPaused) {
+			setWasPaused(false);
+			setElapsedTime(elapsedTime + 1)
+		}
 
-		setElapsedTime(elapsedTime + (now - before)/1000);
+		else
+			setElapsedTime(elapsedTime + (now - before)/1000);
 
-		setHour(Math.floor(elapsedTime/3600));
-		setMinute(Math.floor((elapsedTime%3600)/60));
-		setSecond(Math.floor(elapsedTime%60));
+		setFormattedTime();
 
 		setBefore(now);
 
@@ -41,9 +52,14 @@ export default function Time(props) {
 	useEffect(() => {
 		const storagedTime = localStorage.getItem('elapsedTime');
 		const storagedBefore = localStorage.getItem('before');
+		const storagedIsDone = localStorage.getItem('isDone');
+
+		if(storagedIsDone)
+			setisDone(storagedIsDone);
 
 		if(storagedTime) {
 			setElapsedTime(parseInt(storagedTime));
+			setFormattedTime(parseInt(storagedTime));
 			skipUpdate.current = true;
 		}
 
@@ -54,9 +70,12 @@ export default function Time(props) {
 	useEffect(() => {
 		if(skipUpdate.current)
 			skipUpdate.current = false;
-		else
+		else {
 			if(!(isDone || props.isPaused))
 			 setTimeout(counter, 1000);
+			else if(props.isPaused)
+				setWasPaused(true);
+		}
 	}, [elapsedTime, props.isPaused]);
 
 	useEffect(() => {
@@ -65,6 +84,7 @@ export default function Time(props) {
 			productionService.productionSubmitTime(elapsedTime).catch(errorHandler);
 			
 			setisDone(true);
+			localStorage.setItem('isDone', true);
 		}
 
 		setPreviousInSession(state.inSession);
