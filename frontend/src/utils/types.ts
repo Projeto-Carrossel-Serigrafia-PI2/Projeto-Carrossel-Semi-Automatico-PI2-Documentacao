@@ -11,6 +11,7 @@ export interface OptionProps {
 export interface ModalProps {
   isModalOpen: boolean;
   closeModal(): void;
+  limits: object;
   paint?: PaintProps;
   mode?: 'editar' | 'criar';
   setSessionActive?: (value: string) => void;

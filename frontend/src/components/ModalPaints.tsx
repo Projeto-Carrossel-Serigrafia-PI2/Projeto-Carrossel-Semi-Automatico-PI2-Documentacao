@@ -24,28 +24,23 @@ export function ModalPaints(props: ModalProps) {
   const [focusedElement, setFocusedElement] = useState(null);
 
   const handleIncreaseTemperature = () => {
-    setDryingTemperature(dryingTemperature + 5);
+    setDryingTemperature(Math.min(dryingTemperature + 5, props.temperatureLimits[1]));
   };
 
   const handleDecreaseTemperature = () => {
-    setDryingTemperature(dryingTemperature - 5);
+    setDryingTemperature(Math.max(dryingTemperature - 5, 0));
   };
 
   const handleIncreaseTime = () => {
-    setDryingTime(dryingTime + 1);
+    setDryingTime(Math.min(dryingTime + 1, props.dryingTimeLimit));
   };
 
   const handleDecreaseTime = () => {
-    setDryingTime(dryingTime - 1);
+    setDryingTime(Math.max(dryingTime - 1, 0));
   };
 
   const handleNewPaint = async () => {
     try {
-      console.log({
-        type: typePaint,
-        dryingTemperature,
-        dryingTime,
-      })
       await paintService.paintCreate({
         type: typePaint,
         dryingTemperature,
@@ -99,7 +94,7 @@ export function ModalPaints(props: ModalProps) {
   useEffect(() => {
     if(window.innerWidth <= 1024)
       setIsVirtualKeyboardActive(true);
-  });
+  }, []);
 
   return (
     <>
@@ -150,7 +145,7 @@ export function ModalPaints(props: ModalProps) {
               <Input
                 placeholder="0 °C"
                 value={dryingTemperature}
-                onChange={(e) => setDryingTemperature(Number(e.target.value))}
+                onChange={(e) => setDryingTemperature(Math.max(Math.min(Number(e.target.value), props.temperatureLimits[1]), 0))}
               />
               <ButtonEditParam
                 icon={<FiPlus size={18} color="#6A6A6B" />}
@@ -170,7 +165,7 @@ export function ModalPaints(props: ModalProps) {
               <Input
                 placeholder="0 s"
                 value={dryingTime}
-                onChange={onChange}
+                onChange={(e) => setDryingTime(Math.max(Math.min(Number(e.target.value), props.dryingTimeLimit), 0))}
               />
               <ButtonEditParam
                 icon={<FiPlus size={18} color="#6A6A6B" />}

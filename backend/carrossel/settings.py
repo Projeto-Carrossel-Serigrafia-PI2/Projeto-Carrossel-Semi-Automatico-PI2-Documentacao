@@ -144,14 +144,15 @@ CONFIG = {
     },
     'MOTOR': {
         'FREQUENCY': 1000,
-        'SPEEDS': [0, 20, 40, 60, 80, 100]
+        'SPEEDS': [12, 23, 35]
     },
     'FLASHCURE': {
-        'LIMITS': [0, 200],
+        'LIMITS': [0, 140],
         'POSITION': 2
     },
     'CAMERA': {
         'POSITION': 3
     },
-    'ENCODER_HOLES': 20
+    'ENCODER_HOLES': 20,
+    'DRYING_TIME_LIMIT': 15
 }

@@ -44,7 +44,6 @@ export default function Keyboard(props) {
   }
 
   useEffect(() => {
-    console.log(props.focusedElement)
     if(props.focusedElement && props.focusedElement.attributes.requestskeyboard.value)
       setInUse(true);
 

@@ -11,6 +11,7 @@ import Keyboard from '../components/Keyboard';
 
 import productionService from '../services/productionService';
 import paintService from '../services/paintService';
+import limitsService from '../services/limitsService';
 
 import { ColorProps, PaintProps } from '../utils/types';
 
@@ -38,7 +39,7 @@ const data: ColorProps[] = [
 export function Production() {
   const [paints, setPaints] = useState<PaintProps[]>([]);
   const [quantityTShirts, setQuantityTShirts] = useState(0);
-  const [speed, setSpeed] = useState(0);
+  const [speed, setSpeed] = useState(1);
   const [imageUpload, setImageUpload] = useState<string | ArrayBuffer>('');
   const [imageTaken, setImageTaken] = useState('');
   const [colors, setColors] = useState<ColorProps[]>(data);
@@ -47,6 +48,8 @@ export function Production() {
   const [isVirtualKeyboardActive, setIsVirtualKeyboardActive] = useState(false);
   const [focusedElement, setFocusedElement] = useState(null);
   const [focusedElementIndex, setFocusedElementIndex] = useState(null);
+
+  const [speedLimit, setSpeedLimit] = useState(undefined);
   
   const { state, setParameters, setState } = useContext(StateContext);
   const { setPage } = useContext(PageContext);
@@ -70,11 +73,11 @@ export function Production() {
   }
 
   function handleIncreaseSpeed() {
-    setSpeed(speed + 1);
+    setSpeed(Math.min(speed + 1, speedLimit));
   }
 
   function handleDecreaseSpeed() {
-    setSpeed(speed - 1);
+    setSpeed(Math.max(speed - 1, 1));
   }
 
   function handleFormChangeColor(
@@ -145,7 +148,7 @@ export function Production() {
 
       const production = {
         totalDeCamisetas: quantityTShirts,
-        velocidade: speed,
+        velocidade: speed - 1,
         base_producao_create: data_colors,
         image: imageTaken ? imageTaken : imageUpload,
       };
@@ -221,7 +224,14 @@ export function Production() {
       }).catch(errorHandler);
     }
 
+    async function getLimits() {
+      limitsService.getLimits().then((response) => {
+        setSpeedLimit(response.data.speed);
+      }).catch(errorHandler);
+    }
+
     getAllPaintsType();
+    getLimits();
     if(window.innerWidth <= 1024)
       setIsVirtualKeyboardActive(true);
   }, []);
@@ -266,9 +276,9 @@ export function Production() {
           <div>
             <Input
               style={{ textAlign: 'left' }}
-              placeholder="0"
+              placeholder="1"
               value={speed}
-              onChange={(e) => setSpeed(Number(e.target.value))}
+              onChange={(e) => setSpeed(Math.max(Math.min(Number(e.target.value), speedLimit), 0))}
             />
             <ButtonEditParam
               icon={<FiPlus size={18} color="#6A6A6B" />}

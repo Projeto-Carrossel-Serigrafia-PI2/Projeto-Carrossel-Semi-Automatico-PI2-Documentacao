@@ -346,3 +346,11 @@ class TurnSystemOffView(APIView):
 			'error': False,
 			'status': 200
 		})
+
+class LimitsView(APIView):
+	def get(self, request):
+		return Response({
+			'temperature': CONFIG['FLASHCURE']['LIMITS'],
+			'speed': len(CONFIG['MOTOR']['SPEEDS']),
+			'drying': CONFIG['DRYING_TIME_LIMIT']
+		})
