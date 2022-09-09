@@ -59,6 +59,7 @@ export function QualityReport() {
   async function handleChooseProduction(e) {
     setProductionSelectedId(e.target.value);
     const production = await productionService.productionGetOne(e.target.value);
+    production.image = production.image.slice(2, production.image.length - 1);
     setProductionSelected({
       id: production.id,
       created_at: new Date(production.create_date).toLocaleDateString('pt-BR'),

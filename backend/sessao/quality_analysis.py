@@ -1,6 +1,8 @@
 import cv2 as cv
 import numpy as np
 import os
+from sessao.models import Producao
+import base64
 
 dirname = os.path.dirname(__file__)
 path_photo = os.path.join(dirname, '../assets/')
@@ -102,6 +104,13 @@ def cut_shirt_print(image_filename, image_type, r_width, r_height):
     )
 
     cv.imwrite(path_photo + 'reference_photo/' + image_filename, image_cut)
+    with open(path_photo + 'reference_photo/' + image_filename, "rb") as img_file:
+      image_batch_b64 = base64.b64encode(img_file.read())
+    
+    production = Producao.objects.last()
+    production.image = image_batch_b64
+    production.save()
+
   else:
     image_cut = cv.resize(
       image_cut,
