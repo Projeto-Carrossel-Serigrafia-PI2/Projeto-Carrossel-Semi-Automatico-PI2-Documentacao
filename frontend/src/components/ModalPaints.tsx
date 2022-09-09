@@ -92,6 +92,12 @@ export function ModalPaints(props: ModalProps) {
   }, [props.isModalOpen]);
 
   useEffect(() => {
+    setTypePaint(props.paint!.type);
+    setDryingTemperature(props.paint!.dryingTemperature);
+    setDryingTime(props.paint!.dryingTime);
+  }, [props.paint]);
+
+  useEffect(() => {
     if(window.innerWidth <= 1024)
       setIsVirtualKeyboardActive(true);
   }, []);
