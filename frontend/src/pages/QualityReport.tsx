@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Chart from 'react-apexcharts';
+import { PDFExport } from '@progress/kendo-react-pdf';
 
 import { QualitySection } from '../components/QualitySection';
+import { ButtonRequest } from '../components/ButtonRequest';
 import { BatchProps, ProductionProps } from '../utils/types';
 import batchService from '../services/batchService';
 import productionService from '../services/productionService';
@@ -19,6 +21,14 @@ export function QualityReport() {
   const [batchesFiltered, setBatchesFiltered] = useState<BatchProps[]>([]);
   const [batchesMetrics, setBatchesMetrics] = useState<any>([]);
   const [productionMetrics, setProductionMetrics] = useState<any>([]);
+
+  const pdfExportComponent = useRef(null);
+
+  const exportPDFWithComponent = () => {
+    if (pdfExportComponent.current) {
+      pdfExportComponent.current.save();
+    }
+  };
 
   const chartOptions = {
     chart: {
@@ -238,122 +248,138 @@ export function QualityReport() {
         </div>
       </header>
 
-      {productionSelected ? (
-        <div className='container-resume'>
-          <section>
-            <table>
-              <tr>
-                <td>Produção:</td>
-                <td>n° {productionSelected.id}</td>
-              </tr>
+      <div className='button-download-report'>
+        <ButtonRequest
+          title='Baixar relatório'
+          onClick={exportPDFWithComponent}
+        />
+      </div>
 
-              <tr>
-                <td>Data:</td>
-                <td>{productionSelected.created_at}</td>
-              </tr>
+      <div className='pdf-export-container'>
+        <PDFExport
+          ref={pdfExportComponent}
+          fileName={`relatorio_producao_${productionSelected?.id}`}
+          margin='2cm'
+        >
+          {productionSelected ? (
+            <div className='container-resume'>
+              <section>
+                <table>
+                  <tr>
+                    <td>Produção:</td>
+                    <td>n° {productionSelected.id}</td>
+                  </tr>
 
-              <tr>
-                <td>Total de camisetas:</td>
-                <td>{productionSelected.total_shirts}</td>
-              </tr>
+                  <tr>
+                    <td>Data:</td>
+                    <td>{productionSelected.created_at}</td>
+                  </tr>
 
-              <tr>
-                <td>Lotes aprovados:</td>
-                <td>{batchesMetrics[0]}</td>
-              </tr>
+                  <tr>
+                    <td>Total de camisetas:</td>
+                    <td>{productionSelected.total_shirts}</td>
+                  </tr>
 
-              <tr>
-                <td>Lotes não aprovados:</td>
-                <td>{batchesMetrics[1]}</td>
-              </tr>
+                  <tr>
+                    <td>Lotes aprovados:</td>
+                    <td>{batchesMetrics[0]}</td>
+                  </tr>
 
-              <tr>
-                <td>Total de lotes:</td>
-                <td>{batchesMetrics.length}</td>
-              </tr>
+                  <tr>
+                    <td>Lotes não aprovados:</td>
+                    <td>{batchesMetrics[1]}</td>
+                  </tr>
 
-              <tr>
-                <td>Qualidade média do formato:</td>
-                <td>{productionMetrics.format}%</td>
-              </tr>
+                  <tr>
+                    <td>Total de lotes:</td>
+                    <td>{batchesFiltered.length}</td>
+                  </tr>
 
-              <tr>
-                <td>Qualidade média da cor:</td>
-                <td>{productionMetrics.color}%</td>
-              </tr>
+                  <tr>
+                    <td>Qualidade média do formato:</td>
+                    <td>{productionMetrics.format}%</td>
+                  </tr>
 
-              <tr>
-                <td>Qualidade média da matriz:</td>
-                <td>{productionMetrics.matrix}%</td>
-              </tr>
-            </table>
-          </section>
+                  <tr>
+                    <td>Qualidade média da cor:</td>
+                    <td>{productionMetrics.color}%</td>
+                  </tr>
 
-          <section>
-            <div className='chart-box'>
-              <Chart
-                // height={350}
-                width={400}
-                options={overallChartOptions}
-                series={batchesMetrics}
-                type='pie'
-              />
+                  <tr>
+                    <td>Qualidade média da matriz:</td>
+                    <td>{productionMetrics.matrix}%</td>
+                  </tr>
+                </table>
+              </section>
+
+              <section>
+                <div className='chart-box'>
+                  <Chart
+                    // height={350}
+                    width={400}
+                    options={overallChartOptions}
+                    series={batchesMetrics}
+                    type='pie'
+                  />
+                </div>
+              </section>
             </div>
-          </section>
-        </div>
-      ) : null}
+          ) : null}
 
-      {productionSelected && batchSelectedId ? (
-        <main>
-          <h2>
-            Produção n° {productionSelected.id} | Data:{' '}
-            {productionSelected.created_at}
-            &nbsp;(Lote n°&nbsp;
-            {batchesFiltered.findIndex((batch) => batch.id == batchSelectedId) +
-              1}
-            )
-          </h2>
+          {productionSelected && batchSelectedId ? (
+            <main className='main-report'>
+              <h2>
+                Produção n° {productionSelected.id} | Data:{' '}
+                {productionSelected.created_at}
+                &nbsp;(Lote n°&nbsp;
+                {batchesFiltered.findIndex(
+                  (batch) => batch.id == batchSelectedId
+                ) + 1}
+                )
+              </h2>
 
-          <QualitySection
-            qualityType='Qualidade do formato'
-            imageReference={productionSelected.image_reference}
-            imageBatch={batchSelected?.image}
-            reportDescription='A qualidade do formato avalia o contorno da estampa,
-            isto é, se a estampa foi impressa como o esperado, sem falhas. Como
-            resultado, é obtido um valor em porcentagem (0% a 100%), no qual
-            quanto mais próximo do 100%, melhor é a qualidade da estampa.'
-            reportResult={`Qualidade: ${(
-              Number(batchSelected?.similarity_format) * 100
-            ).toFixed(2)}%`}
-          />
+              <QualitySection
+                qualityType='Qualidade do formato'
+                imageReference={productionSelected.image_reference}
+                imageBatch={batchSelected?.image}
+                reportDescription='A qualidade do formato avalia o contorno da estampa,
+              isto é, se a estampa foi impressa como o esperado, sem falhas. Como
+              resultado, é obtido um valor em porcentagem (0% a 100%), no qual
+              quanto mais próximo do 100%, melhor é a qualidade da estampa.'
+                reportResult={`Qualidade: ${(
+                  Number(batchSelected?.similarity_format) * 100
+                ).toFixed(2)}%`}
+              />
 
-          <QualitySection
-            qualityType='Qualidade da cor'
-            imageReference={productionSelected.image_reference}
-            imageBatch={batchSelected?.image}
-            reportDescription='A qualidade da cor avalia a tonalidade da cor da
-          estampa, isto é, se a estampa foi impressa com a cor esperada. Como
-          resultado, é obtido um valor em porcentagem (0% a 100%), no qual quanto
-          mais próximo do 100%, melhor é a qualidade da estampa.'
-            reportResult={`Qualidade: ${(
-              Number(batchSelected?.similarity_colors) * 100
-            ).toFixed(2)}%`}
-          />
+              <QualitySection
+                qualityType='Qualidade da cor'
+                imageReference={productionSelected.image_reference}
+                imageBatch={batchSelected?.image}
+                reportDescription='A qualidade da cor avalia a tonalidade da cor da
+            estampa, isto é, se a estampa foi impressa com a cor esperada. Como
+            resultado, é obtido um valor em porcentagem (0% a 100%), no qual quanto
+            mais próximo do 100%, melhor é a qualidade da estampa.'
+                reportResult={`Qualidade: ${(
+                  Number(batchSelected?.similarity_colors) * 100
+                ).toFixed(2)}%`}
+              />
 
-          <QualitySection
-            qualityType='Qualidade da matriz'
-            imageReference={productionSelected.image_reference}
-            imageBatch={batchSelected?.image_failures}
-            reportDescription='A qualidade da matriz avalia se a estampa possui
-          falhas em sua área, isto é, se possui pontos sem tintas, riscos, etc.
-          Como resultado, é mostrado a imagem com retângulos nas regiões onde
-          foram encontradas possíveis falhas e a sua respectiva quantidade.'
-            reportResult={`Quantidade de falhas: ${Number(
-              batchSelected?.quantity_failures
-            )}`}
-          />
-        </main>
-      ) : null}
+              <QualitySection
+                qualityType='Qualidade da matriz'
+                imageReference={productionSelected.image_reference}
+                imageBatch={batchSelected?.image_failures}
+                reportDescription='A qualidade da matriz avalia se a estampa possui
+            falhas em sua área, isto é, se possui pontos sem tintas, riscos, etc.
+            Como resultado, é mostrado a imagem com retângulos nas regiões onde
+            foram encontradas possíveis falhas e a sua respectiva quantidade.'
+                reportResult={`Quantidade de falhas: ${Number(
+                  batchSelected?.quantity_failures
+                )}`}
+              />
+            </main>
+          ) : null}
+        </PDFExport>
+      </div>
     </div>
   );
 }

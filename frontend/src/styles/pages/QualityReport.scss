@@ -3,15 +3,14 @@
   flex-direction: column;
 
   width: 100%;
-  padding-right: 10rem;
-
+  
   > header {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-between;
 
-    width: 100%;
+    width: 99%;
 
     > h1 {
       color: #39393a;
@@ -42,18 +41,18 @@
     }
   }
 
-  > main {
-    margin: 0 7rem;
-    padding-bottom: 3rem;
+  .button-download-report {
+    align-self: flex-end;
+    margin: 2rem;
   }
 }
 
 .container-resume {
-  width: 60%;
+  width: 95%;
   background-color: #fff;
-  margin: 7rem 0;
-  padding: 1rem;
+  margin: 7rem 1.5rem;
   border-radius: 1rem;
+  overflow: hidden;
 
   display: flex;
   flex-direction: row;
@@ -88,10 +87,14 @@
       background-color: #d9d9d9;
       border: none;
       border-collapse: collapse;
-
+      
       > tr {
         &:nth-child(even) {
           background-color: white;
+        }
+
+        > td {
+          padding: 1rem;
         }
       }
     }
@@ -126,12 +129,19 @@
     }
   }
 
+  .pdf-export-container {
+    .main-report {
+      margin: 0 3rem 5rem 3rem;
+    }
+  }
+
   .container-resume {
-    width: 80%;
-    margin: 3rem 0;
+    width: 90%;
+    margin: 3rem 0 3rem 2.5rem;
 
     flex-direction: column-reverse;
     align-items: center;
+    align-self: center;
 
     > section {
       width: 100%;
