@@ -16,6 +16,7 @@ export default function Time(props) {
 	const [ isDone, setisDone ] = useState(false);
 	const [ elapsedTime, setElapsedTime ] = useState(0);
 	const [ before, setBefore ] = useState(Date.now());
+	const [ wasPaused, setWasPaused ] = useState(false);
 
 	const skipUpdate = useRef(false);
 
@@ -25,8 +26,14 @@ export default function Time(props) {
 
 	function counter() {
 		const now = Date.now();
+		
+		if(wasPaused) {
+			setWasPaused(false);
+			setElapsedTime(elapsedTime + 1)
+		}
 
-		setElapsedTime(elapsedTime + (now - before)/1000);
+		else
+			setElapsedTime(elapsedTime + (now - before)/1000);
 
 		setHour(Math.floor(elapsedTime/3600));
 		setMinute(Math.floor((elapsedTime%3600)/60));
@@ -54,9 +61,12 @@ export default function Time(props) {
 	useEffect(() => {
 		if(skipUpdate.current)
 			skipUpdate.current = false;
-		else
+		else {
 			if(!(isDone || props.isPaused))
 			 setTimeout(counter, 1000);
+			else if(props.isPaused)
+				setWasPaused(true);
+		}
 	}, [elapsedTime, props.isPaused]);
 
 	useEffect(() => {
