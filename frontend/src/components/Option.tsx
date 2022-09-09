@@ -6,9 +6,13 @@ import '../styles/components/Option.scss';
 
 export function Option(props: OptionProps) {
   return (
-    <button id="option" onClick={props.onClick}>
+    <button id='option' onClick={props.onClick}>
       {props.icon}
-      {props.route === '/quality' ? (
+
+      <Link
+        to={props.disabled ? '#' : props.route!}
+        style={{ textDecoration: 'none' }}
+      >
         <h2
           className={
             props.active ? 'session-active session-title' : 'session-title'
@@ -16,17 +20,7 @@ export function Option(props: OptionProps) {
         >
           {props.title}
         </h2>
-      ) : (
-        <Link to={props.disabled? '#' : props.route!} style={{ textDecoration: 'none' }}>
-          <h2
-            className={
-              props.active ? 'session-active session-title' : 'session-title'
-            }
-          >
-            {props.title}
-          </h2>
-        </Link>
-      )}
+      </Link>
     </button>
   );
 }

@@ -1,7 +1,5 @@
 import { useState, useEffect, useContext, useRef } from 'react';
 
-import { ToastContainer } from 'react-toastify';
-
 import StateContext from '../contexts/StateContext';
 
 import productionService from '../services/productionService';
