@@ -10,14 +10,15 @@ class FlashcureController:
 		self.limits = limits
 		self.temperature = 0
 		self.luminosity = 0
+		self.isOn = False
 
 	def __del__(self):
 		self.stop()
 		self.uart.close()
 
 	def stop(self):
-		zero = 0
-		self.uart.write(zero.to_bytes(1, 'little'))
+		self.applyTemperature(0)
+		self.isOn = False
 
 	def __calculateLuminosity(self):
 		self.luminosity = min(self.temperature, 90)
@@ -34,15 +35,20 @@ class FlashcureController:
 
 		self.applyTemperature()
 
-	def applyTemperature(self):
+	def applyTemperature(self, luminosity=-1):
+		if(luminosity == -1):
+			luminosity = self.luminosity
+
 		try:
-			self.uart.write(self.luminosity.to_bytes(1, 'little'))
+			self.uart.write(luminosity.to_bytes(1, 'little'))
 
 			receivedByte = self.uart.read()
 			receivedInt = int.from_bytes(receivedByte, 'little')
 
-			if(receivedInt != self.luminosity):
+			if(receivedInt != luminosity):
 				raise Exception('Number received is not the same as the luminosity sent!')
+
+			self.isOn = True
 
 		except Exception as e:
 			print(e)
