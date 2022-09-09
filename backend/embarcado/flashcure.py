@@ -21,7 +21,7 @@ class FlashcureController:
 		self.isOn = False
 
 	def __calculateLuminosity(self):
-		self.luminosity = min(self.temperature, 90)
+		self.luminosity = max(min((0.0724 * self.temperature**2) - (16.852 * self.temperature) + 1030.9, 90), 0)
 
 	def setTemperature(self, temperature):
 		if(temperature > self.limits[1]):
