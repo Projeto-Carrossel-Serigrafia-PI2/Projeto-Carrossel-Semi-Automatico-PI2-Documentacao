@@ -80,7 +80,7 @@ def encoderHandler(channel):
 			if(state['rotation'] == CONFIG['FLASHCURE']['POSITION']):
 				paints = state['parameters']['paints']
 				currentPaint = paints[state['paint']]['base']
-				flashcureController.setTemperature(currentPaint.tempoSecagem)
+				flashcureController.setTemperature(currentPaint.tempoSecagem, currentPaint.tempoSecagem)
 				print('Changed temperature!')
 
 				state['flashcureUsageStarted'] = True

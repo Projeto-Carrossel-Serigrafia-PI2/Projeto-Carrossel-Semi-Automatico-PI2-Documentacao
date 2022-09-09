@@ -20,10 +20,18 @@ class FlashcureController:
 		self.applyTemperature(0)
 		self.isOn = False
 
-	def __calculateLuminosity(self):
-		self.luminosity = max(min((0.0724 * self.temperature**2) - (16.852 * self.temperature) + 1030.9, 90), 0)
+	def __getCurveConstants(dryingTime):
+		if(dryingTime < 7):
+			return CONFIG['FLASHCURE']['CURVES'][0]
+		elif(dryingTime < 13):
+			return CONFIG['FLASHCURE']['CURVES'][1]
+		return CONFIG['FLASHCURE']['CURVES'][2]
 
-	def setTemperature(self, temperature):
+	def __calculateLuminosity(self, dryingTime):
+		curveConstants = self.__getCurveConstants(dryingTime)
+		self.luminosity = max(min((curveConstants[0] * self.temperature**2) + (curveConstants[1] * self.temperature) + curveConstants[2], 90), 50)
+
+	def setTemperature(self, temperature, dryingTime):
 		if(temperature > self.limits[1]):
 			self.temperature = self.limits[1]
 		elif(temperature < self.limits[0]):
@@ -31,7 +39,7 @@ class FlashcureController:
 		else:
 			self.temperature = temperature
 
-		self.__calculateLuminosity()
+		self.__calculateLuminosity(dryingTime)
 
 		self.applyTemperature()
 
