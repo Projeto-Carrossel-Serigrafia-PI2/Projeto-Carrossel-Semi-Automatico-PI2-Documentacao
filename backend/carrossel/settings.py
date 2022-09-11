@@ -27,13 +27,14 @@ DEBUG = True
 
 # CORS
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["*"]
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
 ]
 CORS_ALLOWED_ORIGIN_REGEXES = [
     'http://localhost:3000',
+    'http://192.168.0.[0-9]+'
 ]
 
 # Application definition
