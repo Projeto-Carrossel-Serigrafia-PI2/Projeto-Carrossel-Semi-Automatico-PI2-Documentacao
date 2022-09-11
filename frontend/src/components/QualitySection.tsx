@@ -13,7 +13,7 @@ export function QualitySection(props: QualitySectionProps) {
         <div className='quality-photo-group'>
           <h4>Imagem Referência</h4>
           <div>
-            <img src={props.imageReference} alt='' />
+            <img src={`data:image/png;base64,${props.imageReference}`} alt='' />
           </div>
         </div>
         <div className='quality-photo-group'>

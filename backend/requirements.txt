@@ -7,3 +7,4 @@ opencv-python==4.6.0.66
 smbus2
 PyMLX90614
 pyserial
+numpy==1.23.0

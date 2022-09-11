@@ -190,6 +190,7 @@ export function Production() {
 
             localStorage.removeItem('elapsedTime');
             localStorage.removeItem('before');
+            localStorage.removeItem('isDone');
             navigate(`/dashboard/`);
             setPage('dashboard');
             notify_success('Produção criada e inicializada com sucesso!');

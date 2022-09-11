@@ -17,7 +17,7 @@ export default function Temperature() {
 
 			<div className="info">
 				<div className="flashcure">
-					<span>Flashcure</span>
+					<span>Na camisa</span>
 
 					<ProgressBar
 						unit="°C"

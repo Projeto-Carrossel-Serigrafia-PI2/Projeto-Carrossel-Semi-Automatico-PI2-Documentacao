@@ -10,7 +10,6 @@ import 'react-html5-camera-photo/build/css/index.css';
 export function ModalPhoto(props: ModalPhotoProps) {
   function handleTakePhoto(dataUri: any) {
     props.setImage!(dataUri);
-    console.log('takePhoto:', dataUri);
   }
 
   function handleCameraStart() {
