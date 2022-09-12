@@ -10,6 +10,7 @@ import productionService from '../services/productionService';
 import StateContext from '../contexts/StateContext';
 
 import '../styles/pages/QualityReport.scss';
+import { notify_error } from '../utils/toastify';
 
 export function QualityReport() {
   const [productions, setProductions] = useState<ProductionProps[]>([]);
@@ -113,6 +114,123 @@ export function QualityReport() {
     }
   }
 
+  function showOneBatch() {
+    try {
+      if (!productionSelected?.image_reference || !batchSelected?.image)
+        throw new Error("Camera Error!");
+
+      return (
+        <>
+          <h2>
+            Lote n°&nbsp;
+            {batchesFiltered.findIndex((batch) => batch.id == batchSelectedId) +
+              1}
+          </h2>
+
+          <QualitySection
+            qualityType='Qualidade do formato'
+            imageReference={productionSelected!.image_reference}
+            imageBatch={batchSelected?.image}
+            reportDescription='A qualidade do formato avalia o contorno da estampa,
+              isto é, se a estampa foi impressa como o esperado, sem falhas. Como
+              resultado, é obtido um valor em porcentagem (0% a 100%), no qual
+              quanto mais próximo do 100%, melhor é a qualidade da estampa.'
+            reportResult={`Qualidade: ${(
+              Number(batchSelected?.similarity_format) * 100
+            ).toFixed(2)}%`}
+          />
+
+          <QualitySection
+            qualityType='Qualidade da cor'
+            imageReference={productionSelected!.image_reference}
+            imageBatch={batchSelected?.image}
+            reportDescription='A qualidade da cor avalia a tonalidade da cor da
+            estampa, isto é, se a estampa foi impressa com a cor esperada. Como
+            resultado, é obtido um valor em porcentagem (0% a 100%), no qual quanto
+            mais próximo do 100%, melhor é a qualidade da estampa.'
+            reportResult={`Qualidade: ${(
+              Number(batchSelected?.similarity_colors) * 100
+            ).toFixed(2)}%`}
+          />
+
+          <QualitySection
+            qualityType='Qualidade da matriz'
+            imageReference={productionSelected!.image_reference}
+            imageBatch={batchSelected?.image_failures}
+            reportDescription='A qualidade da matriz avalia se a estampa possui
+            falhas em sua área, isto é, se possui pontos sem tintas, riscos, etc.
+            Como resultado, é mostrado a imagem com retângulos nas regiões onde
+            foram encontradas possíveis falhas e a sua respectiva quantidade.'
+            reportResult={`Quantidade de falhas: ${Number(
+              batchSelected?.quantity_failures
+            )}`}
+          />
+        </>
+      );
+    } catch (error) {
+      notify_error(
+        'Não foi possível gerar o relatório de qualidade devido a um erro com a câmera.'
+      );
+    }
+  }
+
+  function showAllBatches(batchItem, batchIndex) {
+    try {
+      <>
+        <h2>
+          Lote n°&nbsp;
+          {batchIndex + 1}
+        </h2>
+
+        <QualitySection
+          qualityType='Qualidade do formato'
+          imageReference={productionSelected!.image_reference}
+          imageBatch={batchItem?.image.slice(2, batchItem.image.length - 1)}
+          reportDescription='A qualidade do formato avalia o contorno da estampa,
+              isto é, se a estampa foi impressa como o esperado, sem falhas. Como
+              resultado, é obtido um valor em porcentagem (0% a 100%), no qual
+              quanto mais próximo do 100%, melhor é a qualidade da estampa.'
+          reportResult={`Qualidade: ${(
+            Number(batchItem?.similarity_format) * 100
+          ).toFixed(2)}%`}
+        />
+
+        <QualitySection
+          qualityType='Qualidade da cor'
+          imageReference={productionSelected!.image_reference}
+          imageBatch={batchItem?.image.slice(2, batchItem.image.length - 1)}
+          reportDescription='A qualidade da cor avalia a tonalidade da cor da
+            estampa, isto é, se a estampa foi impressa com a cor esperada. Como
+            resultado, é obtido um valor em porcentagem (0% a 100%), no qual quanto
+            mais próximo do 100%, melhor é a qualidade da estampa.'
+          reportResult={`Qualidade: ${(
+            Number(batchItem?.similarity_colors) * 100
+          ).toFixed(2)}%`}
+        />
+
+        <QualitySection
+          qualityType='Qualidade da matriz'
+          imageReference={productionSelected!.image_reference}
+          imageBatch={batchItem?.image_failures.slice(
+            2,
+            batchItem.image_failures.length - 1
+          )}
+          reportDescription='A qualidade da matriz avalia se a estampa possui
+            falhas em sua área, isto é, se possui pontos sem tintas, riscos, etc.
+            Como resultado, é mostrado a imagem com retângulos nas regiões onde
+            foram encontradas possíveis falhas e a sua respectiva quantidade.'
+          reportResult={`Quantidade de falhas: ${Number(
+            batchItem?.quantity_failures
+          )}`}
+        />
+      </>;
+    } catch (error) {
+      notify_error(
+        'Não foi possível gerar o relatório de qualidade devido a um erro com a câmera.'
+      );
+    }
+  }
+
   useEffect(() => {
     async function getAllProductions() {
       const response = await productionService.productionGetAll();
@@ -137,8 +255,7 @@ export function QualityReport() {
           }),
         });
       }
-      if (state.inSession)
-        data_formatted.pop()
+      if (state.inSession) data_formatted.pop();
       setProductions(data_formatted.reverse());
     }
 
@@ -339,111 +456,12 @@ export function QualityReport() {
           {productionSelected && batchSelectedId ? (
             <main className='main-report'>
               {batchSelectedId != -1 ? (
-                <>
-                  <h2>
-                    Lote n°&nbsp;
-                    {batchesFiltered.findIndex(
-                      (batch) => batch.id == batchSelectedId
-                    ) + 1}
-                  </h2>
-
-                  <QualitySection
-                    qualityType='Qualidade do formato'
-                    imageReference={productionSelected.image_reference}
-                    imageBatch={batchSelected?.image}
-                    reportDescription='A qualidade do formato avalia o contorno da estampa,
-              isto é, se a estampa foi impressa como o esperado, sem falhas. Como
-              resultado, é obtido um valor em porcentagem (0% a 100%), no qual
-              quanto mais próximo do 100%, melhor é a qualidade da estampa.'
-                    reportResult={`Qualidade: ${(
-                      Number(batchSelected?.similarity_format) * 100
-                    ).toFixed(2)}%`}
-                  />
-
-                  <QualitySection
-                    qualityType='Qualidade da cor'
-                    imageReference={productionSelected.image_reference}
-                    imageBatch={batchSelected?.image}
-                    reportDescription='A qualidade da cor avalia a tonalidade da cor da
-            estampa, isto é, se a estampa foi impressa com a cor esperada. Como
-            resultado, é obtido um valor em porcentagem (0% a 100%), no qual quanto
-            mais próximo do 100%, melhor é a qualidade da estampa.'
-                    reportResult={`Qualidade: ${(
-                      Number(batchSelected?.similarity_colors) * 100
-                    ).toFixed(2)}%`}
-                  />
-
-                  <QualitySection
-                    qualityType='Qualidade da matriz'
-                    imageReference={productionSelected.image_reference}
-                    imageBatch={batchSelected?.image_failures}
-                    reportDescription='A qualidade da matriz avalia se a estampa possui
-            falhas em sua área, isto é, se possui pontos sem tintas, riscos, etc.
-            Como resultado, é mostrado a imagem com retângulos nas regiões onde
-            foram encontradas possíveis falhas e a sua respectiva quantidade.'
-                    reportResult={`Quantidade de falhas: ${Number(
-                      batchSelected?.quantity_failures
-                    )}`}
-                  />
-                </>
+                showOneBatch()
               ) : (
                 <>
-                  {batchesFiltered.map((batchItem, batchIndex) => (
-                    <>
-                      <h2>
-                        Lote n°&nbsp;
-                        {batchIndex + 1}
-                      </h2>
-
-                      <QualitySection
-                        qualityType='Qualidade do formato'
-                        imageReference={productionSelected.image_reference}
-                        imageBatch={batchItem?.image.slice(
-                          2,
-                          batchItem.image.length - 1
-                        )}
-                        reportDescription='A qualidade do formato avalia o contorno da estampa,
-              isto é, se a estampa foi impressa como o esperado, sem falhas. Como
-              resultado, é obtido um valor em porcentagem (0% a 100%), no qual
-              quanto mais próximo do 100%, melhor é a qualidade da estampa.'
-                        reportResult={`Qualidade: ${(
-                          Number(batchItem?.similarity_format) * 100
-                        ).toFixed(2)}%`}
-                      />
-
-                      <QualitySection
-                        qualityType='Qualidade da cor'
-                        imageReference={productionSelected.image_reference}
-                        imageBatch={batchItem?.image.slice(
-                          2,
-                          batchItem.image.length - 1
-                        )}
-                        reportDescription='A qualidade da cor avalia a tonalidade da cor da
-            estampa, isto é, se a estampa foi impressa com a cor esperada. Como
-            resultado, é obtido um valor em porcentagem (0% a 100%), no qual quanto
-            mais próximo do 100%, melhor é a qualidade da estampa.'
-                        reportResult={`Qualidade: ${(
-                          Number(batchItem?.similarity_colors) * 100
-                        ).toFixed(2)}%`}
-                      />
-
-                      <QualitySection
-                        qualityType='Qualidade da matriz'
-                        imageReference={productionSelected.image_reference}
-                        imageBatch={batchItem?.image_failures.slice(
-                          2,
-                          batchItem.image_failures.length - 1
-                        )}
-                        reportDescription='A qualidade da matriz avalia se a estampa possui
-            falhas em sua área, isto é, se possui pontos sem tintas, riscos, etc.
-            Como resultado, é mostrado a imagem com retângulos nas regiões onde
-            foram encontradas possíveis falhas e a sua respectiva quantidade.'
-                        reportResult={`Quantidade de falhas: ${Number(
-                          batchItem?.quantity_failures
-                        )}`}
-                      />
-                    </>
-                  ))}
+                  {batchesFiltered.map((batchItem, batchIndex) =>
+                    showAllBatches(batchItem, batchIndex)
+                  )}
                 </>
               )}
             </main>
