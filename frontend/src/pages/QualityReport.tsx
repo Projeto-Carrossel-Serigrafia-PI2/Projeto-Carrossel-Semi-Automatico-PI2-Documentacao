@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useContext } from 'react';
 import Chart from 'react-apexcharts';
 import { PDFExport } from '@progress/kendo-react-pdf';
 
@@ -7,6 +7,7 @@ import { ButtonRequest } from '../components/ButtonRequest';
 import { BatchProps, ProductionProps } from '../utils/types';
 import batchService from '../services/batchService';
 import productionService from '../services/productionService';
+import StateContext from '../contexts/StateContext';
 
 import '../styles/pages/QualityReport.scss';
 
@@ -21,6 +22,8 @@ export function QualityReport() {
   const [batchesFiltered, setBatchesFiltered] = useState<BatchProps[]>([]);
   const [batchesMetrics, setBatchesMetrics] = useState<any>([]);
   const [productionMetrics, setProductionMetrics] = useState<any>([]);
+
+  const { state } = useContext(StateContext);
 
   const pdfExportComponent = useRef(null);
 
@@ -134,6 +137,8 @@ export function QualityReport() {
           }),
         });
       }
+      if (state.inSession)
+        data_formatted.pop()
       setProductions(data_formatted.reverse());
     }
 
