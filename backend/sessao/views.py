@@ -41,7 +41,9 @@ state = {
 	'inSession': False,
 	'waitingNewBatch': False,
 	'isPaused': False,
-	'isRepainting': False
+	'isRepainting': False,
+	'imageReferenceWidth': 0,
+	'imageReferenceHeight': 0
 }
 
 async def flashcureTimer():
@@ -108,13 +110,21 @@ def encoderHandler(channel):
 
 					# Get reference image and convert from base64 to image
 					production = Producao.objects.last()
-					image_data = base64.b64decode(production.image.split(',')[1])
-					image_file = open(path_photo + 'reference_photo/image_reference.jpg', 'wb')
-					image_file.write(image_data)
-					image_file.close()
+
+					if state['batch'] == 0:
+						image_data = base64.b64decode(production.image.split(',')[1])
+						image_file = open(path_photo + 'reference_photo/image_reference.jpg', 'wb')
+						image_file.write(image_data)
+						image_file.close()
+						# Cut shirt print
+						image_reference_width, image_reference_height = cut_shirt_print('image_reference.jpg', 'reference', 0, 0)
+						state['imageReferenceWidth'] = image_reference_width
+						state['imageReferenceHeight'] = image_reference_height
+					else:
+						image_reference_width = state['imageReferenceWidth']
+						image_reference_height = state['imageReferenceHeight']
 
 					# Cut shirt print
-					image_reference_width, image_reference_height = cut_shirt_print('image_reference.jpg', 'reference', 0, 0)
 					_, _ = cut_shirt_print('batch_' + str(state['batch']) + '.jpg', 'to_analyze', image_reference_width, image_reference_height)
 					
 					image_reference_cropped = cv.imread(path_photo + 'reference_photo/image_reference.jpg')

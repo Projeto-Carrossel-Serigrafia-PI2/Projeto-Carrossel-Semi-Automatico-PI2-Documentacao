@@ -53,7 +53,7 @@ export function Production() {
   
   const { state, setParameters, setState } = useContext(StateContext);
   const { setPage } = useContext(PageContext);
-  
+
   const navigate = useNavigate();
 
   const openModalPhoto = async () => {
@@ -117,13 +117,16 @@ export function Production() {
     setColors([...colors, newColor]);
   }
 
+  function handleDeleteLastColor(index: number) {
+    setColors(color => color.filter((_, i) => i !== index));
+  }
+
   async function handleCreateProduction() {
-    if(state.inSession)
+    if (state.inSession)
       notify_error(
         `Uma produção já está em progresso! Pause ou finalize-a antes
          de começar outra.`
       );
-
     else {
       if (quantityTShirts <= 0) {
         notify_warning('Quantidade de camisetas é obrigatório!');
@@ -153,60 +156,71 @@ export function Production() {
         image: imageTaken ? imageTaken : imageUpload,
       };
 
-      productionService.productionCreate(production).then((res) => {
-        productionService.productionStart().then((response) => {
-          if(response.data.error) {
-            notify_error('Não foi possível executar a produção!');
-            console.log(response.data.description)
-          }
+      productionService
+        .productionCreate(production)
+        .then((res) => {
+          productionService
+            .productionStart()
+            .then((response) => {
+              if (response.data.error) {
+                notify_error('Não foi possível executar a produção!');
+                console.log(response.data.description);
+              } else {
+                setParameters({
+                  paints: production.base_producao_create.map((paint) => {
+                    return {
+                      color: paint.cor,
+                      base: paint.base,
+                    };
+                  }),
+                  shirts: production.totalDeCamisetas,
+                  batches: Math.ceil(production.totalDeCamisetas / 4),
+                  speed,
+                });
 
-          else {
-            setParameters({
-              paints: production.base_producao_create.map((paint) => {
-                return {
-                  color: paint.cor,
-                  base: paint.base
-                }
-              }),
-              shirts: production.totalDeCamisetas,
-              batches: Math.ceil(production.totalDeCamisetas/4),
-              speed
-            });
+                clearInterval(window.updateInterval);
+                window.updateInterval = setInterval(() => {
+                  productionService
+                    .productionState()
+                    .then((response) => {
+                      setState(response.data);
+                    })
+                    .catch((error) => {
+                      if (error.code == 'ERR_NETWORK') {
+                        notify_error(
+                          'Conexão com o back-end falhou! Interrompendo atualizações de estado!'
+                        );
 
-            clearInterval(window.updateInterval);
-            window.updateInterval = setInterval(() => {
-              productionService.productionState().then((response) => {
-                setState(response.data);
-              }).catch((error) => {
-                if(error.code == 'ERR_NETWORK') {
-                  notify_error('Conexão com o back-end falhou! Interrompendo atualizações de estado!');
+                        clearInterval(window.updateInterval);
+                      } else
+                        notify_error(
+                          'Falha ao comunicar com o back-end. Código: ' +
+                            error.code
+                        );
+                    });
+                }, 1000);
 
-                  clearInterval(window.updateInterval);
-                }
-                else
-                  notify_error('Falha ao comunicar com o back-end. Código: ' + error.code);
-              });
-            }, 1000);
-
-            localStorage.removeItem('elapsedTime');
-            localStorage.removeItem('before');
-            localStorage.removeItem('isDone');
-            navigate(`/dashboard/`);
-            setPage('dashboard');
-            notify_success('Produção criada e inicializada com sucesso!');
-          }
-        }).catch(errorHandler);
-      }).catch(errorHandler);  
+                localStorage.removeItem('elapsedTime');
+                localStorage.removeItem('before');
+                localStorage.removeItem('isDone');
+                navigate(`/dashboard/`);
+                setPage('dashboard');
+                notify_success('Produção criada e inicializada com sucesso!');
+              }
+            })
+            .catch(errorHandler);
+        })
+        .catch(errorHandler);
     }
   }
 
   function convertFileToBase64(file: File) {
     let reader = new FileReader();
-    reader.readAsDataURL(file)
+    reader.readAsDataURL(file);
 
     reader.onload = (e) => {
-      setImageUpload(e.target?.result!)
-    } 
+      setImageUpload(e.target?.result!);
+    };
   }
 
   function onElementFocused(e) {
@@ -220,9 +234,12 @@ export function Production() {
 
   useEffect(() => {
     async function getAllPaintsType() {
-      paintService.paintGetAll().then((response) => {
-        setPaints(response);
-      }).catch(errorHandler);
+      paintService
+        .paintGetAll()
+        .then((response) => {
+          setPaints(response);
+        })
+        .catch(errorHandler);
     }
 
     async function getLimits() {
@@ -250,28 +267,28 @@ export function Production() {
       />
 
       <main>
-        <section className="input-group">
+        <section className='input-group'>
           <h2>Quantidade de camisetas:</h2>
 
           <div>
             <Input
               style={{ textAlign: 'left' }}
-              placeholder="0"
+              placeholder='0'
               value={quantityTShirts}
               onChange={(e) => setQuantityTShirts(Number(e.target.value))}
             />
             <ButtonEditParam
-              icon={<FiPlus size={18} color="#6A6A6B" />}
+              icon={<FiPlus size={18} color='#6A6A6B' />}
               onClick={handleIncreaseTShirts}
             />
             <ButtonEditParam
-              icon={<FiMinus size={18} color="#6A6A6B" />}
+              icon={<FiMinus size={18} color='#6A6A6B' />}
               onClick={handleDecreaseTShirts}
             />
           </div>
         </section>
 
-        <section className="input-group">
+        <section className='input-group'>
           <h2>Velocidade:</h2>
 
           <div>
@@ -282,35 +299,35 @@ export function Production() {
               onChange={(e) => setSpeed(Math.max(Math.min(Number(e.target.value), speedLimit), 0))}
             />
             <ButtonEditParam
-              icon={<FiPlus size={18} color="#6A6A6B" />}
+              icon={<FiPlus size={18} color='#6A6A6B' />}
               onClick={handleIncreaseSpeed}
             />
             <ButtonEditParam
-              icon={<FiMinus size={18} color="#6A6A6B" />}
+              icon={<FiMinus size={18} color='#6A6A6B' />}
               onClick={handleDecreaseSpeed}
             />
           </div>
         </section>
 
-        <section className="input-group">
+        <section className='input-group'>
           <h2>Foto da estampa para referência:</h2>
 
           <div>
             <ButtonTakePhoto
-              title="Enviar foto"
-              icon={<FiUpload size={18} color="#39393a" />}
-              filename={imageUpload ? "imagem salva!" : ''}
-              mode="upload"
+              title='Enviar foto'
+              icon={<FiUpload size={18} color='#39393a' />}
+              filename={imageUpload ? 'imagem salva!' : ''}
+              mode='upload'
               onChange={(e) => {
                 setImageTaken('');
-                convertFileToBase64(e.target.files![0])
+                convertFileToBase64(e.target.files![0]);
               }}
             />
             <ButtonTakePhoto
-              title="Tirar foto"
-              icon={<FiCamera size={18} color="#39393a" />}
+              title='Tirar foto'
+              icon={<FiCamera size={18} color='#39393a' />}
               filename={imageTaken ? 'imagem salva!' : ''}
-              mode="taken"
+              mode='taken'
               onClick={() => {
                 openModalPhoto();
                 setImageUpload('');
@@ -321,12 +338,12 @@ export function Production() {
 
         <h2>Cores:</h2>
 
-        <section className="colors-section">
+        <section className='colors-section'>
           {colors.map((item, index) => (
-            <div key={item.color} className="colors-card">
+            <div key={item.color} className='colors-card'>
               <h3>#{index + 1}</h3>
 
-              <section className="input-group">
+              <section className='input-group'>
                 <h4>Cor:</h4>
 
                 <div>
@@ -335,7 +352,7 @@ export function Production() {
                       textAlign: 'left',
                       borderBottom: '1px solid #6A6A6B',
                     }}
-                    placeholder="Ex: azul"
+                    placeholder='Ex: azul'
                     value={item.color}
                     onChange={(e) => handleFormChangeColor(e, index)}
                     autoFocus
@@ -345,15 +362,15 @@ export function Production() {
                 </div>
               </section>
 
-              <section className="input-group">
+              <section className='input-group'>
                 <h4>Base de tinta:</h4>
 
                 <select
                   value={paints.find((paint) => paint.id === item.id)?.type}
                   onChange={(e) => handleFormChangeTypeColor(index, e)}
-                  className="dropdown"
+                  className='dropdown'
                 >
-                  <option value="">Selecione</option>
+                  <option value=''>Selecione</option>
                   {paints.map((paint) => (
                     <option key={paint.id} value={paint.type}>
                       {paint.type}
@@ -365,10 +382,19 @@ export function Production() {
           ))}
         </section>
 
-        <div className="buttons-group">
+        <div className='buttons-group'>
+          {colors.length > 1 ? (
+            <div>
+              <ButtonRequest
+                title='Remover última cor'
+                onClick={() => handleDeleteLastColor(colors.length - 1)}
+                style={{ backgroundColor: '#DE5757' }}
+              />
+            </div>
+          ) : null}
           <div>
             <ButtonRequest
-              title="Adicionar nova cor"
+              title='Adicionar nova cor'
               onClick={handleCreateNewColor}
               style={{ backgroundColor: '#4fce88' }}
               disabled={
@@ -380,7 +406,7 @@ export function Production() {
             />
           </div>
           <ButtonRequest
-            title="Iniciar produção"
+            title='Iniciar produção'
             onClick={handleCreateProduction}
           />
         </div>
