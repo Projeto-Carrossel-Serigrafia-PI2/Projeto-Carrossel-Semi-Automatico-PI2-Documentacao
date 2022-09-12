@@ -148,7 +148,12 @@ CONFIG = {
     },
     'FLASHCURE': {
         'LIMITS': [0, 140],
-        'POSITION': 2
+        'POSITION': 2,
+        'CURVES': [
+            [0.1601, -31.934, 1640],
+            [0.1155, -25.57, 1464.5],
+            [0.0724, -16.852,]
+        ]
     },
     'CAMERA': {
         'POSITION': 3
