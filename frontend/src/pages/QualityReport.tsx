@@ -117,7 +117,7 @@ export function QualityReport() {
   function showOneBatch() {
     try {
       if (!productionSelected?.image_reference || !batchSelected?.image)
-        throw new Error("Camera Error!");
+        throw new Error('Camera Error!');
 
       return (
         <>
@@ -362,7 +362,9 @@ export function QualityReport() {
             className='dropdown'
           >
             <option value=''>Selecione o Lote</option>
-            <option value={-1}>Todos</option>
+            {batchesFiltered.length > 0 ? (
+              <option value={-1}>Todos</option>
+            ) : null}
             {productionSelectedId
               ? batchesFiltered?.map((batch, index) => (
                   <option key={batch.id} value={batch.id}>
@@ -378,7 +380,7 @@ export function QualityReport() {
         <ButtonRequest
           title='Baixar relatório'
           onClick={exportPDFWithComponent}
-          disabled={batchSelectedId > 0 || batchSelectedId == -1 ? false : true}
+          disabled={batchSelectedId > 0 && batchSelectedId == -1 ? false : true}
         />
       </div>
 
