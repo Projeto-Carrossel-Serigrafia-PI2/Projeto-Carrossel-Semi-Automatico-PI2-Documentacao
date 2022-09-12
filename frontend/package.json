@@ -8,6 +8,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@progress/kendo-drawing": "^1.17.1",
+    "@progress/kendo-licensing": "^1.2.2",
+    "@progress/kendo-react-pdf": "^5.5.0",
+    "@react-pdf/renderer": "^3.0.0",
     "apexcharts": "^3.35.4",
     "axios": "^0.27.2",
     "react": "^18.0.0",
