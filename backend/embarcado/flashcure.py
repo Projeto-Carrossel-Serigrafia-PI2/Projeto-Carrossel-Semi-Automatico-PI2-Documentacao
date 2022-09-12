@@ -20,7 +20,7 @@ class FlashcureController:
 		self.applyTemperature(0)
 		self.isOn = False
 
-	def __getCurveConstants(dryingTime):
+	def __getCurveConstants(self, dryingTime):
 		if(dryingTime < 7):
 			return CONFIG['FLASHCURE']['CURVES'][0]
 		elif(dryingTime < 13):
