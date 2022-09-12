@@ -314,7 +314,10 @@ class ControleProducaoView(APIView):
 
 class StateView(APIView):
 	def get(self, request):
-		temperatures = getTemperatures()
+		try:
+			temperatures = getTemperatures()
+		except:
+			temperatures = [0, 0]
 
 		return Response({
 			'paint': state['paint'],
