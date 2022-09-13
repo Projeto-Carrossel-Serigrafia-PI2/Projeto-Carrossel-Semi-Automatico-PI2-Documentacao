@@ -60,6 +60,7 @@ async def flashcureTimer():
 
 def pedalHandler(channel):
 	if(state['inSession'] and not motorController.isRotating and not state['waitingNewBatch'] and not state['isPaused']):
+		state['encoderCounter'] = 0
 		motorController.start()
 		print('Pedal pressed & motor started!')
 
