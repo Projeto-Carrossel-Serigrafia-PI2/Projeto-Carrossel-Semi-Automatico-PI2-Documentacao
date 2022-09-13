@@ -21,7 +21,7 @@ import asyncio
 dirname = os.path.dirname(__file__)
 path_photo = os.path.join(dirname, '../assets/')
 
-MOTOR_STEP = CONFIG['ENCODER_HOLES']/4
+MOTOR_STEP = CONFIG['ENCODER_HOLES']/2
 state = {
 	'parameters': {
 		'paints': [],
@@ -64,11 +64,12 @@ def pedalHandler(channel):
 		print('Pedal pressed & motor started!')
 
 def encoderHandler(channel):
-	if(not GPIO.input(channel)):
+	global state
+
+	if(not state['inSession']):
 		return
 	print('ENCODER INCREMENTOU')
 
-	global state
 	state['encoderCounter'] += 1
 
 	if(state['encoderCounter'] >= MOTOR_STEP):
@@ -82,7 +83,17 @@ def encoderHandler(channel):
 			if(state['rotation'] == CONFIG['FLASHCURE']['POSITION']):
 				paints = state['parameters']['paints']
 				currentPaint = paints[state['paint']]['base']
-				flashcureController.setTemperature(currentPaint.tempoSecagem, currentPaint.tempoSecagem)
+				attempts = 3
+				while(attempts > 0):
+					try:
+						flashcureController.setTemperature(currentPaint.tempoSecagem, currentPaint.tempoSecagem)
+						attempts = 0
+					except Exception as e:
+						print(e)
+						attempts -= 1
+						if(attempts == 0):
+							flashcureController.stop()
+
 				print('Changed temperature!')
 
 				state['flashcureUsageStarted'] = True
@@ -92,7 +103,7 @@ def encoderHandler(channel):
 					print('Started counting dried shirts!')
 					state['driedBatchShirts'] = 0
 
-			state['lastPedalTime'] = time.now()
+			state['lastPedalTime'] = time.time()
 
 			if(state['flashcureUsageStarted']):
 				if(not flashcureController.isOn):
@@ -247,7 +258,7 @@ GPIO.setup(CONFIG['PIN']['ENCODER'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(CONFIG['PIN']['PEDAL'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
-GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=10)
+GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.BOTH, callback=encoderHandler, bouncetime=10)
 
 i2cBus = SMBus(1)
 temperatureSensor = MLX90614(i2cBus, address=CONFIG['PIN']['SENSOR'])
@@ -324,7 +335,10 @@ class ControleProducaoView(APIView):
 
 class StateView(APIView):
 	def get(self, request):
-		temperatures = getTemperatures()
+		try:
+			temperatures = getTemperatures()
+		except:
+			temperatures = [0, 0]
 
 		return Response({
 			'paint': state['paint'],

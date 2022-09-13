@@ -20,7 +20,7 @@ class FlashcureController:
 		self.applyTemperature(0)
 		self.isOn = False
 
-	def __getCurveConstants(dryingTime):
+	def __getCurveConstants(self, dryingTime):
 		if(dryingTime < 7):
 			return CONFIG['FLASHCURE']['CURVES'][0]
 		elif(dryingTime < 13):
@@ -52,6 +52,9 @@ class FlashcureController:
 
 			receivedByte = self.uart.read()
 			receivedInt = int.from_bytes(receivedByte, 'little')
+
+			print('Luminosidade: ', luminosity)
+			print('Recebido: ', receivedInt)
 
 			if(receivedInt != luminosity):
 				raise Exception('Number received is not the same as the luminosity sent!')
