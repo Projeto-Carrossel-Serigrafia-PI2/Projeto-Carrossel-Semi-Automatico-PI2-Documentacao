@@ -53,6 +53,9 @@ class FlashcureController:
 			receivedByte = self.uart.read()
 			receivedInt = int.from_bytes(receivedByte, 'little')
 
+			print('Luminosidade: ', luminosity)
+			print('Recebido: ', receivedInt)
+
 			if(receivedInt != luminosity):
 				raise Exception('Number received is not the same as the luminosity sent!')
 

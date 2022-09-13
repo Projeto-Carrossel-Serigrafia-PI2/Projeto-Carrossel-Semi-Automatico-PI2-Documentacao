@@ -83,7 +83,17 @@ def encoderHandler(channel):
 			if(state['rotation'] == CONFIG['FLASHCURE']['POSITION']):
 				paints = state['parameters']['paints']
 				currentPaint = paints[state['paint']]['base']
-				flashcureController.setTemperature(currentPaint.tempoSecagem, currentPaint.tempoSecagem)
+				attempts = 3
+				while(attempts > 0):
+					try:
+						flashcureController.setTemperature(currentPaint.tempoSecagem, currentPaint.tempoSecagem)
+						attempts = 0
+					except Exception as e:
+						print(e)
+						attempts -= 1
+						if(attempts == 0):
+							flashcureController.stop()
+
 				print('Changed temperature!')
 
 				state['flashcureUsageStarted'] = True

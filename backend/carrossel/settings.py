@@ -144,7 +144,7 @@ CONFIG = {
     },
     'MOTOR': {
         'FREQUENCY': 1000,
-        'SPEEDS': [12, 23, 35]
+        'SPEEDS': [100, 100, 100]
     },
     'FLASHCURE': {
         'LIMITS': [0, 140],
