@@ -61,9 +61,14 @@ export function QualityReport() {
   };
 
   async function handleChooseProduction(e) {
+    setProductionSelected(undefined);
+    setBatchSelected(undefined);
+    setBatchSelectedId(0);
     setProductionSelectedId(e.target.value);
+
     const production = await productionService.productionGetOne(e.target.value);
     production.image = production.image.slice(2, production.image.length - 1);
+
     setProductionSelected({
       id: production.id,
       created_at: new Date(production.create_date).toLocaleDateString('pt-BR'),
@@ -79,8 +84,6 @@ export function QualityReport() {
         };
       }),
     });
-
-    setBatchSelectedId(0);
   }
 
   async function handleChooseBatch(e) {
@@ -88,16 +91,18 @@ export function QualityReport() {
     const batch = await batchService.batchGetOne(e.target.value);
 
     if (batch) {
-      let image_string: string = batch.image;
-      image_string = image_string.slice(2, batch.image.length - 1);
-      batch.image = image_string;
+      if (batch?.image && batch?.imageFalhas) {
+        let image_string: string = batch.image;
+        image_string = image_string.slice(2, batch.image.length - 1);
+        batch.image = image_string;
 
-      let image_failures_string: string = batch.imageFalhas;
-      image_failures_string = image_failures_string.slice(
-        2,
-        batch.imageFalhas.length - 1
-      );
-      batch.imageFalhas = image_failures_string;
+        let image_failures_string: string = batch.imageFalhas;
+        image_failures_string = image_failures_string.slice(
+          2,
+          batch.imageFalhas.length - 1
+        );
+        batch.imageFalhas = image_failures_string;
+      }
 
       let batch_formatted = {
         id: batch.id,
@@ -116,8 +121,14 @@ export function QualityReport() {
 
   function showOneBatch() {
     try {
-      if (!productionSelected?.image_reference || !batchSelected?.image)
+      if (!productionSelected?.image_reference || !batchSelected?.image) {
+        setProductionSelected(undefined);
+        setBatchSelected(undefined);
+        setProductionSelectedId(0);
+        setBatchSelectedId(0);
+
         throw new Error('Camera Error!');
+      }
 
       return (
         <>
@@ -169,64 +180,72 @@ export function QualityReport() {
       );
     } catch (error) {
       notify_error(
-        'Não foi possível gerar o relatório de qualidade devido a um erro com a câmera.'
+        '1 batch: Não foi possível gerar o relatório de qualidade devido a um erro com a câmera.'
       );
+      console.log(error);
     }
   }
 
   function showAllBatches(batchItem, batchIndex) {
     try {
-      <>
-        <h2>
-          Lote n°&nbsp;
-          {batchIndex + 1}
-        </h2>
+      return (
+        <>
+          <h2>
+            Lote n°&nbsp;
+            {batchIndex + 1}
+          </h2>
 
-        <QualitySection
-          qualityType='Qualidade do formato'
-          imageReference={productionSelected!.image_reference}
-          imageBatch={batchItem?.image.slice(2, batchItem.image.length - 1)}
-          reportDescription='A qualidade do formato avalia o contorno da estampa,
+          <QualitySection
+            qualityType='Qualidade do formato'
+            imageReference={productionSelected!.image_reference}
+            imageBatch={batchItem?.image.slice(2, batchItem.image.length - 1)}
+            reportDescription='A qualidade do formato avalia o contorno da estampa,
               isto é, se a estampa foi impressa como o esperado, sem falhas. Como
               resultado, é obtido um valor em porcentagem (0% a 100%), no qual
               quanto mais próximo do 100%, melhor é a qualidade da estampa.'
-          reportResult={`Qualidade: ${(
-            Number(batchItem?.similarity_format) * 100
-          ).toFixed(2)}%`}
-        />
+            reportResult={`Qualidade: ${(
+              Number(batchItem?.similarity_format) * 100
+            ).toFixed(2)}%`}
+          />
 
-        <QualitySection
-          qualityType='Qualidade da cor'
-          imageReference={productionSelected!.image_reference}
-          imageBatch={batchItem?.image.slice(2, batchItem.image.length - 1)}
-          reportDescription='A qualidade da cor avalia a tonalidade da cor da
+          <QualitySection
+            qualityType='Qualidade da cor'
+            imageReference={productionSelected!.image_reference}
+            imageBatch={batchItem?.image.slice(2, batchItem.image.length - 1)}
+            reportDescription='A qualidade da cor avalia a tonalidade da cor da
             estampa, isto é, se a estampa foi impressa com a cor esperada. Como
             resultado, é obtido um valor em porcentagem (0% a 100%), no qual quanto
             mais próximo do 100%, melhor é a qualidade da estampa.'
-          reportResult={`Qualidade: ${(
-            Number(batchItem?.similarity_colors) * 100
-          ).toFixed(2)}%`}
-        />
+            reportResult={`Qualidade: ${(
+              Number(batchItem?.similarity_colors) * 100
+            ).toFixed(2)}%`}
+          />
 
-        <QualitySection
-          qualityType='Qualidade da matriz'
-          imageReference={productionSelected!.image_reference}
-          imageBatch={batchItem?.image_failures.slice(
-            2,
-            batchItem.image_failures.length - 1
-          )}
-          reportDescription='A qualidade da matriz avalia se a estampa possui
+          <QualitySection
+            qualityType='Qualidade da matriz'
+            imageReference={productionSelected!.image_reference}
+            imageBatch={batchItem?.image_failures.slice(
+              2,
+              batchItem.image_failures.length - 1
+            )}
+            reportDescription='A qualidade da matriz avalia se a estampa possui
             falhas em sua área, isto é, se possui pontos sem tintas, riscos, etc.
             Como resultado, é mostrado a imagem com retângulos nas regiões onde
             foram encontradas possíveis falhas e a sua respectiva quantidade.'
-          reportResult={`Quantidade de falhas: ${Number(
-            batchItem?.quantity_failures
-          )}`}
-        />
-      </>;
+            reportResult={`Quantidade de falhas: ${Number(
+              batchItem?.quantity_failures
+            )}`}
+          />
+        </>
+      );
     } catch (error) {
+      setProductionSelected(undefined);
+      setBatchSelected(undefined);
+      setProductionSelectedId(0);
+      setBatchSelectedId(0);
+
       notify_error(
-        'Não foi possível gerar o relatório de qualidade devido a um erro com a câmera.'
+        'Todos batches: Não foi possível gerar o relatório de qualidade devido a um erro com a câmera.'
       );
     }
   }
@@ -380,7 +399,7 @@ export function QualityReport() {
         <ButtonRequest
           title='Baixar relatório'
           onClick={exportPDFWithComponent}
-          disabled={batchSelectedId > 0 && batchSelectedId == -1 ? false : true}
+          disabled={batchSelectedId > 0 || batchSelectedId == -1 ? false : true}
         />
       </div>
 
@@ -455,19 +474,19 @@ export function QualityReport() {
             </div>
           ) : null}
 
-          {productionSelected && batchSelectedId ? (
+          {productionSelected && batchSelectedId == -1 ? (
             <main className='main-report'>
-              {batchSelectedId != -1 ? (
-                showOneBatch()
-              ) : (
-                <>
-                  {batchesFiltered.map((batchItem, batchIndex) =>
-                    showAllBatches(batchItem, batchIndex)
-                  )}
-                </>
-              )}
+              <>
+                {batchSelectedId == -1
+                  ? batchesFiltered.map((batchItem, batchIndex) =>
+                      showAllBatches(batchItem, batchIndex)
+                    )
+                  : null}
+              </>
             </main>
           ) : null}
+
+          {productionSelected && batchSelected ? showOneBatch() : null}
         </PDFExport>
       </div>
     </div>
