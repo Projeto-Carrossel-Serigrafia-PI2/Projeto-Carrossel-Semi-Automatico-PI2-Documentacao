@@ -4,31 +4,24 @@ from sessao.quality_analysis import *
 import cv2 as cv
 import base64
 import os
+import time
 
-# from carrossel.settings import CONFIG
+from carrossel.settings import CONFIG
 
 from sessao.models import Producao, BaseProducao, Lote
+from embarcado.motor import MotorController
+from embarcado.flashcure import FlashcureController
+
+import RPi.GPIO as GPIO
+from smbus2 import SMBus
+from mlx90614 import MLX90614
 
 import asyncio
-import keyboard # For debugging
 
 dirname = os.path.dirname(__file__)
 path_photo = os.path.join(dirname, '../assets/')
 
-CONFIG = {
-	'FLASHCURE': {
-		'POSITION': 2
-	},
-	'CAMERA': {
-		'POSITION': 3
-	},
-	'ENCODER_HOLES': 4,
-}
-
-MOTOR_STEP = CONFIG['ENCODER_HOLES']/4
-
-# motorController = MotorController.instance(0)
-# flashcureController = FlashcureController.instance(0)
+MOTOR_STEP = CONFIG['ENCODER_HOLES']/2
 state = {
 	'parameters': {
 		'paints': [],
@@ -43,36 +36,44 @@ state = {
 	'temperature': 100,
 	'encoderCounter': 0,
 	'lastRotation': -1,
+	'lastPedalTime': 0,
+	'flashcureUsageStarted': False,
 	'inSession': False,
-	'motorInUse': False,
 	'waitingNewBatch': False,
 	'isPaused': False,
-	'isRepainting': False
+	'isRepainting': False,
+	'imageReferenceWidth': 0,
+	'imageReferenceHeight': 0
 }
 
-async def dryShirt():
+async def flashcureTimer():
 	paints = state['parameters']['paints']
 	currentPaint = paints[state['paint']]['base']
+	errorMargin = 0.1
 
-	# flashcureController.start()
-	print('Flashcure is on!')
 	await asyncio.sleep(currentPaint.tempoSecagem)
-	# flashcureController.stop()
-	print('Flashcure is off!')
+	now = time.time() - errorMargin
+
+	if(not state['flashcureUsageStarted'] or state['lastPedalTime'] < now):
+		flashcureController.stop()
+		print('Flashcure is off!')
 
 def pedalHandler(channel):
-	# if(state['inSession'] and not motorController.isRotating):
-	if(state['inSession'] and not state['motorInUse'] and not state['waitingNewBatch'] and not state['isPaused']):
-		# flashcureController.stop()
-		# motorController.start()
+	if(state['inSession'] and not motorController.isRotating and not state['waitingNewBatch'] and not state['isPaused']):
+		motorController.start()
 		print('Pedal pressed & motor started!')
-		state['motorInUse'] = True
 
 def encoderHandler(channel):
+	global state
+
+	if(not state['inSession']):
+		return
+	print('ENCODER INCREMENTOU')
+
 	state['encoderCounter'] += 1
 
 	if(state['encoderCounter'] >= MOTOR_STEP):
-		# motorController.stop()
+		motorController.stop()
 		print('Motor stopped!')
 
 		state['rotation'] += 1
@@ -82,17 +83,32 @@ def encoderHandler(channel):
 			if(state['rotation'] == CONFIG['FLASHCURE']['POSITION']):
 				paints = state['parameters']['paints']
 				currentPaint = paints[state['paint']]['base']
-				# flashcureController.setTemperature(currentPaint.temperaturaSecagem)
+				attempts = 3
+				while(attempts > 0):
+					try:
+						flashcureController.setTemperature(currentPaint.tempoSecagem, currentPaint.tempoSecagem)
+						attempts = 0
+					except Exception as e:
+						print(e)
+						attempts -= 1
+						if(attempts == 0):
+							flashcureController.stop()
+
 				print('Changed temperature!')
+
+				state['flashcureUsageStarted'] = True
 
 				# Starting counting dried shirts when we start drying the last color of the batch
 				if(state['driedBatchShirts'] == -1 and state['paint'] + 1 >= len(state['parameters']['paints'])):
 					print('Started counting dried shirts!')
 					state['driedBatchShirts'] = 0
 
-			# If a shirt with the newest color has arrived at the flashcure position
-			if(state['paint'] > 0 or state['rotation'] >= CONFIG['FLASHCURE']['POSITION']):
-				asyncio.run(dryShirt())
+			state['lastPedalTime'] = time.time()
+
+			if(state['flashcureUsageStarted']):
+				if(not flashcureController.isOn):
+					flashcureController.applyTemperature()
+				asyncio.run(flashcureTimer())
 
 			if(state['driedBatchShirts'] != -1):
 				state['driedBatchShirts'] += 1
@@ -104,13 +120,21 @@ def encoderHandler(channel):
 
 					# Get reference image and convert from base64 to image
 					production = Producao.objects.last()
-					image_data = base64.b64decode(production.image.split(',')[1])
-					image_file = open(path_photo + 'reference_photo/image_reference.jpg', 'wb')
-					image_file.write(image_data)
-					image_file.close()
+
+					if state['batch'] == 0:
+						image_data = base64.b64decode(production.image.split(',')[1])
+						image_file = open(path_photo + 'reference_photo/image_reference.jpg', 'wb')
+						image_file.write(image_data)
+						image_file.close()
+						# Cut shirt print
+						image_reference_width, image_reference_height = cut_shirt_print('image_reference.jpg', 'reference', 0, 0)
+						state['imageReferenceWidth'] = image_reference_width
+						state['imageReferenceHeight'] = image_reference_height
+					else:
+						image_reference_width = state['imageReferenceWidth']
+						image_reference_height = state['imageReferenceHeight']
 
 					# Cut shirt print
-					image_reference_width, image_reference_height = cut_shirt_print('image_reference.jpg', 'reference', 0, 0)
 					_, _ = cut_shirt_print('batch_' + str(state['batch']) + '.jpg', 'to_analyze', image_reference_width, image_reference_height)
 					
 					image_reference_cropped = cv.imread(path_photo + 'reference_photo/image_reference.jpg')
@@ -151,6 +175,7 @@ def encoderHandler(channel):
 						print('Production finished!')
 					else:
 						state['waitingNewBatch'] = True
+						state['flashcureUsageStarted'] = False
 
 			# If we completed a full rotation
 			if(state['rotation'] > 3):
@@ -164,12 +189,6 @@ def encoderHandler(channel):
 				state['rotation'] = 0
 
 		state['encoderCounter'] = 0
-		state['motorInUse'] = False
-
-#	GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
-#	GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.RISING, callback=encoderHandler, bouncetime=25)
-keyboard.add_hotkey('page down', pedalHandler, args=(3,))
-keyboard.add_hotkey('page up', encoderHandler, args=(7,))
 
 def resetState():
 	state['paint'] = 0
@@ -178,11 +197,12 @@ def resetState():
 	state['encoderCounter'] = 0
 	state['rotation'] = 0
 	state['lastRotation'] = -1
+	state['lastPedalTime'] = 0
 	state['waitingNewBatch'] = False
-	state['motorInUse'] = False
 	state['inSession'] = False
 	state['isPaused'] = False
 	state['isRepainting'] = False
+	state['flashcureUsageStarted'] = False
 
 def setupProduction():
 	production = Producao.objects.last()
@@ -201,8 +221,7 @@ def setupProduction():
 def startProduction():
 	paints = state['parameters']['paints']
 	currentPaint = paints[state['paint']]['base']
-	# motorController.setSpeed(state['parameters']['speed'])
-	# flashcureController.setTemperature(currentPaint.temperaturaSecagem)
+	motorController.setSpeed(state['parameters']['speed'])
 
 def startNextBatch():
 	state['batch'] += 1
@@ -218,7 +237,7 @@ def startNextBatch():
 	state['waitingNewBatch'] = False
 
 def getTemperatures():
-	return [112, 30]
+	return [temperatureSensor.get_obj_temp(), temperatureSensor.get_amb_temp()]
 
 def toggleRepainting():
 	if(state['isRepainting']):
@@ -227,6 +246,25 @@ def toggleRepainting():
 	else:
 		state['isRepainting'] = True
 		state['lastRotation'] = state['rotation']
+
+GPIO.setmode(GPIO.BCM)
+
+try:
+	GPIO.cleanup()
+except Exception as e:
+	print(e)
+
+GPIO.setup(CONFIG['PIN']['ENCODER'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(CONFIG['PIN']['PEDAL'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+GPIO.add_event_detect(CONFIG['PIN']['PEDAL'], GPIO.FALLING, callback=pedalHandler, bouncetime=50)
+GPIO.add_event_detect(CONFIG['PIN']['ENCODER'], GPIO.BOTH, callback=encoderHandler, bouncetime=10)
+
+i2cBus = SMBus(1)
+temperatureSensor = MLX90614(i2cBus, address=CONFIG['PIN']['SENSOR'])
+
+motorController = MotorController(0)
+flashcureController = FlashcureController()
 
 class ControleProducaoView(APIView):
 	def post(self, request):
@@ -297,7 +335,10 @@ class ControleProducaoView(APIView):
 
 class StateView(APIView):
 	def get(self, request):
-		temperatures = getTemperatures()
+		try:
+			temperatures = getTemperatures()
+		except:
+			temperatures = [0, 0]
 
 		return Response({
 			'paint': state['paint'],
@@ -306,4 +347,28 @@ class StateView(APIView):
 			'temperatures': temperatures,
 			'inSession': state['inSession'],
 			'isPaused': state['isPaused']
+		})
+
+class TurnSystemOnView(APIView):
+	def post(self, request):
+		# do stuff
+		return Response({
+			'error': False,
+			'status': 200
+		})
+		
+class TurnSystemOffView(APIView):
+	def post(self, request):
+		# do stuff
+		return Response({
+			'error': False,
+			'status': 200
+		})
+
+class LimitsView(APIView):
+	def get(self, request):
+		return Response({
+			'temperature': CONFIG['FLASHCURE']['LIMITS'],
+			'speed': len(CONFIG['MOTOR']['SPEEDS']),
+			'drying': CONFIG['DRYING_TIME_LIMIT']
 		})

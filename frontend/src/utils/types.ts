@@ -12,6 +12,7 @@ export interface OptionProps {
 export interface ModalProps {
   isModalOpen: boolean;
   closeModal(): void;
+  limits: object;
   paint?: PaintProps;
   mode?: 'editar' | 'criar';
   setSessionActive?: (value: string) => void;
@@ -61,6 +62,8 @@ export interface PaintProps {
   dryingTime: number;
   reload?: boolean;
   setReload?: (value: boolean) => void;
+  openModalPaint?: (mode: string, paint: object) => void;
+  openModalConfirm?: (paint: object) => void;
 }
 
 export interface ColorProps {

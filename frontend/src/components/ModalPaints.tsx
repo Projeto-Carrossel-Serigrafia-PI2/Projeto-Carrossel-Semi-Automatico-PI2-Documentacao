@@ -6,7 +6,10 @@ import { Input } from './Input';
 import { ButtonEditParam } from './ButtonEditParam';
 import { ButtonRequest } from './ButtonRequest';
 import { ModalProps } from '../utils/types';
+import Keyboard from './Keyboard';
+
 import paintService from '../services/paintService';
+
 import { notify_success, notify_update, notify_error } from '../utils/toastify';
 
 import '../styles/components/ModalPaints.scss';
@@ -17,21 +20,23 @@ export function ModalPaints(props: ModalProps) {
     props.paint!.dryingTemperature
   );
   const [dryingTime, setDryingTime] = useState(props.paint!.dryingTime);
+  const [isVirtualKeyboardActive, setIsVirtualKeyboardActive] = useState(false);
+  const [focusedElement, setFocusedElement] = useState(null);
 
   const handleIncreaseTemperature = () => {
-    setDryingTemperature(dryingTemperature + 5);
+    setDryingTemperature(Math.min(dryingTemperature + 5, props.temperatureLimits[1]));
   };
 
   const handleDecreaseTemperature = () => {
-    setDryingTemperature(dryingTemperature - 5);
+    setDryingTemperature(Math.max(dryingTemperature - 5, 0));
   };
 
   const handleIncreaseTime = () => {
-    setDryingTime(dryingTime + 1);
+    setDryingTime(Math.min(dryingTime + 1, props.dryingTimeLimit));
   };
 
   const handleDecreaseTime = () => {
-    setDryingTime(dryingTime - 1);
+    setDryingTime(Math.max(dryingTime - 1, 0));
   };
 
   const handleNewPaint = async () => {
@@ -67,6 +72,17 @@ export function ModalPaints(props: ModalProps) {
     }
   };
 
+  function onElementFocused(e) {
+    if(e.target.attributes.requestskeyboard)
+      setFocusedElement(e.target);
+    else
+      setFocusedElement(null);
+  }
+
+  function onChange(e) {
+    setTypePaint(e.target.value)
+  }
+
   useEffect(() => {
     if (props.mode === 'criar') {
       setDryingTemperature(0);
@@ -75,93 +91,112 @@ export function ModalPaints(props: ModalProps) {
     }
   }, [props.isModalOpen]);
 
+  useEffect(() => {
+    setTypePaint(props.paint!.type);
+    setDryingTemperature(props.paint!.dryingTemperature);
+    setDryingTime(props.paint!.dryingTime);
+  }, [props.paint]);
+
+  useEffect(() => {
+    if(window.innerWidth <= 1024)
+      setIsVirtualKeyboardActive(true);
+  }, []);
+
   return (
-    <Modal
-      isOpen={props.isModalOpen}
-      onRequestClose={props.closeModal}
-      ariaHideApp={false}
-      style={{
-        overlay: {
-          backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        },
-        content: {
-          top: '50%',
-          left: '50%',
-          right: 'auto',
-          bottom: 'auto',
-          marginRight: '-50%',
-          transform: 'translate(-50%, -50%)',
-          background: '#D9D9D9',
-          overflow: 'auto',
-          WebkitOverflowScrolling: 'touch',
-          borderRadius: '1rem',
-          outline: 'none',
-        },
-      }}
-    >
-      <div id="modal-session">
-        <h3>{props.mode === 'criar' ? 'Criar' : 'Editar'} base de tinta</h3>
+    <>
+      <Modal
+        isOpen={props.isModalOpen}
+        onRequestClose={props.closeModal}
+        ariaHideApp={false}
+        style={{
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          },
+          content: {
+            top: isVirtualKeyboardActive ? '5%' : '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: isVirtualKeyboardActive ? 'translate(-50%, 0%)' : 'translate(-50%, -50%)',
+            background: '#D9D9D9',
+            overflow: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            borderRadius: '1rem',
+            outline: 'none',
+          },
+        }}
+      >
+        <div id="modal-session" onFocus={onElementFocused}>
+          <h3>{props.mode === 'criar' ? 'Criar' : 'Editar'} base de tinta</h3>
 
-        <div className="param-box">
-          <h4>Base da tinta:</h4>
+          <div className="param-box">
+            <h4>Base da tinta:</h4>
 
-          <div>
-            <Input
-              placeholder="Ex: plastisol"
-              style={{ textAlign: 'start' }}
-              value={typePaint}
-              onChange={(e) => setTypePaint(e.target.value)}
+            <div>
+              <Input
+                placeholder="Ex: plastisol"
+                style={{ textAlign: 'start' }}
+                value={typePaint}
+                onChange={onChange}
+                requestskeyboard="true"
+              />
+            </div>
+          </div>
+
+          <div className="param-box">
+            <h4>Temperatura de secagem (°C):</h4>
+
+            <div>
+              <Input
+                placeholder="0 °C"
+                value={dryingTemperature}
+                onChange={(e) => setDryingTemperature(Math.max(Math.min(Number(e.target.value), props.temperatureLimits[1]), 0))}
+              />
+              <ButtonEditParam
+                icon={<FiPlus size={18} color="#6A6A6B" />}
+                onClick={handleIncreaseTemperature}
+              />
+              <ButtonEditParam
+                icon={<FiMinus size={18} color="#6A6A6B" />}
+                onClick={handleDecreaseTemperature}
+              />
+            </div>
+          </div>
+
+          <div className="param-box">
+            <h4>Tempo de secagem (segundos):</h4>
+
+            <div>
+              <Input
+                placeholder="0 s"
+                value={dryingTime}
+                onChange={(e) => setDryingTime(Math.max(Math.min(Number(e.target.value), props.dryingTimeLimit), 0))}
+              />
+              <ButtonEditParam
+                icon={<FiPlus size={18} color="#6A6A6B" />}
+                onClick={handleIncreaseTime}
+              />
+              <ButtonEditParam
+                icon={<FiMinus size={18} color="#6A6A6B" />}
+                onClick={handleDecreaseTime}
+              />
+            </div>
+          </div>
+
+          <div className='button-box'>
+            <ButtonRequest
+              title="Salvar"
+              onClick={props.mode === 'criar' ? handleNewPaint : handleUpdatePaint}
             />
           </div>
         </div>
+      </Modal>
 
-        <div className="param-box">
-          <h4>Temperatura de secagem (°C):</h4>
-
-          <div>
-            <Input
-              placeholder="0 °C"
-              value={dryingTemperature}
-              onChange={(e) => setDryingTemperature(Number(e.target.value))}
-            />
-            <ButtonEditParam
-              icon={<FiPlus size={18} color="#6A6A6B" />}
-              onClick={handleIncreaseTemperature}
-            />
-            <ButtonEditParam
-              icon={<FiMinus size={18} color="#6A6A6B" />}
-              onClick={handleDecreaseTemperature}
-            />
-          </div>
-        </div>
-
-        <div className="param-box">
-          <h4>Tempo de secagem (segundos):</h4>
-
-          <div>
-            <Input
-              placeholder="0 s"
-              value={dryingTime}
-              onChange={(e) => setDryingTime(Number(e.target.value))}
-            />
-            <ButtonEditParam
-              icon={<FiPlus size={18} color="#6A6A6B" />}
-              onClick={handleIncreaseTime}
-            />
-            <ButtonEditParam
-              icon={<FiMinus size={18} color="#6A6A6B" />}
-              onClick={handleDecreaseTime}
-            />
-          </div>
-        </div>
-
-        <div className='button-box'>
-          <ButtonRequest
-            title="Salvar"
-            onClick={props.mode === 'criar' ? handleNewPaint : handleUpdatePaint}
-          />
-        </div>
-      </div>
-    </Modal>
+      { props.isModalOpen && isVirtualKeyboardActive ?
+        <Keyboard focusedElement={focusedElement} additionalArguments={[]} sendKeyboardEvent={onChange} disableAux={true} />
+        : null
+      }
+    </>
   );
 }

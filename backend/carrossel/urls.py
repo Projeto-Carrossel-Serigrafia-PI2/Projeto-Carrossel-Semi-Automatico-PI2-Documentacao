@@ -14,11 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path , include 
+from django.urls import path , include
 
 from rest_framework import routers
 from sessao.api import viewset as SessaoViewSets
-from sessao.views import ControleProducaoView, StateView
+from sessao.views import ControleProducaoView, StateView,\
+    TurnSystemOnView, TurnSystemOffView, LimitsView
 
 route = routers.DefaultRouter()
 
@@ -31,5 +32,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('controleProducao/', ControleProducaoView.as_view()),
     path('estado/', StateView.as_view()),
+    path('limites/', LimitsView.as_view()),
+    path('system/on', TurnSystemOnView.as_view()),
+    path('system/off', TurnSystemOffView.as_view()),
     path('', include(route.urls))
 ]

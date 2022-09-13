@@ -3,7 +3,11 @@ import { useState, useEffect } from 'react';
 import { PaintCard } from '../components/PaintCard';
 import { ButtonRequest } from '../components/ButtonRequest';
 import { ModalPaints } from '../components/ModalPaints';
+import { ModalConfirm } from '../components/ModalConfirm';
+
 import paintService from '../services/paintService';
+import limitsService from '../services/limitsService';
+
 import { PaintProps } from '../utils/types';
 
 import '../styles/pages/Paints.scss';
@@ -13,15 +17,35 @@ export function Paints() {
   const [typePaint, setTypePaint] = useState('');
   const [dryingTemperature, setDryingTemperature] = useState(0);
   const [dryingTime, setDryingTime] = useState(0);
-  const [isModalPaintsOpen, setIsModalPaintsOpen] = useState(false);
   const [reload, setReload] = useState(false);
 
-  const openModalPaints = () => {
+  const [isModalPaintsOpen, setIsModalPaintsOpen] = useState(false);
+  const [isModalConfirmOpen, setIsModalConfirmOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('criar');
+  const [selectedPaint, setSelectedPaint] = useState({});
+
+  const [dryingTimeLimit, setDryingTimeLimit] = useState(0);
+  const [temperatureLimits, setTemperatureLimits] = useState([0, 0]);
+
+  const openModalPaints = (mode = 'criar', paint = { type: typePaint, dryingTemperature, dryingTime }) => {
+    setModalMode(mode);
+    setSelectedPaint(paint);
+
     setIsModalPaintsOpen(true);
   };
 
   const closeModalPaints = () => {
     setIsModalPaintsOpen(false);
+  };
+
+  const openModalConfirm = (paint) => {
+    setSelectedPaint(paint);
+
+    setIsModalConfirmOpen(true);
+  };
+
+  const closeModalConfirm = () => {
+    setIsModalConfirmOpen(false);
   };
 
   useEffect(() => {
@@ -31,7 +55,15 @@ export function Paints() {
       setPaints(response);
     }
 
+    async function getLimits() {
+      limitsService.getLimits().then((response) => {
+        setTemperatureLimits(response.data.temperature);
+        setDryingTimeLimit(response.data.drying);
+      });
+    }
+
     getAllPaintsType();
+    getLimits();
   }, [isModalPaintsOpen, reload]);
 
   return (
@@ -40,8 +72,17 @@ export function Paints() {
         isModalOpen={isModalPaintsOpen}
         setIsModalOpen={setIsModalPaintsOpen}
         closeModal={closeModalPaints}
-        paint={{ type: typePaint, dryingTemperature, dryingTime }}
-        mode="criar"
+        paint={selectedPaint}
+        mode={modalMode}
+        dryingTimeLimit={dryingTimeLimit}
+        temperatureLimits={temperatureLimits}
+      />
+
+      <ModalConfirm
+        isModalOpen={isModalConfirmOpen}
+        setIsModalOpen={setIsModalConfirmOpen}
+        closeModal={closeModalConfirm}
+        paint={selectedPaint}
       />
 
       <header>
@@ -51,7 +92,7 @@ export function Paints() {
           <ButtonRequest
             title="Nova base de tinta"
             color="#4fce88"
-            onClick={openModalPaints}
+            onClick={() => openModalPaints()}
           />
         </div>
       </header>
@@ -65,6 +106,8 @@ export function Paints() {
             dryingTemperature={paint.dryingTemperature}
             dryingTime={paint.dryingTime}
             setReload={setReload}
+            openModalPaints={openModalPaints}
+            openModalConfirm={openModalConfirm}
           />
         ))
       ) : (

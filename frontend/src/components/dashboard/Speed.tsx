@@ -1,15 +1,22 @@
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 
 import ProgressBar from './ProgressBar';
 
 import StateContext from '../../contexts/StateContext';
 
+import limitsService from '../../services/limitsService';
+
 import '../../styles/components/dashboard/Speed.scss';
 
 export default function Speed() {
-	const { parameters } = useContext(StateContext); // Needs to have chosen speed
+	const { parameters } = useContext(StateContext);
+	const [ speedLimit, setSpeedLimit ] = useState(3);
 
-	const speeds = [0, 3];
+	useEffect(() => {
+		limitsService.getLimits().then((response) => {
+			setSpeedLimit(response.data.speed);
+		});
+	}, []);
 
 	return (
 		<div className="speed">
@@ -21,7 +28,7 @@ export default function Speed() {
 
 					<ProgressBar
 						unit=""
-						limits={speeds}
+						limits={[0, speedLimit]}
 						current={parameters.speed}
 						width="80%"
 						height="1.85em"
