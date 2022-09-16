@@ -37,9 +37,9 @@ def cut_shirt_print(image_filename, image_type, r_width, r_height):
   image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
   # Threshold to get just the signature (INVERTED)
-  retval, thresh_gray = cv.threshold(image_gray, thresh=100, maxval=255, \
-                                     type=cv.THRESH_BINARY_INV)
-  contours, hierarchy = cv.findContours(thresh_gray,cv.RETR_LIST, \
+  _, thresh_gray = cv.threshold(image_gray, thresh=127, maxval=255, \
+                                     type=cv.THRESH_BINARY)
+  contours, _ = cv.findContours(thresh_gray,cv.RETR_LIST, \
                                         cv.CHAIN_APPROX_SIMPLE)
 
   # Dimensions
@@ -51,17 +51,14 @@ def cut_shirt_print(image_filename, image_type, r_width, r_height):
   quantity_rectangles = 0
   for cont in contours:
     x,y,w,h = cv.boundingRect(cont)
-    if w < width and h < height:
-      data.append({ 'initial_x': x, 'initial_y': y, 'final_x': w, 'final_y': h })
+    if w < width and w > 4 and h < height and height > 4:
+      data.append({ 'initial_x': x, 'initial_y': y, 'w': w, 'h': h })
       quantity_rectangles += 1
 
   biggest_x = 0
-  smallest_x = width * 2
+  smallest_x = width * 10
   biggest_y = 0
-  smallest_y = height * 2
-  index = 0
-  index_x = 0
-  index_y = 0
+  smallest_y = height * 10
 
   for item in data:
     if item['initial_x'] < smallest_x:
@@ -70,36 +67,24 @@ def cut_shirt_print(image_filename, image_type, r_width, r_height):
     if item['initial_y'] < smallest_y:
       smallest_y = item['initial_y']
 
-    if item['final_x'] > biggest_x:
-      biggest_x = item['final_x']
-      index_x = index
+    if item['initial_x'] + item['w'] > biggest_x:
+      biggest_x = item['initial_x'] + item['w']
 
-    if item['final_y'] > biggest_y:
-      biggest_y = item['final_y']
-      index_y = index
-    
-    index += 1
+    if item['initial_y'] + item['h'] > biggest_y:
+      biggest_y = item['initial_y'] + item['h']
 
-  cv.rectangle(
-    image,
-    (smallest_x, smallest_y),
-    (data[index_x]['initial_x'] + data[index_x]['final_x'], data[index_y]['initial_y'] + data[index_y]['final_y']),
-    (255,0,0),
-    2
-  )
+  image_cut = image[smallest_y: biggest_y, smallest_x: biggest_x]
 
-  image_cut = image[
-    smallest_y: data[index_y]['initial_y'] + data[index_y]['final_y'],
-    smallest_x: data[index_x]['initial_x'] + data[index_x]['final_x']] 
+  image_reference_width = biggest_x - smallest_x
+  image_reference_height = biggest_y - smallest_y
 
-  image_reference_width = data[index_x]['initial_x'] + data[index_x]['final_x'] - smallest_x
-  image_reference_height = data[index_y]['initial_y'] + data[index_y]['final_y'] - smallest_y
+  image_cut = cv.rotate(image_cut, cv.ROTATE_180)
   
   if image_type == 'reference':
     image_cut = cv.resize(
       image_cut,
-      (data[index_x]['initial_x'] + data[index_x]['final_x'] - smallest_x,
-      data[index_y]['initial_y'] + data[index_y]['final_y'] - smallest_y),
+      (biggest_x - smallest_x,
+      biggest_y - smallest_y),
       interpolation=cv.INTER_AREA
     )
 
@@ -145,16 +130,15 @@ def analyze_failure_matrix(image_to_analyze_cropped, batch):
   dimensions = image_to_analyze_cropped.shape
   height = dimensions[0]
   width = dimensions[1]
-  similarity = 1 - cv.norm(image_to_analyze_cropped_gray, image_closing_gray, cv.NORM_L2) / (height * width)
 
   # Subtraction of two images
   final_image = cv.absdiff(image_to_analyze_cropped_gray, image_closing_gray)
 
   # Threshold to get just the signature (INVERTED)
-  retval, thresh_gray = cv.threshold(final_image, thresh=50, maxval=122, \
-                                     type=cv.THRESH_BINARY_INV)
+  _, thresh_gray = cv.threshold(final_image, thresh=75, maxval=255, \
+                                     type=cv.THRESH_BINARY)
 
-  contours, hierarchy = cv.findContours(thresh_gray,cv.RETR_LIST, \
+  contours, _ = cv.findContours(thresh_gray,cv.RETR_LIST, \
                                         cv.CHAIN_APPROX_SIMPLE)
 
   # Draw rectangle around the holes
@@ -162,9 +146,10 @@ def analyze_failure_matrix(image_to_analyze_cropped, batch):
   for cont in contours:
     x,y,w,h = cv.boundingRect(cont)
 
-    if (w < width * (40 / 100) and w > 4) and (h < height * (40 / 100) and h > 4):
-      cv.rectangle(image_to_analyze_cropped, (x,y), (x+w,y+h), (255,0,0), 2)
-      quantity_failures += 1
+    if (w < width * (40 / 100)) and (h < height * (40 / 100)):
+      if w > 3 and w < 10 and h > 3 and h < 10:
+        cv.rectangle(image_to_analyze_cropped, (x,y), (x+w,y+h), (255,0,0), 2)
+        quantity_failures += 1
 
   cv.imwrite(path_photo + 'reports/batch_' + str(batch) + '.jpg', image_to_analyze_cropped)
 
