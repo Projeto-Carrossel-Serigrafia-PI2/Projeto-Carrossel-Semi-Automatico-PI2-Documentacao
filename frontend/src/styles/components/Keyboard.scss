@@ -1,0 +1,16 @@
+.simple-keyboard {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 99;
+  transition: transform 250ms ease-in;
+}
+
+.not-in-use {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.in-use {
+  transform: translateY(0%);
+}

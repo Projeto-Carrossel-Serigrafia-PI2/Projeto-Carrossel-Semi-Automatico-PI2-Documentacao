@@ -1,0 +1,162 @@
+#quality-report {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  
+  > header {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    width: 100%;
+
+    > h1 {
+      color: #39393a;
+      font-size: 3rem;
+      margin: 3.5rem 0 0 5rem;
+
+      align-self: flex-start;
+    }
+
+    > div {
+      select {
+        width: 16rem;
+        height: 3.2rem;
+        border: 0;
+        border-radius: 0.6rem;
+        background-color: #fff;
+        outline: none;
+        cursor: pointer;
+
+        padding: 0.7rem;
+        margin-left: 3rem;
+        color: #6a6a6b;
+
+        &:nth-child(1) {
+          width: 25rem;
+        }
+      }
+    }
+  }
+
+  .button-download-report {
+    align-self: flex-end;
+    margin: 2rem;
+  }
+}
+
+.container-resume {
+  width: 95%;
+  background-color: #fff;
+  margin: 7rem 1.5rem;
+  border-radius: 1rem;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  align-self: center;
+
+  > section {
+    width: 50%;
+
+    > div {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      > h3 {
+        color: #39393a;
+        font-weight: 700;
+      }
+
+      > div {
+        > h3 {
+          color: #39393a;
+          font-weight: 700;
+        }
+      }
+    }
+
+    > table {
+      width: 100%;
+      height: 40rem;
+      background-color: #d9d9d9;
+      border: none;
+      border-collapse: collapse;
+      
+      > tr {
+        &:nth-child(even) {
+          background-color: white;
+        }
+
+        > td {
+          padding: 1rem;
+        }
+      }
+    }
+
+    .chart-box {
+      display: flex;
+      justify-content: center;
+    }
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  #quality-report {
+    padding-right: 0;
+
+    > header {
+      justify-content: flex-start;
+      > h1 {
+        font-size: 2.0rem;
+      }
+
+      > select {
+        margin-left: 2rem;
+      }
+    }
+
+    > main {
+      > h2 {
+        font-size: 2rem;
+        margin-top: 4rem;
+      }
+    }
+  }
+
+  .pdf-export-container {
+    .main-report {
+      margin: 0 3rem 5rem 3rem;
+    }
+  }
+
+  .container-resume {
+    width: 90%;
+    margin: 3rem 0 3rem 2.5rem;
+
+    flex-direction: column-reverse;
+    align-items: center;
+    align-self: center;
+
+    > section {
+      width: 100%;
+
+      > div {
+        > p {
+          font-size: 1.4rem;
+        }
+
+        > div {
+          > ul {
+            font-size: 1.4rem;
+          }
+        }
+      }
+    }
+  }
+}

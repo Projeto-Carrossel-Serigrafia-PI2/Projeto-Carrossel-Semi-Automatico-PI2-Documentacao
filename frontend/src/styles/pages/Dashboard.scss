@@ -1,0 +1,119 @@
+#dashboard {
+  position: relative;
+  background-color: #E8E7EA;
+  height: 100vh;
+  flex: 1 1 auto;
+  justify-content: center;
+  align-items: center;
+  font-size: 10px;
+
+  > span {
+    font-size: 3.2em;
+    color: #39393a;
+  }
+
+  > .main {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+
+    > .title-control {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 3.5em;
+
+      > h1 {
+        color: #39393A;
+        font-size: 2em;
+        margin: 1.75em 0 0 0;
+        box-sizing: border-box;
+      }
+
+      > div {
+        > button {
+          font-size: 1.25em;
+          padding: 1em 1.2em;
+          border-radius: 0.5em;
+          background-color: #1f272d;
+          border: 0;
+          outline: none;
+          cursor: pointer;
+          color: white;
+          transition: 150ms;
+          margin-left: 1em;
+
+          &:hover {
+            transform: scale(1.1);
+          }
+        }
+      } 
+    }
+
+    > .content {
+      display: grid;
+      grid-template-areas:
+        "temperature shirts"
+        "speed shirts"
+        "paint shirts"
+        "paint time";
+      grid-template-rows: 1.1fr 0.9fr 0.25fr 1fr;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 4em;
+      width: 100%;
+      padding: 4em;
+      overflow: hidden;
+      box-sizing: border-box;
+
+      > div {
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        user-select: none;
+        border-radius: 8px;
+        overflow: hidden;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        > h1 {
+          font-size: 2.4em;
+          line-height: 1em;
+          flex: 0 1 auto;
+        }
+
+        > div {
+          display: flex;
+          flex: 1 1 auto;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
+      }
+
+      > .speed {
+        grid-area: speed;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 1024px) {
+  #dashboard {
+    > .main {
+      > .content {
+        grid-gap: 2em;
+        > div {
+          font-size: 0.8em;
+
+          > h1 {
+            margin: 0.25em;
+          }
+        }
+      }
+    }
+  }
+}

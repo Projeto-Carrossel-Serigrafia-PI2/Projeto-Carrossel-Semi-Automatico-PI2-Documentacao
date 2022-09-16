@@ -1,0 +1,22 @@
+#button-request {
+  min-width: 13rem;
+  border-radius: 0.5rem;
+
+  padding: 0 1rem;
+  background-color: #1f272d;
+  border: 0;
+  cursor: pointer;
+
+  align-self: center;
+
+  > h3 {
+    margin: 1rem 0;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
