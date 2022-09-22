@@ -1,0 +1,67 @@
+#modal-session {
+  display: flex;
+  flex-direction: column;
+
+  width: 50rem;
+
+  > h3 {
+    text-align: center;
+  }
+
+  .param-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 100%;
+
+    .dropdown {
+      width: 14.8rem;
+      height: 3.2rem;
+      border: 0;
+      border-radius: 0.5rem;
+      background-color: #fff;
+      outline: none;
+      cursor: pointer;
+
+      padding: 0.7rem 1rem;
+      color: #6a6a6b;
+    }
+
+    > h4 {
+      font-size: 1.4rem;
+      color: #39393a;
+      font-weight: 400;
+    }
+
+    > div {
+      display: flex;
+      flex-direction: row;
+
+      width: 14.8rem;
+      height: 3.2rem;
+      border-radius: 0.5rem;
+
+      overflow: hidden;
+    }
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  #modal-session {
+    .param-box {
+      > div {
+        width: 50%;
+      }
+    }
+
+    .button-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      margin-top: 3rem;
+    }
+  }
+}

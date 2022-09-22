@@ -1,0 +1,42 @@
+#button-take-photo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 1rem;
+
+  padding: 0 1rem;
+
+  border: 0.1rem solid #d7d7d7;
+  border-radius: 0.5rem;
+  background-color: #fff;
+
+  &:hover {
+    background-color: #f1f1f1;
+    transition: 1s;
+  }
+
+  cursor: pointer;
+
+  > h3 {
+    margin-left: 1.4rem;
+    color: #39393a;
+    font-weight: 700;
+    font-size: 1.4rem;
+  }
+
+  > input {
+    display: none;
+  }
+}
+
+#button-photo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  > p {
+    margin-left: 1rem;
+  }
+}

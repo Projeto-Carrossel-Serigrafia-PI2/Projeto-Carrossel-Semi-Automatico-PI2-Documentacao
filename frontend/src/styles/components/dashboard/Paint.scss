@@ -1,0 +1,18 @@
+.paint {
+  grid-area: paint;
+  line-height: 0;
+
+  > .info {
+    > h2 {
+      font-size: 4em;
+    }
+
+    > h3 {
+      font-size: 2em;
+    }
+
+    > h4 {
+      font-size: 1.5em;
+    }
+  }
+}

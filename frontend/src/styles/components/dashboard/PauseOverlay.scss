@@ -1,0 +1,57 @@
+.pause-overlay {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	background-color: #000000aa;
+	z-index: 5;
+
+	> .front {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		position: absolute;
+		width: 50vh;
+		padding: 5em 3em;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		font-size: 14px;
+		outline: none;
+		background-color: white;
+		border-radius: 1em;
+
+		> div {
+			display: flex;
+			flex-direction: column;
+			
+			> span {
+				font-size: 2em;
+				text-align: center;
+			}	
+		}
+
+		> button {
+			font-size: 1.2em;
+			margin-top: 1em;
+			padding: 1em 1.2em;
+			border-radius: 0.5em;
+			background-color: #1f272d;
+			border: 0;
+			outline: none;
+			cursor: pointer;
+			color: white;
+			transition: 150ms;
+
+			&:hover {
+				transform: scale(1.1);
+			}
+		}
+
+		> .spinner {
+			margin: 1.5em 0;
+		}
+	}
+}
