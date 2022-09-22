@@ -17,7 +17,7 @@
 7. [Demonstração de Eletrônica](https://youtu.be/J21rQBZoXao);  
 
 ## Ponto de controle 3
-1. Relatório Final PC3;
-2. Apresentação Final PC3.
+1. [Relatório Final PC3];
+2. [Vídeo de demostração - Propaganda](https://youtu.be/iOXpmU6W7Fg).
 
  
